@@ -3,6 +3,20 @@ import huggLogo from '../assets/hugg-logo.png'
 import mainPic from '../assets/main pic.jpg'
 
 export default function HomePage() {
+  const courseSchedule = [
+    ['ሰኞ', 'የ1ኛ አመት'],
+    ['ማክሰኞ', 'የ3ኛ አመት'],
+    ['ረቡዕ', 'የ2ኛ አመት እና የ4ኛ እና 5ኛ አመት'],
+  ]
+
+  const prayerSchedule = [
+    ['ሰኞ', 'የመዝሙር እቅድ እና ሕፃናት'],
+    ['ማክሰኞ', 'የት/ት ልማት እና ሒሳብና ንብረት'],
+    ['ረቡዕ', 'የባች የሙያ የአባላት እና ቋንቋ'],
+    ['ሐሙስ', 'የGC ፀሎት'],
+    ['አርብ', 'አጠቃላይ የግቢ ጉባኤ ፀሎት'],
+  ]
+
   return (
     <main className="pb-24 page-entrance">
       <section className="relative min-h-[618px] flex flex-col justify-end px-6 md:px-10 lg:pl-20 lg:pr-12 py-12 overflow-hidden">
@@ -43,7 +57,7 @@ export default function HomePage() {
       </section>
 
       <section className="px-6 md:px-10 lg:pl-20 lg:pr-12 py-20 bg-surface">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[240px]">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           <div className="md:col-span-8 md:row-span-2 bg-surface-container-lowest rounded-xl p-8 vellum-shadow flex flex-col justify-between group overflow-hidden relative hover-lift-card">
             <div className="relative z-10">
               <span className="material-symbols-outlined text-primary text-4xl mb-6 block">history_edu</span>
@@ -72,7 +86,7 @@ export default function HomePage() {
               </div>
               <h4 className="font-headline text-xl mt-4 text-white">የሳምንቱ መርሃ ግብር</h4>
             </div>
-            <p className="text-sm opacity-90">እሁድ ከሰዓት 8:30 ጀምሮ በግቢው አዳራሽ እንገናኝ።</p>
+            <p className="text-sm opacity-90">የኮርስ፣ የፀሎት እና የጥናት ዝርዝር መርሃ ግብር ከታች ተለይቶ ቀርቧል።</p>
           </div>
 
           <div className="md:col-span-4 md:row-span-1 bg-surface-container-low rounded-xl p-6 flex flex-col justify-between vellum-shadow hover-lift-card">
@@ -83,7 +97,63 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="md:col-span-12 mt-12 text-center max-w-3xl mx-auto space-y-6">
+          <div className="md:col-span-12 rounded-2xl bg-surface-container-lowest p-6 md:p-8 vellum-shadow space-y-8">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <h4 className="font-headline text-3xl text-primary font-bold">ዝርዝር የሳምንቱ መርሃ ግብር</h4>
+              <span className="inline-flex items-center gap-2 rounded-full bg-secondary-fixed/35 px-4 py-1 text-xs font-bold text-on-secondary-fixed tracking-wide">
+                <span className="material-symbols-outlined text-base">schedule</span>
+                HU Gibi Gubae
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <article className="rounded-xl bg-surface-container-low p-5 md:p-6 border border-outline-variant/30">
+                <h5 className="font-headline text-2xl text-primary font-bold mb-4">1) የኮርስ መርሃግብር</h5>
+                <div className="space-y-3">
+                  {courseSchedule.map(([day, plan]) => (
+                    <div key={day} className="flex items-start gap-3 rounded-lg bg-surface px-4 py-3">
+                      <span className="min-w-[68px] text-xs font-bold tracking-wide uppercase text-secondary">{day}</span>
+                      <p className="text-sm text-on-surface-variant">{plan}</p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+
+              <article className="rounded-xl bg-surface-container-low p-5 md:p-6 border border-outline-variant/30">
+                <h5 className="font-headline text-2xl text-primary font-bold mb-4">2) የፀሎት መርሃግብር</h5>
+                <div className="space-y-3">
+                  {prayerSchedule.map(([day, plan]) => (
+                    <div key={day} className="flex items-start gap-3 rounded-lg bg-surface px-4 py-3">
+                      <span className="min-w-[68px] text-xs font-bold tracking-wide uppercase text-secondary">{day}</span>
+                      <p className={[
+                        'text-sm',
+                        day === 'አርብ' ? 'font-semibold text-primary' : 'text-on-surface-variant',
+                      ].join(' ')}>
+                        {day === 'አርብ' ? '📌 ' : ''}
+                        {plan}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            </div>
+
+            <article className="rounded-xl bg-primary-container p-5 md:p-6 text-on-primary-container">
+              <h5 className="font-headline text-2xl text-white font-bold mb-4">3) ተጨማሪ ፕሮግራሞች</h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-lg bg-white/10 px-4 py-4">
+                  <p className="text-sm font-semibold">ሐሙስ እና ቅዳሜ</p>
+                  <p className="text-sm opacity-95 mt-1">የመዝሙር ጥናት</p>
+                </div>
+                <div className="rounded-lg bg-white/10 px-4 py-4">
+                  <p className="text-sm font-semibold">አርብ ማታ</p>
+                  <p className="text-sm opacity-95 mt-1">የመጽሐፍ ቅዱስ ጥናት</p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div className="md:col-span-12 text-center max-w-3xl mx-auto space-y-6 pt-6">
             <span className="material-symbols-outlined text-secondary-fixed text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               format_quote
             </span>
