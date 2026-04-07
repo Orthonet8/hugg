@@ -47,11 +47,11 @@ export default function HomePage() {
 
   return (
     <main className="pb-24 page-entrance">
-      <section className="relative min-h-[618px] flex flex-col justify-end px-6 md:px-10 lg:pl-20 lg:pr-12 py-12 overflow-hidden">
+      <section className="relative min-h-[618px] flex flex-col justify-end px-6 md:px-10 lg:pl-20 lg:pr-12 py-12 lg:justify-start lg:pt-12 lg:pb-8 xl:justify-end xl:py-12 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             alt="Sacred Orthodox architecture"
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover object-top md:object-[center_-24px] lg:object-[center_-72px] xl:object-[center_-96px]"
             src={mainPic}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/22 to-transparent" />
@@ -63,7 +63,7 @@ export default function HomePage() {
           <img
             src={huggLogo}
             alt="HUGG logo"
-            className="h-28 w-28 md:h-36 md:w-36 object-contain rounded-full bg-white/90 p-2 shadow-[0_12px_30px_rgba(21,28,39,0.22)] hero-logo-glow"
+            className="h-28 w-28 md:h-32 md:w-32 lg:h-28 lg:w-28 xl:h-36 xl:w-36 object-contain rounded-full bg-white/90 p-2 shadow-[0_12px_30px_rgba(21,28,39,0.22)] hero-logo-glow"
           />
           <h2 className="font-headline text-5xl md:text-7xl text-white leading-[1.1] font-medium italic">
             የሐረማያ ዩኒቨርሲቲ <br /> ግቢ ጉባኤ

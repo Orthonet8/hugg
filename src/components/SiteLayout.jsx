@@ -16,6 +16,7 @@ function isActive(pathname, to) {
 
 export default function SiteLayout() {
   const location = useLocation()
+  const isHomePage = location.pathname === '/'
   const [language, setLanguage] = useState('EN')
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false)
 
@@ -90,11 +91,15 @@ export default function SiteLayout() {
         </div>
       ) : null}
 
-      <div className="pt-0 md:pt-20">
+      <div className={isHomePage ? 'pt-0 md:pt-0' : 'pt-0 md:pt-20'}>
         <Outlet />
       </div>
 
-      <nav className="fixed bottom-0 left-0 w-full flex items-center px-1 pt-1 pb-4 bg-surface-container-lowest backdrop-blur-0 z-50 border-t border-outline-variant/20 shadow-[0_-6px_18px_rgba(21,28,39,0.06)] md:top-0 md:bottom-auto md:left-0 md:w-full md:bg-surface-container-lowest/65 md:backdrop-blur-[12px] md:rounded-none md:border-x-0 md:border-t-0 md:border-b md:border-outline-variant/15 md:shadow-[0_8px_20px_rgba(21,28,39,0.04)] md:px-2.5 md:py-1 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-1.5">
+      <nav
+        className={[
+          'fixed bottom-0 left-0 w-full flex items-center px-1 pt-1 pb-4 bg-white/82 backdrop-blur-[10px] z-50 border-t border-white/60 shadow-[0_-6px_18px_rgba(21,28,39,0.08)] md:top-0 md:bottom-auto md:left-0 md:w-full md:bg-white/64 md:backdrop-blur-[12px] md:rounded-none md:border-x-0 md:border-t-0 md:border-b md:border-white/55 md:shadow-[0_8px_20px_rgba(21,28,39,0.05)] md:px-2.5 md:py-1 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-1.5',
+        ].join(' ')}
+      >
         <div className="hidden md:flex items-center gap-1 shrink-0 pl-0.5">
           <img
             src={huggLogo}
