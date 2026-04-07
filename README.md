@@ -1,16 +1,82 @@
-# React + Vite
+# HUGG Landing
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Landing site for the Haramaya University Orthodox Tewahedo student fellowship.
 
-Currently, two official plugins are available:
+The app is built with React and Vite, and it presents the fellowship history, service areas, schedules, and photo galleries in a routed single-page experience.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What is in the app
 
-## React Compiler
+- Home page with the main hero, weekly schedules, and featured fellowship content
+- About page with fellowship history, mission, vision, and image galleries
+- Background page with a longer historical overview
+- Blog page focused on spiritual themes, routed at `/blog`
+- Language selector with English, Amharic, and Afan Oromo options
+- Responsive navigation that uses a bottom bar on mobile and a top bar on larger screens
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React 19
+- React Router
+- Vite
+- Tailwind CSS 4
+- ESLint
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Project Structure
+
+- `src/App.jsx` wires the routes together
+- `src/components/SiteLayout.jsx` provides the shared layout, navigation, and language menu
+- `src/pages/HomePage.jsx` contains the landing page content
+- `src/pages/AboutPage.jsx` contains the fellowship overview and gallery sections
+- `src/pages/BackgroundPage.jsx` contains the historical background page
+- `src/pages/BlackPage.jsx` contains the blog-style spiritual page
+
+## Getting Started
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+Build the production bundle:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+Run linting:
+
+```bash
+npm run lint
+```
+
+## Routes
+
+- `/` - Home
+- `/about` - About
+- `/blog` - Blog
+- `/black` - Redirects to `/blog`
+- `/background` - Background
+
+## በአማርኛ
+
+ይህ ፕሮጀክት የሐረማያ ዩኒቨርሲቲ ግቢ ጉባኤ መረጃዎችን በዘመናዊ የድር አቀራረብ ለማቅረብ የተሰራ ነው። ተጠቃሚው የድርጅቱን ታሪክ፣ ዓላማ፣ ራዕይ እና የሳምንቱን መርሃ ግብር በአንድ ቦታ ያገኛል።
+
+ዋና ገጾቹ የመነሻ ገጽ፣ ስለ እኛ ገጽ፣ የታሪክ ገጽ እና የመንፈሳዊ ጽሑፍ ገጽ ናቸው። በስልክ ላይ ታችኛው የአሰሳ ምናሌ ይታያል፣ በትልቅ ማያ ገጽ ደግሞ የላይኛው አሰሳ ይታያል።
+
+## Notes
+
+- The app currently uses static content and imported images from `src/assets`.
+- The language selector is present in the UI; the pages themselves are primarily authored in Amharic already.
