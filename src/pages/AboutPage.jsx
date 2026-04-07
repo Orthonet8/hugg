@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import huggLogo from '../assets/hugg-logo.png'
 import course from '../assets/course.jpg'
@@ -27,6 +29,8 @@ import zikerMaryam00 from '../assets/ziker maryam00.jpg'
 import zikerMaryam01 from '../assets/ziker maryam01.jpg'
 
 export default function AboutPage() {
+  const [selectedGalleryIndex, setSelectedGalleryIndex] = useState(null)
+
   const serviceGallery = [
     {
       key: 'fresh',
@@ -85,6 +89,56 @@ export default function AboutPage() {
       images: [zikerMaryam, zikerMaryam0, zikerMaryam00, zikerMaryam01],
     },
   ]
+
+  let globalImageIndex = 0
+  const gallerySections = serviceGallery.map((section) => ({
+    ...section,
+    imageItems: section.images.map((src, imageIndex) => ({
+      src,
+      imageIndex,
+      globalIndex: globalImageIndex++,
+      title: section.title,
+      subtitle: section.subtitle,
+    })),
+  }))
+
+  const allGalleryImages = gallerySections.flatMap((section) => section.imageItems)
+
+  const selectedGalleryImage = selectedGalleryIndex !== null ? allGalleryImages[selectedGalleryIndex] : null
+
+  function closeGalleryPreview() {
+    setSelectedGalleryIndex(null)
+  }
+
+  function showNextImage() {
+    if (selectedGalleryIndex === null) return
+    setSelectedGalleryIndex((selectedGalleryIndex + 1) % allGalleryImages.length)
+  }
+
+  function showPreviousImage() {
+    if (selectedGalleryIndex === null) return
+    setSelectedGalleryIndex((selectedGalleryIndex - 1 + allGalleryImages.length) % allGalleryImages.length)
+  }
+
+  useEffect(() => {
+    if (selectedGalleryIndex === null) return undefined
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') closeGalleryPreview()
+      if (event.key === 'ArrowRight') showNextImage()
+      if (event.key === 'ArrowLeft') showPreviousImage()
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [selectedGalleryIndex])
 
   return (
     <main className="min-h-screen pb-32 amharic-lh page-entrance">
@@ -152,8 +206,8 @@ export default function AboutPage() {
         <section className="mt-20 px-0 max-w-7xl mx-auto">
           <h3 className="font-headline text-4xl font-bold text-primary text-center mb-12">አገልግሎቶቻችን በምስል</h3>
           <div className="space-y-10">
-            {serviceGallery.map((section, sectionIndex) => {
-              const [featuredImage, ...restImages] = section.images
+            {gallerySections.map((section, sectionIndex) => {
+              const [featuredImage, ...restImages] = section.imageItems
               return (
                 <article
                   key={section.key}
@@ -169,18 +223,29 @@ export default function AboutPage() {
                   </div>
 
                   <div className="grid lg:grid-cols-12 gap-4">
-                    <div className="lg:col-span-5 rounded-2xl overflow-hidden bg-surface-container-lowest">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedGalleryIndex(featuredImage.globalIndex)}
+                      className="group lg:col-span-5 rounded-2xl overflow-hidden bg-surface-container-lowest focus:outline-none"
+                      aria-label={`${section.title} ምስል በትልቅ ለማየት`}
+                    >
                       <img
-                        src={featuredImage}
+                        src={featuredImage.src}
                         alt={`${section.title} featured`}
-                        className="w-full h-56 md:h-72 object-cover transition-transform duration-500 hover:scale-[1.03]"
+                        className="w-full h-56 md:h-72 object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       />
-                    </div>
+                    </button>
                     <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {restImages.map((imageSrc, index) => (
-                        <div key={`${section.key}-${index}`} className="rounded-xl overflow-hidden bg-surface-container-lowest">
-                          <img src={imageSrc} alt={`${section.title} ${index + 1}`} className="w-full h-32 md:h-36 object-cover transition-transform duration-400 hover:scale-105" />
-                        </div>
+                      {restImages.map((image) => (
+                        <button
+                          key={`${section.key}-${image.imageIndex}`}
+                          type="button"
+                          onClick={() => setSelectedGalleryIndex(image.globalIndex)}
+                          className="group rounded-xl overflow-hidden bg-surface-container-lowest focus:outline-none"
+                          aria-label={`${section.title} ተጨማሪ ምስል በትልቅ ለማየት`}
+                        >
+                          <img src={image.src} alt={`${section.title} ${image.imageIndex + 1}`} className="w-full h-32 md:h-36 object-cover transition-transform duration-400 group-hover:scale-105" />
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -206,6 +271,63 @@ export default function AboutPage() {
           </div>
         </section>
       </section>
+
+      {selectedGalleryImage
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-[95] bg-[#151c27]/75 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
+              onClick={closeGalleryPreview}
+            >
+              <div
+                className="relative w-full max-w-6xl rounded-2xl bg-surface-container-lowest overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <img
+                  src={selectedGalleryImage.src}
+                  alt={`${selectedGalleryImage.title} ምስል`}
+                  className="w-full max-h-[78vh] object-contain bg-surface-container-lowest p-2 md:p-3"
+                />
+
+                <div className="absolute inset-y-0 left-0 flex items-center pl-2 md:pl-4">
+                  <button
+                    type="button"
+                    onClick={showPreviousImage}
+                    className="inline-flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-white/90 text-primary shadow-md transition-transform hover:scale-105"
+                    aria-label="Previous image"
+                  >
+                    <span className="material-symbols-outlined">chevron_left</span>
+                  </button>
+                </div>
+
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 md:pr-4">
+                  <button
+                    type="button"
+                    onClick={showNextImage}
+                    className="inline-flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-white/90 text-primary shadow-md transition-transform hover:scale-105"
+                    aria-label="Next image"
+                  >
+                    <span className="material-symbols-outlined">chevron_right</span>
+                  </button>
+                </div>
+
+                <div className="absolute left-0 right-0 bottom-0 p-4 md:p-5 bg-gradient-to-t from-[#151c27]/80 via-[#151c27]/35 to-transparent text-white">
+                  <p className="text-xs font-bold tracking-widest uppercase opacity-90">{selectedGalleryImage.title}</p>
+                  <p className="text-sm md:text-base font-semibold mt-1">{selectedGalleryImage.subtitle}</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={closeGalleryPreview}
+                  className="absolute top-3 right-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-primary shadow-md transition-transform hover:scale-105"
+                  aria-label="Close gallery preview"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </main>
   )
 }

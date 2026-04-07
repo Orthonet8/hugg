@@ -1,8 +1,28 @@
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import huggLogo from '../assets/hugg-logo.png'
 import mainPic from '../assets/main pic.jpg'
+import maksegoTselot from '../assets/maksego tselot.jpg'
+import segoTselot from '../assets/sego tselot.jpg'
+import erobTselot from '../assets/erob tselot.jpg'
+import gcTselot from '../assets/GC tselot.jpg'
+import arebTselot from '../assets/areb tselot.jpg'
 
 export default function HomePage() {
+  const [selectedPrayerImage, setSelectedPrayerImage] = useState(null)
+
+  useEffect(() => {
+    if (!selectedPrayerImage) return undefined
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [selectedPrayerImage])
+
   const courseSchedule = [
     ['ሰኞ', 'የ1ኛ አመት'],
     ['ማክሰኞ', 'የ3ኛ አመት'],
@@ -16,6 +36,14 @@ export default function HomePage() {
     ['ሐሙስ', 'የGC ፀሎት'],
     ['አርብ', 'አጠቃላይ የግቢ ጉባኤ ፀሎት'],
   ]
+
+  const prayerImageByDay = {
+    'ሰኞ': segoTselot,
+    'ማክሰኞ': maksegoTselot,
+    'ረቡዕ': erobTselot,
+    'ሐሙስ': gcTselot,
+    'አርብ': arebTselot,
+  }
 
   return (
     <main className="pb-24 page-entrance">
@@ -121,19 +149,61 @@ export default function HomePage() {
 
               <article className="rounded-xl bg-surface-container-low p-5 md:p-6 border border-outline-variant/30">
                 <h5 className="font-headline text-2xl text-primary font-bold mb-4">2) የፀሎት መርሃግብር</h5>
-                <div className="space-y-3">
-                  {prayerSchedule.map(([day, plan]) => (
-                    <div key={day} className="flex items-start gap-3 rounded-lg bg-surface px-4 py-3">
-                      <span className="min-w-[68px] text-xs font-bold tracking-wide uppercase text-secondary">{day}</span>
-                      <p className={[
-                        'text-sm',
-                        day === 'አርብ' ? 'font-semibold text-primary' : 'text-on-surface-variant',
-                      ].join(' ')}>
-                        {day === 'አርብ' ? '📌 ' : ''}
-                        {plan}
-                      </p>
-                    </div>
-                  ))}
+                <div className="space-y-4">
+                  {prayerSchedule.map(([day, plan]) => {
+                    const prayerImage = prayerImageByDay[day]
+                    const isFriday = day === 'አርብ'
+
+                    return (
+                      <article
+                        key={day}
+                        className={[
+                          'rounded-xl border p-3 md:p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_26px_rgba(21,28,39,0.12)]',
+                          isFriday
+                            ? 'bg-gradient-to-br from-primary-container/30 via-surface to-surface border-primary/30'
+                            : 'bg-surface border-outline-variant/30',
+                        ].join(' ')}
+                      >
+                        <div className="flex flex-col sm:flex-row gap-4">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPrayerImage({ day, plan, src: prayerImage })}
+                            className="group/image relative block h-32 sm:h-[110px] sm:w-[170px] rounded-lg overflow-hidden shrink-0 bg-surface-container-lowest focus:outline-none"
+                            aria-label={`${day} ፀሎት ምስል በትልቅ ለማየት`}
+                          >
+                            <img
+                              src={prayerImage}
+                              alt={`${day} ፀሎት`}
+                              className="w-full h-full object-contain p-1.5 transition-transform duration-500 group-hover/image:scale-105 group-focus-visible/image:scale-105"
+                            />
+                            <span className="absolute inset-0 bg-gradient-to-t from-[#151c27]/40 via-transparent to-transparent" />
+                            <span className="absolute bottom-2 right-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-primary shadow-sm">
+                              <span className="material-symbols-outlined text-[16px]">zoom_in</span>
+                            </span>
+                          </button>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                              <span className="inline-flex h-7 items-center rounded-full bg-primary text-white px-2.5 text-[11px] font-bold tracking-wide">{day}</span>
+                              {isFriday ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-secondary-fixed/35 px-2.5 py-1 text-[10px] font-semibold text-on-secondary-fixed tracking-wide uppercase">
+                                  <span className="material-symbols-outlined text-[14px]">priority_high</span>
+                                  Main Prayer
+                                </span>
+                              ) : null}
+                            </div>
+
+                            <p className={[
+                              'text-sm md:text-[15px] leading-relaxed',
+                              isFriday ? 'text-primary font-semibold' : 'text-on-surface-variant',
+                            ].join(' ')}>
+                              {plan}
+                            </p>
+                          </div>
+                        </div>
+                      </article>
+                    )
+                  })}
                 </div>
               </article>
             </div>
@@ -144,10 +214,12 @@ export default function HomePage() {
                 <div className="rounded-lg bg-white/10 px-4 py-4">
                   <p className="text-sm font-semibold">ሐሙስ እና ቅዳሜ</p>
                   <p className="text-sm opacity-95 mt-1">የመዝሙር ጥናት</p>
+                  <p className="text-xs opacity-85 mt-1">ማታ 12:00</p>
                 </div>
                 <div className="rounded-lg bg-white/10 px-4 py-4">
                   <p className="text-sm font-semibold">አርብ ማታ</p>
                   <p className="text-sm opacity-95 mt-1">የመጽሐፍ ቅዱስ ጥናት</p>
+                  <p className="text-xs opacity-85 mt-1">ማታ 12:00</p>
                 </div>
               </div>
             </article>
@@ -204,6 +276,41 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {selectedPrayerImage
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-[90] bg-[#151c27]/80 backdrop-blur-sm p-4 md:p-8 flex items-center justify-center"
+              onClick={() => setSelectedPrayerImage(null)}
+            >
+              <div
+                className="relative w-full max-w-5xl rounded-2xl overflow-hidden bg-surface-container-lowest shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <img
+                  src={selectedPrayerImage.src}
+                  alt={`${selectedPrayerImage.day} ፀሎት`}
+                  className="w-full max-h-[78vh] object-contain bg-surface-container-lowest p-2 md:p-3 transition-transform duration-500 hover:scale-[1.01]"
+                />
+
+                <div className="absolute left-0 right-0 bottom-0 p-4 md:p-5 bg-gradient-to-t from-[#151c27]/80 via-[#151c27]/35 to-transparent text-white">
+                  <p className="text-xs font-bold tracking-widest uppercase opacity-90">{selectedPrayerImage.day}</p>
+                  <p className="text-sm md:text-base font-semibold mt-1">{selectedPrayerImage.plan}</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedPrayerImage(null)}
+                  className="absolute top-3 right-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-primary shadow-md transition-transform hover:scale-105"
+                  aria-label="Close prayer image preview"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </main>
   )
 }
