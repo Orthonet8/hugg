@@ -46,47 +46,47 @@ export default function HomePage() {
   }
 
   return (
-    <main className="pb-24 page-entrance">
-      <section className="relative min-h-[618px] flex flex-col justify-end px-6 md:px-10 lg:pl-20 lg:pr-12 py-12 lg:justify-start lg:pt-12 lg:pb-8 xl:justify-end xl:py-12 overflow-hidden">
+    <main className="pb-28 page-entrance">
+      <section className="relative min-h-163.75 flex flex-col justify-end px-6 md:px-10 lg:pl-20 lg:pr-12 py-12 lg:justify-start lg:pt-16 lg:pb-10 xl:justify-end xl:py-14 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             alt="Sacred Orthodox architecture"
             className="w-full h-full object-cover object-top md:object-[center_-24px] lg:object-[center_-72px] xl:object-[center_-96px]"
             src={mainPic}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/22 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-primary/90 via-primary/35 to-[#1a2524]/10" />
         </div>
-        <div className="relative z-10 space-y-6 max-w-2xl">
-          <div className="inline-block px-3 py-1 bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-[0.2em] uppercase rounded-sm">
+        <div className="relative z-10 space-y-6 max-w-3xl stagger-fade" style={{ animationDelay: '80ms' }}>
+          <div className="inline-block px-3.5 py-1.5 bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-[0.2em] uppercase rounded-full shadow-[0_8px_22px_rgba(51,33,0,0.2)]">
             Established 1954
           </div>
           <img
             src={huggLogo}
             alt="HUGG logo"
-            className="h-28 w-28 md:h-32 md:w-32 lg:h-28 lg:w-28 xl:h-36 xl:w-36 object-contain rounded-full bg-white/90 p-2 shadow-[0_12px_30px_rgba(21,28,39,0.22)] hero-logo-glow"
+            className="h-28 w-28 md:h-32 md:w-32 lg:h-28 lg:w-28 xl:h-36 xl:w-36 object-contain rounded-full bg-white/90 p-2 shadow-[0_12px_30px_rgba(15,38,34,0.24)] hero-logo-glow"
           />
-          <h2 className="font-headline text-5xl md:text-7xl text-white leading-[1.1] font-medium italic">
+          <h2 className="font-headline text-5xl md:text-7xl text-white leading-[1.08] font-semibold italic drop-shadow-[0_8px_22px_rgba(0,0,0,0.25)]">
             የሐረማያ ዩኒቨርሲቲ <br /> ግቢ ጉባኤ
           </h2>
-          <p className="text-surface-variant font-body text-lg md:text-xl leading-relaxed max-w-lg opacity-90">
+          <p className="text-white/88 font-body text-lg md:text-xl leading-relaxed max-w-xl">
             እንኳን ወደ ሐረማያ ዩኒቨርሲቲ ግቢ ጉባኤ በሰላም መጣችሁ። የእግዚአብሔር ቃል ለሕይወታችን ብርሃን፣
             ለጉዟችንም መመሪያ ነው።
           </p>
           <div className="flex flex-wrap gap-4 pt-4">
-            <Link className="sacred-gradient text-on-primary px-8 py-4 rounded-md font-semibold flex items-center gap-2 group transition-all active:scale-95" to="/background">
+            <Link className="sacred-gradient text-on-primary px-8 py-4 rounded-full font-semibold flex items-center gap-2 group transition-all shadow-[0_14px_30px_rgba(8,61,65,0.3)] active:scale-95" to="/background">
               ቀጣይ ያንብቡ
               <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
             </Link>
-            <Link className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-md font-semibold hover:bg-white/20 transition-all" to="/about">
+            <Link className="bg-white/12 backdrop-blur-md border border-white/30 text-white px-8 py-4 rounded-full font-semibold hover:bg-white/24 transition-all" to="/about">
               ስለ እኛ
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="px-6 md:px-10 lg:pl-20 lg:pr-12 py-20 bg-surface">
+      <section className="px-6 md:px-10 lg:pl-20 lg:pr-12 py-20 bg-transparent">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          <div className="md:col-span-8 md:row-span-2 bg-surface-container-lowest rounded-xl p-8 vellum-shadow flex flex-col justify-between group overflow-hidden relative hover-lift-card">
+          <div className="md:col-span-8 md:row-span-2 bg-surface-container-lowest/95 rounded-2xl p-8 vellum-shadow flex flex-col justify-between group overflow-hidden relative hover-lift-card stagger-fade" style={{ animationDelay: '140ms' }}>
             <div className="relative z-10">
               <span className="material-symbols-outlined text-primary text-4xl mb-6 block">history_edu</span>
               <h3 className="font-headline text-3xl text-primary font-bold mb-4">የቤተክርስቲያን ታሪክ</h3>
@@ -106,7 +106,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="md:col-span-4 md:row-span-1 bg-primary-container rounded-xl p-6 flex flex-col justify-between text-on-primary-container hover-lift-card">
+          <div className="md:col-span-4 md:row-span-1 bg-primary-container rounded-2xl p-6 flex flex-col justify-between text-on-primary-container hover-lift-card stagger-fade" style={{ animationDelay: '220ms' }}>
             <div>
               <div className="flex justify-between items-start">
                 <span className="material-symbols-outlined text-secondary-fixed">event</span>
@@ -117,7 +117,7 @@ export default function HomePage() {
             <p className="text-sm opacity-90">የኮርስ፣ የፀሎት እና የጥናት ዝርዝር መርሃ ግብር ከታች ተለይቶ ቀርቧል።</p>
           </div>
 
-          <div className="md:col-span-4 md:row-span-1 bg-surface-container-low rounded-xl p-6 flex flex-col justify-between vellum-shadow hover-lift-card">
+          <div className="md:col-span-4 md:row-span-1 bg-surface-container-low rounded-2xl p-6 flex flex-col justify-between vellum-shadow hover-lift-card stagger-fade" style={{ animationDelay: '260ms' }}>
             <span className="material-symbols-outlined text-primary text-3xl">menu_book</span>
             <div>
               <h4 className="font-headline text-xl text-primary font-bold">ዲጂታል መጽሐፍ ቤት</h4>
@@ -125,7 +125,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="md:col-span-12 rounded-2xl bg-surface-container-lowest p-6 md:p-8 vellum-shadow space-y-8">
+          <div className="md:col-span-12 rounded-[1.75rem] bg-surface-container-lowest/95 p-6 md:p-8 vellum-shadow space-y-8 stagger-fade" style={{ animationDelay: '320ms' }}>
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <h4 className="font-headline text-3xl text-primary font-bold">ዝርዝር የሳምንቱ መርሃ ግብር</h4>
               <span className="inline-flex items-center gap-2 rounded-full bg-secondary-fixed/35 px-4 py-1 text-xs font-bold text-on-secondary-fixed tracking-wide">
@@ -140,7 +140,7 @@ export default function HomePage() {
                 <div className="space-y-3">
                   {courseSchedule.map(([day, plan]) => (
                     <div key={day} className="flex items-start gap-3 rounded-lg bg-surface px-4 py-3">
-                      <span className="min-w-[68px] text-xs font-bold tracking-wide uppercase text-secondary">{day}</span>
+                      <span className="min-w-17 text-xs font-bold tracking-wide uppercase text-secondary">{day}</span>
                       <p className="text-sm text-on-surface-variant">{plan}</p>
                     </div>
                   ))}
@@ -157,10 +157,10 @@ export default function HomePage() {
                     return (
                       <article
                         key={day}
-                        className={[
-                          'rounded-xl border p-3 md:p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_26px_rgba(21,28,39,0.12)]',
+                          className={[
+                            'rounded-xl border p-3 md:p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_26px_rgba(15,38,34,0.14)]',
                           isFriday
-                            ? 'bg-gradient-to-br from-primary-container/30 via-surface to-surface border-primary/30'
+                            ? 'bg-linear-to-br from-primary-container/30 via-surface to-surface border-primary/30'
                             : 'bg-surface border-outline-variant/30',
                         ].join(' ')}
                       >
@@ -168,7 +168,7 @@ export default function HomePage() {
                           <button
                             type="button"
                             onClick={() => setSelectedPrayerImage({ day, plan, src: prayerImage })}
-                            className="group/image relative block h-32 sm:h-[110px] sm:w-[170px] rounded-lg overflow-hidden shrink-0 bg-surface-container-lowest focus:outline-none"
+                            className="group/image relative block h-32 sm:h-27.5 sm:w-42.5 rounded-lg overflow-hidden shrink-0 bg-surface-container-lowest focus:outline-none"
                             aria-label={`${day} ፀሎት ምስል በትልቅ ለማየት`}
                           >
                             <img
@@ -176,7 +176,7 @@ export default function HomePage() {
                               alt={`${day} ፀሎት`}
                               className="w-full h-full object-contain p-1.5 transition-transform duration-500 group-hover/image:scale-105 group-focus-visible/image:scale-105"
                             />
-                            <span className="absolute inset-0 bg-gradient-to-t from-[#151c27]/40 via-transparent to-transparent" />
+                            <span className="absolute inset-0 bg-linear-to-t from-[#151c27]/40 via-transparent to-transparent" />
                             <span className="absolute bottom-2 right-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-primary shadow-sm">
                               <span className="material-symbols-outlined text-[16px]">zoom_in</span>
                             </span>
@@ -225,7 +225,7 @@ export default function HomePage() {
             </article>
           </div>
 
-          <div className="md:col-span-12 text-center max-w-3xl mx-auto space-y-6 pt-6">
+          <div className="md:col-span-12 text-center max-w-3xl mx-auto space-y-6 pt-6 stagger-fade" style={{ animationDelay: '380ms' }}>
             <span className="material-symbols-outlined text-secondary-fixed text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               format_quote
             </span>
@@ -237,25 +237,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="px-6 md:px-10 lg:pl-20 lg:pr-12 py-20 bg-surface-container-low/30 overflow-hidden">
+      <section className="px-6 md:px-10 lg:pl-20 lg:pr-12 py-20 bg-surface-container-low/45 overflow-hidden">
         <div className="flex flex-col md:flex-row gap-16 items-center">
           <div className="w-full md:w-1/2 relative">
-            <div className="group aspect-[4/5] bg-surface-container-highest rounded-xl overflow-hidden vellum-shadow rotate-[-2deg] hover-lift-card">
+            <div className="group aspect-4/5 bg-surface-container-highest rounded-2xl overflow-hidden vellum-shadow -rotate-2 hover-lift-card stagger-fade" style={{ animationDelay: '120ms' }}>
               <img
                 alt="Student studying ancient text"
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-[1.04] transition-all duration-700"
                 src="https://commons.wikimedia.org/wiki/Special:FilePath/Display_of_Procesional_Crosses,_Church_of_Bet_Maryam,_Lalibela,_Ethiopia_(3230772118).jpg"
               />
             </div>
-            <div className="absolute -bottom-8 -right-8 w-48 aspect-square bg-secondary-fixed rounded-xl vellum-shadow rotate-[6deg] p-4 flex items-end">
+            <div className="absolute -bottom-8 -right-8 w-48 aspect-square bg-secondary-fixed rounded-2xl vellum-shadow rotate-6 p-4 flex items-end stagger-fade" style={{ animationDelay: '220ms' }}>
               <p className="text-on-secondary-fixed text-xs font-bold leading-tight">ትውልድን በቤተክርስቲያን ጥላ ስር ማፍራት።</p>
             </div>
           </div>
-          <div className="w-full md:w-1/2 space-y-8">
+          <div className="w-full md:w-1/2 space-y-8 stagger-fade" style={{ animationDelay: '300ms' }}>
             <h3 className="font-headline text-4xl text-primary leading-tight">የእውቀት እና የጥበብ ምንጭ</h3>
             <div className="space-y-6">
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-secondary-fixed/30 flex items-center justify-center">
+                <div className="shrink-0 w-10 h-10 rounded-full bg-secondary-fixed/30 flex items-center justify-center">
                   <span className="material-symbols-outlined text-primary text-sm">school</span>
                 </div>
                 <div>
@@ -264,7 +264,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-secondary-fixed/30 flex items-center justify-center">
+                <div className="shrink-0 w-10 h-10 rounded-full bg-secondary-fixed/30 flex items-center justify-center">
                   <span className="material-symbols-outlined text-primary text-sm">groups</span>
                 </div>
                 <div>
@@ -280,7 +280,7 @@ export default function HomePage() {
       {selectedPrayerImage
         ? createPortal(
             <div
-              className="fixed inset-0 z-[90] bg-[#151c27]/80 backdrop-blur-sm p-4 md:p-8 flex items-center justify-center"
+              className="fixed inset-0 z-90 bg-[#151c27]/80 backdrop-blur-sm p-4 md:p-8 flex items-center justify-center"
               onClick={() => setSelectedPrayerImage(null)}
             >
               <div
@@ -293,7 +293,7 @@ export default function HomePage() {
                   className="w-full max-h-[78vh] object-contain bg-surface-container-lowest p-2 md:p-3 transition-transform duration-500 hover:scale-[1.01]"
                 />
 
-                <div className="absolute left-0 right-0 bottom-0 p-4 md:p-5 bg-gradient-to-t from-[#151c27]/80 via-[#151c27]/35 to-transparent text-white">
+                <div className="absolute left-0 right-0 bottom-0 p-4 md:p-5 bg-linear-to-t from-[#151c27]/80 via-[#151c27]/35 to-transparent text-white">
                   <p className="text-xs font-bold tracking-widest uppercase opacity-90">{selectedPrayerImage.day}</p>
                   <p className="text-sm md:text-base font-semibold mt-1">{selectedPrayerImage.plan}</p>
                 </div>

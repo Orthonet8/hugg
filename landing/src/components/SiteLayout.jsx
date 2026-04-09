@@ -32,11 +32,11 @@ export default function SiteLayout() {
   }
 
   return (
-    <div className="bg-surface text-on-surface min-h-screen font-body">
+    <div className="page-shell bg-surface text-on-surface min-h-screen font-body">
       <button
         type="button"
         onClick={() => setIsLanguageMenuOpen(true)}
-        className="fixed top-3 right-3 z-[70] flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-semibold tracking-wide uppercase shadow-[0_8px_24px_rgba(21,28,39,0.14)]"
+        className="fixed top-4 right-4 z-70 flex items-center gap-2 px-3.5 py-2 rounded-full bg-secondary-fixed/95 text-on-secondary-fixed text-[10px] font-bold tracking-[0.14em] uppercase shadow-[0_10px_28px_rgba(15,38,34,0.16)] border border-white/60"
         aria-label="Open language selector"
       >
         <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -46,9 +46,9 @@ export default function SiteLayout() {
       </button>
 
       {isLanguageMenuOpen ? (
-        <div className="fixed inset-0 z-[60] bg-[#151c27]/24 backdrop-blur-[2px]" onClick={() => setIsLanguageMenuOpen(false)}>
+        <div className="fixed inset-0 z-60 bg-[#151c27]/24 backdrop-blur-[2px]" onClick={() => setIsLanguageMenuOpen(false)}>
           <aside
-            className="absolute left-0 right-0 bottom-0 mx-auto max-w-xl rounded-t-[1.5rem] bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_-20px_60px_rgba(21,28,39,0.18)] p-5 animate-[slideUp_240ms_ease-out]"
+            className="absolute left-0 right-0 bottom-0 mx-auto max-w-xl rounded-t-3xl bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_-20px_60px_rgba(21,28,39,0.18)] p-5 animate-[slideUp_240ms_ease-out]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -91,25 +91,25 @@ export default function SiteLayout() {
         </div>
       ) : null}
 
-      <div className={isHomePage ? 'pt-0 md:pt-0' : 'pt-0 md:pt-20'}>
+      <div className={isHomePage ? 'relative z-10 pt-0 md:pt-0' : 'relative z-10 pt-0 md:pt-24'}>
         <Outlet />
       </div>
 
       <nav
         className={[
-          'fixed bottom-0 left-0 w-full flex items-center px-1 pt-1 pb-4 bg-white/82 backdrop-blur-[10px] z-50 border-t border-white/60 shadow-[0_-6px_18px_rgba(21,28,39,0.08)] md:top-0 md:bottom-auto md:left-0 md:w-full md:bg-white/64 md:backdrop-blur-[12px] md:rounded-none md:border-x-0 md:border-t-0 md:border-b md:border-white/55 md:shadow-[0_8px_20px_rgba(21,28,39,0.05)] md:px-2.5 md:py-1 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-1.5',
+          'fixed bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-1.2rem)] max-w-3xl flex items-center px-1.5 pt-1.5 pb-2.5 rounded-[1.35rem] bg-white/86 backdrop-blur-[10px] z-50 border border-white/70 shadow-[0_14px_26px_rgba(15,38,34,0.12)] md:top-0 md:bottom-auto md:left-0 md:translate-x-0 md:w-full md:max-w-none md:bg-white/72 md:backdrop-blur-[14px] md:rounded-none md:border-x-0 md:border-t-0 md:border-b md:border-white/65 md:shadow-[0_8px_20px_rgba(15,38,34,0.06)] md:px-3 md:py-1.5 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-2',
         ].join(' ')}
       >
-        <div className="hidden md:flex items-center gap-1 shrink-0 pl-0.5">
+        <div className="hidden md:flex items-center gap-2 shrink-0 pl-1">
           <img
             src={huggLogo}
             alt="HUGG logo"
-            className="h-6 w-6 object-contain rounded-full bg-white/95 p-[2px] shadow-[0_4px_10px_rgba(21,28,39,0.16)]"
+            className="h-7 w-7 object-contain rounded-full bg-white/95 p-0.5 shadow-[0_6px_12px_rgba(15,38,34,0.16)]"
           />
-          <h1 className="font-headline font-bold italic text-[13px] tracking-tight text-[#5f0113]">HU Gibi Gubae</h1>
+          <h1 className="font-headline font-bold italic text-[15px] tracking-tight text-primary">HU Gibi Gubae</h1>
         </div>
 
-        <div className="flex w-full items-center justify-between md:justify-center md:gap-0.5 md:justify-self-center md:w-auto md:min-w-max">
+        <div className="flex w-full items-center justify-between md:justify-center md:gap-1 md:justify-self-center md:w-auto md:min-w-max">
           {navItems.map((item) => {
             const active = isActive(location.pathname, item.to)
             return (
@@ -117,10 +117,10 @@ export default function SiteLayout() {
                 key={item.to}
                 to={item.to}
                 className={[
-                  'relative flex-1 flex flex-col items-center justify-center px-1 py-2 transition-all duration-200 ease-in-out md:flex-none md:flex-row md:gap-1 md:px-2.5 md:py-1 md:rounded-full md:hover:bg-primary-container md:hover:text-on-primary md:hover:-translate-y-1 md:hover:shadow-[0_8px_16px_rgba(95,1,19,0.18)] md:hover:scale-[1.01]',
+                  'relative flex-1 flex flex-col items-center justify-center px-1 py-2.5 rounded-xl transition-all duration-200 ease-in-out md:flex-none md:flex-row md:gap-1 md:px-3 md:py-1.5 md:rounded-full md:hover:bg-primary-container md:hover:text-on-primary md:hover:-translate-y-1 md:hover:shadow-[0_8px_16px_rgba(8,61,65,0.22)] md:hover:scale-[1.01]',
                   active
-                    ? 'text-[#5f0113] md:text-primary'
-                    : 'text-[#151c27] opacity-70 hover:opacity-100',
+                    ? 'bg-primary/10 text-primary md:bg-primary md:text-on-primary'
+                    : 'text-on-surface opacity-75 hover:opacity-100',
                 ].join(' ')}
               >
                 <span className="relative flex h-10 w-10 items-center justify-center md:h-auto md:w-auto">
@@ -130,16 +130,16 @@ export default function SiteLayout() {
                       active ? 'bg-secondary-fixed opacity-100' : 'opacity-0',
                     ].join(' ')}
                   />
-                  <span className="material-symbols-outlined relative z-10 !text-[34px] leading-none md:hidden" style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>
+                  <span className="material-symbols-outlined relative z-10 text-[34px]! leading-none md:hidden" style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}>
                     {item.icon}
                   </span>
                 </span>
-                <span className="font-sans text-[11px] font-semibold tracking-wide uppercase mt-1 md:mt-0 md:text-[10px]">{item.label}</span>
+                <span className="font-sans text-[11px] font-semibold tracking-[0.08em] uppercase mt-1 md:mt-0 md:text-[10px]">{item.label}</span>
               </Link>
             )
           })}
 
-          <div className="hidden md:block w-[90px]" aria-hidden="true" />
+          <div className="hidden md:block w-22.5" aria-hidden="true" />
         </div>
       </nav>
     </div>
