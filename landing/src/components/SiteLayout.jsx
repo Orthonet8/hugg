@@ -1,13 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import huggLogo from '../assets/hugg-logo.png'
-
-const navItems = [
-  { to: '/', label: 'Home', icon: 'home' },
-  { to: '/about', label: 'About', icon: 'info' },
-  { to: '/blog', label: 'Blog', icon: 'article' },
-  { to: '/background', label: 'Background', icon: 'menu_book' },
-]
 
 function isActive(pathname, to) {
   if (to === '/') return pathname === '/'
@@ -15,22 +9,35 @@ function isActive(pathname, to) {
 }
 
 export default function SiteLayout() {
+  const { t, i18n } = useTranslation()
   const location = useLocation()
   const isHomePage = location.pathname === '/'
-  const [language, setLanguage] = useState('EN')
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false)
   const languageMenuRef = useRef(null)
+  const activeLanguage = i18n.language?.split('-')[0] || 'am'
+
+  const navItems = [
+    { to: '/', label: t('nav.home'), icon: 'home' },
+    { to: '/about', label: t('nav.about'), icon: 'info' },
+    { to: '/blog', label: t('nav.blog'), icon: 'article' },
+    { to: '/background', label: t('nav.background'), icon: 'menu_book' },
+  ]
 
   const languageOptions = [
-    { code: 'EN', label: 'English' },
-    { code: 'አማ', label: 'Amharic' },
-    { code: 'AFO', label: 'Afan Oromo' },
+    { code: 'en', displayCode: t('language.code.en'), label: t('language.en') },
+    { code: 'am', displayCode: t('language.code.am'), label: t('language.am') },
+    { code: 'om', displayCode: t('language.code.om'), label: t('language.om') },
   ]
 
   function handleLanguageSelect(code) {
-    setLanguage(code)
+    i18n.changeLanguage(code)
+    localStorage.setItem('hugg-language', code)
     setIsLanguageMenuOpen(false)
   }
+
+  useEffect(() => {
+    document.documentElement.lang = activeLanguage
+  }, [activeLanguage])
 
   useEffect(() => {
     if (!isLanguageMenuOpen) return undefined
@@ -61,22 +68,22 @@ export default function SiteLayout() {
           type="button"
           onClick={() => setIsLanguageMenuOpen((open) => !open)}
           className="inline-flex items-center justify-center gap-1.5 rounded-full border border-outline-variant/60 bg-secondary-fixed/95 text-on-secondary-fixed px-3.5 py-2 text-[10px] font-bold tracking-[0.14em] uppercase shadow-[0_10px_28px_rgba(21,28,39,0.14)]"
-          aria-label="Open language selector"
+          aria-label={t('language.menuAria')}
           aria-expanded={isLanguageMenuOpen}
           aria-haspopup="menu"
         >
           <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
             translate
           </span>
-          {language}
+          {t(`language.code.${activeLanguage}`)}
         </button>
 
         {isLanguageMenuOpen ? (
           <div className="absolute right-0 top-full mt-2 w-55 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest/95 backdrop-blur-xl p-2 shadow-[0_16px_34px_rgba(21,28,39,0.18)]">
-            <p className="px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant font-semibold">Language</p>
+            <p className="px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant font-semibold">{t('language.label')}</p>
             <div className="space-y-1">
               {languageOptions.map((option) => {
-                const active = language === option.code
+                const active = activeLanguage === option.code
                 return (
                   <button
                     key={option.code}
@@ -89,7 +96,7 @@ export default function SiteLayout() {
                     role="menuitem"
                   >
                     <span className="flex flex-col">
-                      <span className="text-sm font-bold">{option.code}</span>
+                      <span className="text-sm font-bold">{option.displayCode}</span>
                       <span className="text-xs opacity-80">{option.label}</span>
                     </span>
                     {active ? <span className="material-symbols-outlined text-[18px]">check</span> : null}
@@ -113,7 +120,7 @@ export default function SiteLayout() {
         <div className="hidden md:flex items-center gap-2 shrink-0 pl-1">
           <img
             src={huggLogo}
-            alt="HUGG logo"
+            alt={t('common.logoAlt')}
             className="h-7 w-7 object-contain rounded-full bg-white/95 p-0.5 shadow-[0_6px_12px_rgba(15,38,34,0.16)]"
           />
           <h1 className="font-headline font-bold italic text-[15px] tracking-tight text-primary">HU Gibi Gubae</h1>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import huggLogo from '../assets/hugg-logo.png'
 import course from '../assets/course.jpg'
@@ -29,66 +30,61 @@ import zikerMaryam00 from '../assets/ziker maryam00.jpg'
 import zikerMaryam01 from '../assets/ziker maryam01.jpg'
 
 export default function AboutPage() {
+  const { t } = useTranslation()
   const [selectedGalleryIndex, setSelectedGalleryIndex] = useState(null)
 
-  const serviceGallery = [
+  const serviceGalleryMeta = [
     {
       key: 'fresh',
-      title: 'ኮርስ',
-      subtitle: 'የመሠረታዊ እምነት እና የቃል ትምህርት ክፍሎች',
       accent: 'from-[#5f0113] to-[#390007]',
       images: [course, course00, course01],
     },
     {
       key: 'mezmur',
-      title: 'መዝሙር',
-      subtitle: 'የምስጋና ዝማሬ እና የመንፈሳዊ ቅኔ ማዕከል',
       accent: 'from-[#7b5300] to-[#5f0113]',
       images: [mezmur, mezmur01],
     },
     {
       key: 'begena',
-      title: 'በገና',
-      subtitle: 'ባህላዊ መንፈሳዊ ሙዚቃ እና ሥልጠና',
       accent: 'from-[#2f3a4e] to-[#5f0113]',
       images: [begena, begena00, begena01, begena03, begena06],
     },
     {
       key: 'timket',
-      title: 'ጥምቀት',
-      subtitle: 'የበዓል ሥነ ሥርዓት እና የማኅበረሰብ አንድነት',
       accent: 'from-[#24526a] to-[#5f0113]',
       images: [timket1, timket2, timket3],
     },
     {
       key: 'fresh-welcome',
-      title: 'ፍሬሽ እንኳን ደና መጣቹ',
-      subtitle: 'አዲስ ተማሪዎች መቀበል እና መተዋወቅ',
       accent: 'from-[#6a1f33] to-[#9c6b00]',
       images: [freshWelcome, freshWelcome01, freshWelcome02, freshWelcome03, freshWelcome05],
     },
     {
       key: 'graduation',
-      title: 'ምርቃት',
-      subtitle: 'የማጠናቀቂያ ደስታ እና የምስጋና መንፈሳዊ በዓል',
       accent: 'from-[#2a5b4f] to-[#7b5300]',
       images: [graduation, graduation01],
     },
     {
       key: 'meskel',
-      title: 'መስቀል',
-      subtitle: 'የመስቀል ደመራ የእምነት እና የብርሃን በዓል',
       accent: 'from-[#9c6b00] to-[#5f0113]',
       images: [meskel],
     },
     {
       key: 'ziker-maryam',
-      title: 'የማርያም ዝክር',
-      subtitle: 'የእመቤታችን መታሰቢያ እና የጸሎት መድረክ',
       accent: 'from-[#4e345c] to-[#5f0113]',
       images: [zikerMaryam, zikerMaryam0, zikerMaryam00, zikerMaryam01],
     },
   ]
+
+  const localizedServiceGallery = t('about.serviceGallery', { returnObjects: true })
+  const valueItems = t('about.values', { returnObjects: true })
+  const valueIcons = ['church', 'school', 'group', 'volunteer_activism']
+
+  const serviceGallery = serviceGalleryMeta.map((section, index) => ({
+    ...section,
+    title: localizedServiceGallery[index]?.title || section.key,
+    subtitle: localizedServiceGallery[index]?.subtitle || '',
+  }))
 
   let globalImageIndex = 0
   const gallerySections = serviceGallery.map((section) => ({
@@ -144,10 +140,10 @@ export default function AboutPage() {
     <main className="min-h-screen pb-32 amharic-lh page-entrance">
       <section className="relative pt-12 px-6 md:px-10 lg:pl-20 lg:pr-12 overflow-hidden">
         <div className="max-w-4xl mx-auto text-center space-y-6">
-          <img src={huggLogo} alt="HUGG logo" className="mx-auto h-24 w-24 md:h-28 md:w-28 object-contain vellum-shadow" />
-          <h2 className="font-headline text-5xl md:text-7xl font-bold text-primary tracking-tight leading-tight">ስለ እኛ</h2>
+          <img src={huggLogo} alt={t('common.logoAlt')} className="mx-auto h-24 w-24 md:h-28 md:w-28 object-contain vellum-shadow" />
+          <h2 className="font-headline text-5xl md:text-7xl font-bold text-primary tracking-tight leading-tight">{t('about.title')}</h2>
           <p className="amharic-text text-xl md:text-2xl text-on-surface-variant font-medium max-w-2xl mx-auto">
-            በሐረማያ ዩኒቨርሲቲ የኦርቶዶክስ ተዋሕዶ ቤተክርስቲያን አማኞች ተማሪዎች ግቢ ጉባኤ ታሪክና ራዕይ።
+            {t('about.subtitle')}
           </p>
         </div>
         <div className="absolute -right-24 -top-24 w-96 h-96 bg-secondary-fixed/20 rounded-full blur-3xl -z-10" />
@@ -158,11 +154,11 @@ export default function AboutPage() {
           <div className="md:col-span-8 bg-surface-container-lowest rounded-xl p-8 vellum-shadow relative overflow-hidden group hover-lift-card">
             <div className="relative z-10 space-y-4">
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-bold text-xs uppercase tracking-widest">
-                ታሪካችን
+                {t('about.historyChip')}
               </div>
-              <h3 className="font-headline text-3xl font-bold text-primary">የግቢ ጉባኤያችን አመሰራረት</h3>
+              <h3 className="font-headline text-3xl font-bold text-primary">{t('about.historyTitle')}</h3>
               <p className="amharic-text text-on-surface leading-relaxed text-lg">
-                የሐረማያ ዩኒቨርሲቲ ግቢ ጉባኤ በአለማያ ዩኒቨርሲቲ ስም ይታወቅ በነበረበት ወቅት፣ ጥቂት ተማሪዎች በመሰባሰብ መንፈሳዊ አገልግሎትን በማኅበር ለመጀመር ካላቸው ጽኑ ፍላጎት የተነሳ የተመሰረተ ነው። ባለፉት ዓመታት በብዙ ፈተናዎችና ድሎች ውስጥ አልፎ ዛሬ ላይ በሺዎች የሚቆጠሩ ተማሪዎችን የሚያቀፍ ታላቅ መንፈሳዊ ተቋም ሆኗል።
+                {t('about.historyBody')}
               </p>
             </div>
             <div className="absolute bottom-0 right-0 w-1/2 h-full opacity-10 pointer-events-none group-hover:opacity-20 transition-opacity">
@@ -175,36 +171,31 @@ export default function AboutPage() {
               auto_awesome
             </span>
             <div>
-              <h3 className="font-headline text-2xl font-bold mb-4">ተልዕኳችን</h3>
+              <h3 className="font-headline text-2xl font-bold mb-4">{t('about.missionTitle')}</h3>
               <p className="amharic-text text-on-primary-container text-base leading-relaxed">
-                ተማሪዎች በቆይታቸው የእግዚአብሔርን ቃል እየተማሩ፣ በሥነ-ምግባር ታንጸውና በቤተክርስቲያን ጥላ ስር ሆነው ለሀገርና ለወገን የሚጠቅሙ ዜጎች እንዲሆኑ ማስቻል ነው።
+                {t('about.missionBody')}
               </p>
             </div>
           </div>
 
           <div className="md:col-span-4 bg-surface-container-low rounded-xl p-8 vellum-shadow flex flex-col justify-center hover-lift-card">
-            <h3 className="font-headline text-2xl font-bold text-primary mb-2">ራዕያችን</h3>
-            <p className="amharic-text text-on-surface-variant">በእውቀትና በሃይማኖት የዳበረ ትውልድ ተፈጥሮ ማየት።</p>
+            <h3 className="font-headline text-2xl font-bold text-primary mb-2">{t('about.visionTitle')}</h3>
+            <p className="amharic-text text-on-surface-variant">{t('about.visionBody')}</p>
           </div>
 
           <div className="md:col-span-8 bg-surface-container-highest/30 rounded-xl p-10 grid grid-cols-2 gap-8 vellum-shadow hover-lift-card">
-            {[
-              ['church', 'ተዋሕዶ', 'የቀደመችውን እምነት ጠብቆ ማቆየት'],
-              ['school', 'ትምህርት', 'የነገረ መለኮትና ዘመናዊ እውቀት ቅንጅት'],
-              ['group', 'አንድነት', 'በፍቅር የታሰረ መንፈሳዊ ወንድማማችነት'],
-              ['volunteer_activism', 'አገልግሎት', 'ለቤተክርስቲያንና ለሰው ልጆች መሰጠት'],
-            ].map(([icon, title, desc]) => (
-              <div className="space-y-2" key={title}>
-                <span className="material-symbols-outlined text-secondary">{icon}</span>
-                <h4 className="font-bold text-primary">{title}</h4>
-                <p className="amharic-text text-sm">{desc}</p>
+            {valueItems.map((item, index) => (
+              <div className="space-y-2" key={item.title}>
+                <span className="material-symbols-outlined text-secondary">{valueIcons[index]}</span>
+                <h4 className="font-bold text-primary">{item.title}</h4>
+                <p className="amharic-text text-sm">{item.description}</p>
               </div>
             ))}
           </div>
         </div>
 
         <section className="mt-20 px-0 max-w-7xl mx-auto">
-          <h3 className="font-headline text-4xl font-bold text-primary text-center mb-12">አገልግሎቶቻችን በምስል</h3>
+          <h3 className="font-headline text-4xl font-bold text-primary text-center mb-12">{t('about.galleryTitle')}</h3>
           <div className="space-y-10">
             {gallerySections.map((section, sectionIndex) => {
               const [featuredImage, ...restImages] = section.imageItems
@@ -219,7 +210,7 @@ export default function AboutPage() {
                       <h4 className="font-headline text-3xl text-primary font-bold">{section.title}</h4>
                       <p className="text-sm md:text-base text-on-surface-variant amharic-text">{section.subtitle}</p>
                     </div>
-                    <span className={`inline-flex h-1.5 w-36 rounded-full bg-gradient-to-r ${section.accent}`} aria-hidden="true" />
+                    <span className={`inline-flex h-1.5 w-36 rounded-full bg-linear-to-r ${section.accent}`} aria-hidden="true" />
                   </div>
 
                   <div className="grid lg:grid-cols-12 gap-4">
@@ -227,11 +218,11 @@ export default function AboutPage() {
                       type="button"
                       onClick={() => setSelectedGalleryIndex(featuredImage.globalIndex)}
                       className="group lg:col-span-5 rounded-2xl overflow-hidden bg-surface-container-lowest focus:outline-none"
-                      aria-label={`${section.title} ምስል በትልቅ ለማየት`}
+                      aria-label={t('about.aria.openFeatured', { title: section.title })}
                     >
                       <img
                         src={featuredImage.src}
-                        alt={`${section.title} featured`}
+                        alt={t('about.aria.imageAlt', { title: section.title })}
                         className="w-full h-56 md:h-72 object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       />
                     </button>
@@ -242,9 +233,9 @@ export default function AboutPage() {
                           type="button"
                           onClick={() => setSelectedGalleryIndex(image.globalIndex)}
                           className="group rounded-xl overflow-hidden bg-surface-container-lowest focus:outline-none"
-                          aria-label={`${section.title} ተጨማሪ ምስል በትልቅ ለማየት`}
+                          aria-label={t('about.aria.openMore', { title: section.title })}
                         >
-                          <img src={image.src} alt={`${section.title} ${image.imageIndex + 1}`} className="w-full h-32 md:h-36 object-cover transition-transform duration-400 group-hover:scale-105" />
+                          <img src={image.src} alt={t('about.aria.imageAlt', { title: section.title })} className="w-full h-32 md:h-36 object-cover transition-transform duration-400 group-hover:scale-105" />
                         </button>
                       ))}
                     </div>
@@ -256,15 +247,15 @@ export default function AboutPage() {
         </section>
 
         <section className="mt-24 px-6 max-w-4xl mx-auto text-center pb-20">
-          <div className="p-12 bg-surface-container-low rounded-[2rem] vellum-shadow relative overflow-hidden hover-lift-card">
-            <h3 className="font-headline text-3xl font-bold text-primary mb-6">የእኛ አካል ይሁኑ</h3>
-            <p className="amharic-text text-lg text-on-surface-variant mb-8">አብረን እንማር፣ አብረን እናገልግል፣ አብረን እንጽና።</p>
+          <div className="p-12 bg-surface-container-low rounded-4xl vellum-shadow relative overflow-hidden hover-lift-card">
+            <h3 className="font-headline text-3xl font-bold text-primary mb-6">{t('about.joinTitle')}</h3>
+            <p className="amharic-text text-lg text-on-surface-variant mb-8">{t('about.joinBody')}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link className="bg-gradient-to-br from-primary-container to-primary text-on-primary px-8 py-4 rounded-md font-bold hover:scale-105 transition-transform text-center" to="/background">
-                አሁኑኑ ይቀላቀሉ
+              <Link className="bg-linear-to-br from-primary-container to-primary text-on-primary px-8 py-4 rounded-md font-bold hover:scale-105 transition-transform text-center" to="/background">
+                {t('about.joinCta')}
               </Link>
               <Link className="bg-surface-container-lowest px-8 py-4 rounded-md text-primary font-bold hover:bg-surface-container-highest transition-colors text-center" to="/">
-                ተጨማሪ መረጃ
+                {t('about.infoCta')}
               </Link>
             </div>
             <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-secondary-fixed/30 rounded-full blur-2xl" />
@@ -275,7 +266,7 @@ export default function AboutPage() {
       {selectedGalleryImage
         ? createPortal(
             <div
-              className="fixed inset-0 z-[95] bg-[#151c27]/75 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
+              className="fixed inset-0 z-95 bg-[#151c27]/75 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
               onClick={closeGalleryPreview}
             >
               <div
@@ -284,7 +275,7 @@ export default function AboutPage() {
               >
                 <img
                   src={selectedGalleryImage.src}
-                  alt={`${selectedGalleryImage.title} ምስል`}
+                  alt={t('about.aria.imageAlt', { title: selectedGalleryImage.title })}
                   className="w-full max-h-[78vh] object-contain bg-surface-container-lowest p-2 md:p-3"
                 />
 
@@ -293,7 +284,7 @@ export default function AboutPage() {
                     type="button"
                     onClick={showPreviousImage}
                     className="inline-flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-white/90 text-primary shadow-md transition-transform hover:scale-105"
-                    aria-label="Previous image"
+                    aria-label={t('common.previousImage')}
                   >
                     <span className="material-symbols-outlined">chevron_left</span>
                   </button>
@@ -304,13 +295,13 @@ export default function AboutPage() {
                     type="button"
                     onClick={showNextImage}
                     className="inline-flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-white/90 text-primary shadow-md transition-transform hover:scale-105"
-                    aria-label="Next image"
+                    aria-label={t('common.nextImage')}
                   >
                     <span className="material-symbols-outlined">chevron_right</span>
                   </button>
                 </div>
 
-                <div className="absolute left-0 right-0 bottom-0 p-4 md:p-5 bg-gradient-to-t from-[#151c27]/80 via-[#151c27]/35 to-transparent text-white">
+                <div className="absolute left-0 right-0 bottom-0 p-4 md:p-5 bg-linear-to-t from-[#151c27]/80 via-[#151c27]/35 to-transparent text-white">
                   <p className="text-xs font-bold tracking-widest uppercase opacity-90">{selectedGalleryImage.title}</p>
                   <p className="text-sm md:text-base font-semibold mt-1">{selectedGalleryImage.subtitle}</p>
                 </div>
@@ -319,7 +310,7 @@ export default function AboutPage() {
                   type="button"
                   onClick={closeGalleryPreview}
                   className="absolute top-3 right-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-primary shadow-md transition-transform hover:scale-105"
-                  aria-label="Close gallery preview"
+                  aria-label={t('about.aria.closeGallery')}
                 >
                   <span className="material-symbols-outlined">close</span>
                 </button>
