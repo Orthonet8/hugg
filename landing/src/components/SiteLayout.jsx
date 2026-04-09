@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import huggLogo from '../assets/hugg-logo.png'
 
@@ -19,6 +19,7 @@ export default function SiteLayout() {
   const isHomePage = location.pathname === '/'
   const [language, setLanguage] = useState('EN')
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false)
+  const languageMenuRef = useRef(null)
 
   const languageOptions = [
     { code: 'EN', label: 'English' },
@@ -31,41 +32,49 @@ export default function SiteLayout() {
     setIsLanguageMenuOpen(false)
   }
 
+  useEffect(() => {
+    if (!isLanguageMenuOpen) return undefined
+
+    function handleOutsideClick(event) {
+      if (!languageMenuRef.current?.contains(event.target)) {
+        setIsLanguageMenuOpen(false)
+      }
+    }
+
+    function handleEscape(event) {
+      if (event.key === 'Escape') setIsLanguageMenuOpen(false)
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isLanguageMenuOpen])
+
   return (
     <div className="page-shell bg-surface text-on-surface min-h-screen font-body">
-      <button
-        type="button"
-        onClick={() => setIsLanguageMenuOpen(true)}
-        className="fixed top-4 right-4 z-70 flex items-center gap-2 px-3.5 py-2 rounded-full bg-secondary-fixed/95 text-on-secondary-fixed text-[10px] font-bold tracking-[0.14em] uppercase shadow-[0_10px_28px_rgba(15,38,34,0.16)] border border-white/60"
-        aria-label="Open language selector"
-      >
-        <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-          translate
-        </span>
-        {language}
-      </button>
+      <div className="fixed top-4 right-4 z-70" ref={languageMenuRef}>
+        <button
+          type="button"
+          onClick={() => setIsLanguageMenuOpen((open) => !open)}
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-outline-variant/60 bg-secondary-fixed/95 text-on-secondary-fixed px-3.5 py-2 text-[10px] font-bold tracking-[0.14em] uppercase shadow-[0_10px_28px_rgba(21,28,39,0.14)]"
+          aria-label="Open language selector"
+          aria-expanded={isLanguageMenuOpen}
+          aria-haspopup="menu"
+        >
+          <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+            translate
+          </span>
+          {language}
+        </button>
 
-      {isLanguageMenuOpen ? (
-        <div className="fixed inset-0 z-60 bg-[#151c27]/24 backdrop-blur-[2px]" onClick={() => setIsLanguageMenuOpen(false)}>
-          <aside
-            className="absolute left-0 right-0 bottom-0 mx-auto max-w-xl rounded-t-3xl bg-surface-container-lowest/95 backdrop-blur-xl shadow-[0_-20px_60px_rgba(21,28,39,0.18)] p-5 animate-[slideUp_240ms_ease-out]"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-on-surface-variant font-semibold">Language</p>
-                <h2 className="font-headline text-2xl text-primary font-bold">Select your language</h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsLanguageMenuOpen(false)}
-                className="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
-            <div className="space-y-3">
+        {isLanguageMenuOpen ? (
+          <div className="absolute right-0 top-full mt-2 w-55 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest/95 backdrop-blur-xl p-2 shadow-[0_16px_34px_rgba(21,28,39,0.18)]">
+            <p className="px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-on-surface-variant font-semibold">Language</p>
+            <div className="space-y-1">
               {languageOptions.map((option) => {
                 const active = language === option.code
                 return (
@@ -74,22 +83,23 @@ export default function SiteLayout() {
                     type="button"
                     onClick={() => handleLanguageSelect(option.code)}
                     className={[
-                      'w-full flex items-center justify-between rounded-2xl px-4 py-4 text-left transition-all',
-                      active ? 'bg-secondary-fixed text-on-secondary-fixed' : 'bg-surface-container-low text-on-surface',
+                      'w-full flex items-center justify-between rounded-xl px-3 py-2 text-left transition-all',
+                      active ? 'bg-secondary-fixed text-on-secondary-fixed' : 'bg-surface-container-low text-on-surface hover:bg-surface-container',
                     ].join(' ')}
+                    role="menuitem"
                   >
-                    <span>
-                      <span className="block font-headline text-xl font-bold">{option.code}</span>
-                      <span className="block text-sm opacity-80">{option.label}</span>
+                    <span className="flex flex-col">
+                      <span className="text-sm font-bold">{option.code}</span>
+                      <span className="text-xs opacity-80">{option.label}</span>
                     </span>
-                    {active ? <span className="material-symbols-outlined">check_circle</span> : <span className="material-symbols-outlined">arrow_forward</span>}
+                    {active ? <span className="material-symbols-outlined text-[18px]">check</span> : null}
                   </button>
                 )
               })}
             </div>
-          </aside>
-        </div>
-      ) : null}
+          </div>
+        ) : null}
+      </div>
 
       <div className={isHomePage ? 'relative z-10 pt-0 md:pt-0' : 'relative z-10 pt-0 md:pt-24'}>
         <Outlet />
@@ -138,8 +148,6 @@ export default function SiteLayout() {
               </Link>
             )
           })}
-
-          <div className="hidden md:block w-22.5" aria-hidden="true" />
         </div>
       </nav>
     </div>
