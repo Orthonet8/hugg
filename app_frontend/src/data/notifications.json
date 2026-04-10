@@ -1,0 +1,26 @@
+[
+  {
+    "id": "notif-1",
+    "type": "news",
+    "message": "አዲስ ዜና: የመንፈሳዊ ጉባኤ መመዝገቢያ ተከፍቷል",
+    "timestamp": "2026-04-07T09:40:00.000Z",
+    "read": false,
+    "referenceId": "post-1"
+  },
+  {
+    "id": "notif-2",
+    "type": "event",
+    "message": "ዛሬ 12:30 የመዝሙር ልምምድ አትርሱ",
+    "timestamp": "2026-04-07T07:00:00.000Z",
+    "read": false,
+    "referenceId": "event-2"
+  },
+  {
+    "id": "notif-3",
+    "type": "news",
+    "message": "የአባላት መረጃ ማሻሻያ ማስታወቂያ ተለቀቀ",
+    "timestamp": "2026-04-06T17:20:00.000Z",
+    "read": true,
+    "referenceId": "post-4"
+  }
+]

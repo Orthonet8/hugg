@@ -1,0 +1,44 @@
+[
+  {
+    "id": "post-1",
+    "title": "የዩኒቨርሲቲ መንፈሳዊ ጉባኤ 2026",
+    "content": "በሚቀጥለው ቅዳሜ በዋና ግቢ አዳራሽ የሚካሄደው የመንፈሳዊ ጉባኤ ለሁሉም ተማሪዎች ክፍት ነው። የመዝሙር እና የትምህርት ፕሮግራሞች ይኖራሉ፣ በመጨረሻም የጸሎት ጊዜ ይደረጋል።",
+    "department": "ልማት",
+    "author": "አቤባ ተስፋዬ",
+    "publishedAt": "2026-04-07T10:30:00.000Z",
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1464802686167-b939a6910659?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=900&q=80"
+    ]
+  },
+  {
+    "id": "post-2",
+    "title": "የእሁድ መዝሙር ልምምድ መርሐ ግብር",
+    "content": "የመዝሙር ክፍል አባላት ሁሉ ነገ ማታ 12:30 በግቢ ጉባኤ ክፍል እንዲገኙ እናሳስባለን። አዲስ የፋሲካ መዝሙር ይሰማል።",
+    "department": "መዝሙር",
+    "author": "ዳዊት ግርማ",
+    "publishedAt": "2026-04-06T18:00:00.000Z",
+    "imageUrls": [
+      "https://images.unsplash.com/photo-1508385082359-f48a11d8a3bb?auto=format&fit=crop&w=900&q=80"
+    ]
+  },
+  {
+    "id": "post-3",
+    "title": "የምሳሌ መጽሐፍ የመጽሐፍ ቅዱስ ጥናት ተጀምሯል",
+    "content": "የትምህርት ክፍል በዚህ ሳምንት የምሳሌ መጽሐፍ ላይ የሳምንታዊ ጥናት ፕሮግራም ጀምሯል። በየማክሰኞ ከምሽቱ 11:00 ጀምሮ በስቴሽን ግቢ ይካሄዳል።",
+    "department": "ትምህርት",
+    "author": "ሰላማዊት በቀለ",
+    "publishedAt": "2026-04-05T08:15:00.000Z",
+    "imageUrls": []
+  },
+  {
+    "id": "post-4",
+    "title": "አባላት መረጃ ማሻሻያ ማስታወቂያ",
+    "content": "አዲስ የስልክ ቁጥር ወይም የቴሌግራም መለያ ካለዎት በዚህ ሳምንት ውስጥ መገለጫዎን እንዲያዘምኑ እናሳስባለን። ይህ ለማስታወቂያ እና ለአገልግሎት መደበኛ ግንኙነት አስፈላጊ ነው።",
+    "department": "አባላት ጉዳይ",
+    "author": "ሄኖክ ታደሰ",
+    "publishedAt": "2026-04-04T14:40:00.000Z",
+    "imageUrls": []
+  }
+]

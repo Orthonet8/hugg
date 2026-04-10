@@ -1,0 +1,229 @@
+@import url("https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  --bg: #fff8f7;
+  --bg-secondary: #fee9e8;
+  --surface: #ffffff;
+  --surface-soft: #fff0ef;
+  --surface-strong: #f8e3e3;
+
+  --text-primary: #241919;
+  --text-secondary: #473737;
+  --text-muted: #7d6265;
+
+  --primary: #5f0113;
+  --primary-hover: #7a1427;
+  --primary-active: #42000d;
+  --on-primary: #ffffff;
+
+  --accent: #f3c913;
+  --accent-hover: #ddb60e;
+  --accent-active: #b99706;
+  --on-accent: #2f2300;
+
+  --border: rgba(95, 1, 19, 0.14);
+  --border-strong: rgba(95, 1, 19, 0.24);
+  --ring: rgba(95, 1, 19, 0.36);
+  --shadow: 0 14px 34px rgba(57, 0, 7, 0.1);
+  --glass: rgba(255, 255, 255, 0.84);
+  --overlay: rgba(23, 10, 12, 0.48);
+
+  --soft-hover: rgba(95, 1, 19, 0.08);
+  --soft-active: rgba(95, 1, 19, 0.16);
+  --nav-active: rgba(243, 201, 19, 0.28);
+  --status-unread: #f3c913;
+  --input-bg: #fff8f7;
+
+  --dept-edu-bg: #fff1f2;
+  --dept-edu-text: #9f1239;
+  --dept-edu-chip-bg: #ffe4e6;
+  --dept-edu-chip-text: #881337;
+  --dept-edu-dot: #e11d48;
+
+  --dept-song-bg: #fff7ed;
+  --dept-song-text: #c2410c;
+  --dept-song-chip-bg: #ffedd5;
+  --dept-song-chip-text: #9a3412;
+  --dept-song-dot: #f97316;
+
+  --dept-dev-bg: #eff6ff;
+  --dept-dev-text: #1d4ed8;
+  --dept-dev-chip-bg: #dbeafe;
+  --dept-dev-chip-text: #1e40af;
+  --dept-dev-dot: #3b82f6;
+
+  --dept-member-bg: #ecfdf5;
+  --dept-member-text: #047857;
+  --dept-member-chip-bg: #d1fae5;
+  --dept-member-chip-text: #065f46;
+  --dept-member-dot: #10b981;
+
+  --dept-finance-bg: #f5f3ff;
+  --dept-finance-text: #6d28d9;
+  --dept-finance-chip-bg: #ede9fe;
+  --dept-finance-chip-text: #5b21b6;
+  --dept-finance-dot: #8b5cf6;
+}
+
+[data-theme="dark"] {
+  --bg: #140d0f;
+  --bg-secondary: #1f1216;
+  --surface: #26181c;
+  --surface-soft: #2f1e23;
+  --surface-strong: #39252b;
+
+  --text-primary: #f8ecee;
+  --text-secondary: #dfcdd0;
+  --text-muted: #c6a9ad;
+
+  --primary: #b45163;
+  --primary-hover: #c96375;
+  --primary-active: #9b3c4d;
+  --on-primary: #fff5f7;
+
+  --accent: #ecc302;
+  --accent-hover: #f6cf24;
+  --accent-active: #d3af00;
+  --on-accent: #211800;
+
+  --border: rgba(255, 179, 179, 0.2);
+  --border-strong: rgba(255, 179, 179, 0.3);
+  --ring: rgba(243, 201, 19, 0.34);
+  --shadow: 0 16px 36px rgba(0, 0, 0, 0.44);
+  --glass: rgba(38, 24, 28, 0.86);
+  --overlay: rgba(3, 2, 3, 0.64);
+
+  --soft-hover: rgba(255, 179, 179, 0.12);
+  --soft-active: rgba(255, 179, 179, 0.2);
+  --nav-active: rgba(243, 201, 19, 0.22);
+  --status-unread: #ecc302;
+  --input-bg: #201519;
+
+  --dept-edu-bg: rgba(225, 29, 72, 0.2);
+  --dept-edu-text: #fda4af;
+  --dept-edu-chip-bg: rgba(225, 29, 72, 0.26);
+  --dept-edu-chip-text: #fecdd3;
+  --dept-edu-dot: #fb7185;
+
+  --dept-song-bg: rgba(249, 115, 22, 0.2);
+  --dept-song-text: #fdba74;
+  --dept-song-chip-bg: rgba(249, 115, 22, 0.28);
+  --dept-song-chip-text: #fed7aa;
+  --dept-song-dot: #fb923c;
+
+  --dept-dev-bg: rgba(59, 130, 246, 0.2);
+  --dept-dev-text: #93c5fd;
+  --dept-dev-chip-bg: rgba(59, 130, 246, 0.3);
+  --dept-dev-chip-text: #bfdbfe;
+  --dept-dev-dot: #60a5fa;
+
+  --dept-member-bg: rgba(16, 185, 129, 0.2);
+  --dept-member-text: #6ee7b7;
+  --dept-member-chip-bg: rgba(16, 185, 129, 0.3);
+  --dept-member-chip-text: #a7f3d0;
+  --dept-member-dot: #34d399;
+
+  --dept-finance-bg: rgba(139, 92, 246, 0.2);
+  --dept-finance-text: #c4b5fd;
+  --dept-finance-chip-bg: rgba(139, 92, 246, 0.3);
+  --dept-finance-chip-text: #ddd6fe;
+  --dept-finance-dot: #a78bfa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(
+      circle at 5% 10%,
+      color-mix(in srgb, var(--accent) 22%, transparent),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 90% 5%,
+      color-mix(in srgb, var(--primary) 28%, transparent),
+      transparent 42%
+    ),
+    var(--bg);
+  color: var(--text-primary);
+  font-family: "Noto Sans Ethiopic", "Manrope", sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background 220ms ease,
+    color 220ms ease;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.app-card {
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: var(--shadow);
+}
+
+.app-gradient {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary) 88%, black),
+    color-mix(in srgb, var(--primary) 62%, white)
+  );
+}
+
+.app-heading {
+  font-family: "Epilogue", "Noto Sans Ethiopic", "Manrope", sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.app-subtle-panel {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+
+.app-input {
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+.app-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 0;
+}
+
+.app-shell {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 28rem;
+  padding: 1.25rem 1rem 7rem;
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    max-width: 42rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    max-width: 56rem;
+  }
+}

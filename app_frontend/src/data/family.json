@@ -1,0 +1,42 @@
+{
+  "groupName": "የጽዮን ቤተሰብ ጉባኤ",
+  "leaderId": "member-1",
+  "members": [
+    {
+      "id": "member-1",
+      "name": "ዲያቆን ሄኖክ ታደሰ",
+      "role": "መሪ",
+      "service": "ትምህርት",
+      "contact": "+251911223344",
+      "note": "የቤተሰብ ቡድን አስተባባሪ"
+    },
+    {
+      "id": "member-2",
+      "name": "ማህሌት ሰሎሞን",
+      "role": "አባል",
+      "service": "መዝሙር",
+      "contact": "@mahlet_song"
+    },
+    {
+      "id": "member-3",
+      "name": "በረከት አማኑኤል",
+      "role": "አባል",
+      "service": "ልማት",
+      "contact": "+251933445566"
+    },
+    {
+      "id": "member-4",
+      "name": "ጽዮን ካሳ",
+      "role": "አባል",
+      "service": "አባላት ጉዳይ",
+      "contact": "@tsion_k"
+    },
+    {
+      "id": "member-5",
+      "name": "አቤል ደሳለኝ",
+      "role": "አባል",
+      "service": "ፋይናንስ",
+      "contact": "+251944556677"
+    }
+  ]
+}
