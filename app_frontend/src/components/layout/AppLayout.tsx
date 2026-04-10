@@ -4,10 +4,11 @@ import { BottomNav } from "./BottomNav";
 
 export const AppLayout = () => {
   const location = useLocation();
+  const isProfileRoute = location.pathname === "/profile";
 
   return (
     <div className="min-h-screen">
-      <div className="app-shell">
+      {isProfileRoute ? (
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -19,7 +20,21 @@ export const AppLayout = () => {
             <Outlet />
           </motion.div>
         </AnimatePresence>
-      </div>
+      ) : (
+        <div className="app-shell">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      )}
       <BottomNav />
     </div>
   );

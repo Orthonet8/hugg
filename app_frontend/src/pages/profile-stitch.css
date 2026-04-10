@@ -1,0 +1,65 @@
+@import url("https://fonts.googleapis.com/css2?family=Epilogue:wght@700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+
+.stitch-profile-page {
+  font-family: "Plus Jakarta Sans", "Noto Sans Ethiopic", sans-serif;
+  line-height: 1.6;
+}
+
+.stitch-profile-page .amharic-text {
+  line-height: 1.8;
+}
+
+.stitch-profile-page .stitch-headline {
+  font-family: "Epilogue", "Noto Sans Ethiopic", sans-serif;
+}
+
+.stitch-profile-page .material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+.stitch-profile-page .sacred-gradient {
+  background: linear-gradient(180deg, #5f0113 0%, #390007 100%);
+}
+
+.stitch-profile-page .stitch-glass-nav {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .stitch-profile-page {
+  background: #140d0f;
+  color: #f8ecee;
+}
+
+[data-theme="dark"] .stitch-profile-page > header {
+  background: #1a0004;
+}
+
+[data-theme="dark"] .stitch-profile-page > main h1,
+[data-theme="dark"] .stitch-profile-page > header h1,
+[data-theme="dark"] .stitch-profile-page > header button {
+  color: #ffb3bc;
+}
+
+[data-theme="dark"] .stitch-profile-page nav {
+  background: rgba(26, 0, 4, 0.8);
+}
