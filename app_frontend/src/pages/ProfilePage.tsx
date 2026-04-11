@@ -2,32 +2,32 @@ import "./profile-stitch.css";
 
 export const ProfilePage = () => {
   return (
-    <div className="stitch-profile-page min-h-[max(884px,100dvh)] bg-[#fcf9f4] text-[#1c1c19]">
-      <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between bg-[#fdfaf5] px-6">
+    <div className="stitch-profile-page min-h-[max(884px,100dvh)] bg-[color:var(--bg)] text-[color:var(--text-primary)]">
+      <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between bg-[color:var(--surface)] px-6 border-b border-[color:var(--border)]">
         <button
           type="button"
-          className="rounded-full p-2 text-[#5f0113] transition-transform hover:bg-[#5f0113]/5 active:scale-95"
+          className="rounded-full p-2 text-[color:var(--primary)] transition-transform hover:bg-[color:var(--soft-hover)] active:scale-95"
         >
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
-        <h1 className="stitch-headline text-lg font-bold tracking-tight text-[#5f0113]">
+        <h1 className="stitch-headline text-lg font-bold tracking-tight text-[color:var(--primary)]">
           Profile
         </h1>
         <button
           type="button"
-          className="rounded-full p-2 text-[#5f0113] transition-transform hover:bg-[#5f0113]/5 active:scale-95"
+          className="rounded-full p-2 text-[color:var(--primary)] transition-transform hover:bg-[color:var(--soft-hover)] active:scale-95"
         >
           <span className="material-symbols-outlined">settings</span>
         </button>
       </header>
 
-      <main className="space-y-8 px-5 pb-32 pt-20">
+      <main className="space-y-8 px-5 pb-32 pt-6">
         <section className="relative">
-          <div className="relative flex flex-col items-center overflow-hidden rounded-xl border border-[rgba(221,192,191,0.15)] bg-[#f6f3ee] p-8 text-center">
-            <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[rgba(255,225,124,0.1)] blur-3xl" />
+          <div className="relative flex flex-col items-center overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-soft)] p-8 text-center">
+            <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-[color:color-mix(in_srgb,var(--accent)_10%,transparent)] blur-3xl" />
 
             <div className="relative mb-6 inline-block">
-              <div className="h-28 w-28 rounded-full border-4 border-[#390007] bg-[#fcf9f4] p-1">
+              <div className="h-28 w-28 rounded-full border-4 border-[color:var(--primary)] bg-[color:var(--bg)] p-1">
                 <img
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaerd7meZgXw8ILC1OV460GYYCrtR2eMXXB66lBxKdn-mBDdXrPg-WHr5qy-yHMIzQY1s2sCUPcTN8ihzDvWufLVBOgl4v14-N9bxZg3XRGDXu-z9D9FEmAMHppFcC0VM4yWRFdU1T9cRyMaWMgKrYZJWjQ2ZiimfSZktkVedfaCjR8z8Vg7BdbWakAlWTTSbayApsaHywDx6Idd__VCDiE8kLb1Vn1cQ48mBRgEQWcd3a2qhc0aGyRagTyVY_7RnU5HpBfJ46CGG6"
                   alt="portrait of a confident ethiopian student with a warm smile in a university campus setting with soft natural light"
@@ -36,7 +36,7 @@ export const ProfilePage = () => {
               </div>
               <button
                 type="button"
-                className="absolute bottom-0 right-0 rounded-full border-2 border-[#fcf9f4] bg-[#5f0113] p-2 text-white shadow-lg transition-transform active:scale-90"
+                className="absolute bottom-0 right-0 rounded-full border-2 border-[color:var(--bg)] bg-[color:var(--primary)] p-2 text-[color:var(--on-primary)] shadow-lg transition-transform active:scale-90"
               >
                 <span className="material-symbols-outlined text-[18px]">
                   edit
@@ -44,20 +44,20 @@ export const ProfilePage = () => {
               </button>
             </div>
 
-            <h2 className="stitch-headline amharic-text text-2xl font-extrabold text-[#390007]">
+            <h2 className="stitch-headline amharic-text text-2xl font-extrabold text-[color:var(--primary)]">
               አቤል ተስፋዬ
             </h2>
-            <p className="mt-1 text-sm font-bold uppercase tracking-widest text-[#715c00]">
+            <p className="mt-1 text-sm font-bold uppercase tracking-widest text-[color:var(--accent-hover)]">
               Christian Name: ወልደ ማርያም
             </p>
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#e5e2dd] px-4 py-1">
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[color:var(--surface-strong)] px-4 py-1">
               <span
-                className="material-symbols-outlined text-sm text-[#874f50]"
+                className="material-symbols-outlined text-sm text-[color:var(--primary)]"
                 style={{ fontVariationSettings: "'FILL' 1" }}
               >
                 verified
               </span>
-              <span className="amharic-text text-xs font-semibold text-[#574241]">
+              <span className="amharic-text text-xs font-semibold text-[color:var(--text-secondary)]">
                 የግቢ ጉባኤ አባል
               </span>
             </div>
@@ -65,82 +65,82 @@ export const ProfilePage = () => {
         </section>
 
         <section className="space-y-4">
-          <h3 className="stitch-headline amharic-text px-1 text-lg text-[#390007]">
+          <h3 className="stitch-headline amharic-text px-1 text-lg text-[color:var(--primary)]">
             የግል መረጃ
           </h3>
-          <div className="divide-y divide-[rgba(221,192,191,0.15)] rounded-xl bg-[#f6f3ee]">
+          <div className="divide-y divide-[color:var(--border)] rounded-xl bg-[color:var(--surface-soft)]">
             <div className="group flex items-center justify-between p-4">
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f0ede9] text-[#390007]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--surface-strong)] text-[color:var(--primary)]">
                   <span className="material-symbols-outlined">school</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-[#574241]">
+                  <p className="text-[10px] font-bold uppercase tracking-tighter text-[color:var(--text-muted)]">
                     Campus
                   </p>
-                  <p className="amharic-text font-semibold text-[#1c1c19]">
+                  <p className="amharic-text font-semibold text-[color:var(--text-primary)]">
                     አዲስ አበባ ቴክኖሎጂ ኢንስቲትዩት
                   </p>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-[#ddc0bf]">
+              <span className="material-symbols-outlined text-[color:var(--border-strong)]">
                 chevron_right
               </span>
             </div>
 
             <div className="group flex items-center justify-between p-4">
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f0ede9] text-[#390007]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--surface-strong)] text-[color:var(--primary)]">
                   <span className="material-symbols-outlined">apartment</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-[#574241]">
+                  <p className="text-[10px] font-bold uppercase tracking-tighter text-[color:var(--text-muted)]">
                     Dorm
                   </p>
-                  <p className="amharic-text font-semibold text-[#1c1c19]">
+                  <p className="amharic-text font-semibold text-[color:var(--text-primary)]">
                     ብሎክ 12, ክፍል 402
                   </p>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-[#ddc0bf]">
+              <span className="material-symbols-outlined text-[color:var(--border-strong)]">
                 chevron_right
               </span>
             </div>
 
             <div className="group flex items-center justify-between p-4">
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f0ede9] text-[#390007]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--surface-strong)] text-[color:var(--primary)]">
                   <span className="material-symbols-outlined">phone</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-[#574241]">
+                  <p className="text-[10px] font-bold uppercase tracking-tighter text-[color:var(--text-muted)]">
                     Phone
                   </p>
-                  <p className="font-semibold text-[#1c1c19]">
-                    +251 911 223 344
+                  <p className="font-semibold text-[color:var(--text-primary)]">
+                    +251 9** *** ***
                   </p>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-[#ddc0bf]">
+              <span className="material-symbols-outlined text-[color:var(--border-strong)]">
                 chevron_right
               </span>
             </div>
 
             <div className="group flex items-center justify-between p-4">
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f0ede9] text-[#390007]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--surface-strong)] text-[color:var(--primary)]">
                   <span className="material-symbols-outlined">send</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-[#574241]">
+                  <p className="text-[10px] font-bold uppercase tracking-tighter text-[color:var(--text-muted)]">
                     Telegram
                   </p>
-                  <p className="font-semibold text-[#1c1c19]">
+                  <p className="font-semibold text-[color:var(--text-primary)]">
                     @abel_t_fellowship
                   </p>
                 </div>
               </div>
-              <span className="material-symbols-outlined text-[#ddc0bf]">
+              <span className="material-symbols-outlined text-[color:var(--border-strong)]">
                 chevron_right
               </span>
             </div>
@@ -148,23 +148,23 @@ export const ProfilePage = () => {
         </section>
 
         <section className="space-y-4">
-          <h3 className="stitch-headline amharic-text px-1 text-lg text-[#390007]">
+          <h3 className="stitch-headline amharic-text px-1 text-lg text-[color:var(--primary)]">
             ተሰጥኦዎች እና አገልግሎቶች
           </h3>
           <div className="flex flex-wrap gap-2">
-            <div className="flex items-center gap-2 rounded-full border border-[rgba(221,192,191,0.1)] bg-[#ebe8e3] px-4 py-2 text-[#1c1c19]">
-              <span className="material-symbols-outlined text-sm text-[#715c00]">
+            <div className="flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-2 text-[color:var(--text-primary)]">
+              <span className="material-symbols-outlined text-sm text-[color:var(--accent-hover)]">
                 translate
               </span>
               <span className="amharic-text text-xs font-bold">አማርኛ</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full border border-[rgba(221,192,191,0.1)] bg-[#ebe8e3] px-4 py-2 text-[#1c1c19]">
-              <span className="material-symbols-outlined text-sm text-[#715c00]">
+            <div className="flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-2 text-[color:var(--text-primary)]">
+              <span className="material-symbols-outlined text-sm text-[color:var(--accent-hover)]">
                 translate
               </span>
               <span className="amharic-text text-xs font-bold">English</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-[#ffe17c] px-4 py-2 text-[#231b00]">
+            <div className="flex items-center gap-2 rounded-full bg-[color:var(--accent)] px-4 py-2 text-[color:var(--on-accent)]">
               <span
                 className="material-symbols-outlined text-sm"
                 style={{ fontVariationSettings: "'FILL' 1" }}
@@ -173,7 +173,7 @@ export const ProfilePage = () => {
               </span>
               <span className="amharic-text text-xs font-bold">መዝሙር</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-[#ffe17c] px-4 py-2 text-[#231b00]">
+            <div className="flex items-center gap-2 rounded-full bg-[color:var(--accent)] px-4 py-2 text-[color:var(--on-accent)]">
               <span
                 className="material-symbols-outlined text-sm"
                 style={{ fontVariationSettings: "'FILL' 1" }}
@@ -182,7 +182,7 @@ export const ProfilePage = () => {
               </span>
               <span className="amharic-text text-xs font-bold">ትምህርት</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-[#ffe17c] px-4 py-2 text-[#231b00]">
+            <div className="flex items-center gap-2 rounded-full bg-[color:var(--accent)] px-4 py-2 text-[color:var(--on-accent)]">
               <span
                 className="material-symbols-outlined text-sm"
                 style={{ fontVariationSettings: "'FILL' 1" }}
@@ -195,14 +195,14 @@ export const ProfilePage = () => {
         </section>
 
         <section className="space-y-4">
-          <h3 className="stitch-headline amharic-text px-1 text-lg text-[#390007]">
+          <h3 className="stitch-headline amharic-text px-1 text-lg text-[color:var(--primary)]">
             የልግስና ሂሳቦች
           </h3>
           <div className="grid grid-cols-2 gap-4">
-            <div className="sacred-gradient relative aspect-video overflow-hidden rounded-xl p-5 text-white shadow-xl shadow-[#390007]/20">
+            <div className="app-gradient relative aspect-video overflow-hidden rounded-xl p-5 text-[color:var(--on-primary)] shadow-xl shadow-[color:color-mix(in_srgb,var(--primary)_20%,transparent)]">
               <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-white/10 blur-xl" />
               <div className="relative flex h-full flex-col justify-between">
-                <span className="material-symbols-outlined text-[#ffe17c]">
+                <span className="material-symbols-outlined text-[color:var(--accent)]">
                   account_balance
                 </span>
                 <div className="mt-4">
@@ -216,12 +216,12 @@ export const ProfilePage = () => {
               </div>
             </div>
 
-            <div className="flex aspect-video flex-col justify-between rounded-xl border border-[rgba(221,192,191,0.15)] bg-[#e5e2dd] p-5 text-[#1c1c19]">
-              <span className="material-symbols-outlined text-[#390007]">
+            <div className="flex aspect-video flex-col justify-between rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-5 text-[color:var(--text-primary)]">
+              <span className="material-symbols-outlined text-[color:var(--primary)]">
                 account_balance_wallet
               </span>
               <div className="mt-4">
-                <p className="amharic-text text-[10px] text-[#574241]">
+                <p className="amharic-text text-[10px] text-[color:var(--text-muted)]">
                   አቢሲኒያ ባንክ
                 </p>
                 <p className="text-sm font-bold tracking-tight">988776655</p>
@@ -232,50 +232,50 @@ export const ProfilePage = () => {
 
         <section className="space-y-6">
           <div className="space-y-3">
-            <p className="amharic-text px-1 text-[11px] font-bold uppercase tracking-[2px] text-[#574241]">
+            <p className="amharic-text px-1 text-[11px] font-bold uppercase tracking-[2px] text-[color:var(--text-muted)]">
               መተግበሪያ
             </p>
 
-            <div className="overflow-hidden rounded-xl border border-[rgba(221,192,191,0.1)] bg-[#f6f3ee]">
+            <div className="overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-soft)]">
               <button
                 type="button"
-                className="flex w-full items-center gap-4 p-4 text-left transition-colors active:bg-[#5f0113]/5"
+                className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-[color:var(--soft-hover)]"
               >
-                <span className="material-symbols-outlined text-[#390007]">
+                <span className="material-symbols-outlined text-[color:var(--primary)]">
                   notifications
                 </span>
-                <span className="amharic-text flex-1 text-sm font-semibold">
+                <span className="amharic-text flex-1 text-sm font-semibold text-[color:var(--text-primary)]">
                   ማሳወቂያዎች
                 </span>
-                <span className="material-symbols-outlined text-[#ddc0bf]">
+                <span className="material-symbols-outlined text-[color:var(--border-strong)]">
                   chevron_right
                 </span>
               </button>
               <button
                 type="button"
-                className="flex w-full items-center gap-4 p-4 text-left transition-colors active:bg-[#5f0113]/5"
+                className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-[color:var(--soft-hover)]"
               >
-                <span className="material-symbols-outlined text-[#390007]">
+                <span className="material-symbols-outlined text-[color:var(--primary)]">
                   language
                 </span>
-                <span className="amharic-text flex-1 text-sm font-semibold">
+                <span className="amharic-text flex-1 text-sm font-semibold text-[color:var(--text-primary)]">
                   ቋንቋ (Amharic)
                 </span>
-                <span className="material-symbols-outlined text-[#ddc0bf]">
+                <span className="material-symbols-outlined text-[color:var(--border-strong)]">
                   chevron_right
                 </span>
               </button>
               <button
                 type="button"
-                className="flex w-full items-center gap-4 p-4 text-left transition-colors active:bg-[#5f0113]/5"
+                className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-[color:var(--soft-hover)]"
               >
-                <span className="material-symbols-outlined text-[#390007]">
+                <span className="material-symbols-outlined text-[color:var(--primary)]">
                   help
                 </span>
-                <span className="amharic-text flex-1 text-sm font-semibold">
+                <span className="amharic-text flex-1 text-sm font-semibold text-[color:var(--text-primary)]">
                   እርዳታ እና ድጋፍ
                 </span>
-                <span className="material-symbols-outlined text-[#ddc0bf]">
+                <span className="material-symbols-outlined text-[color:var(--border-strong)]">
                   chevron_right
                 </span>
               </button>
@@ -283,15 +283,15 @@ export const ProfilePage = () => {
           </div>
 
           <div className="space-y-3">
-            <div className="overflow-hidden rounded-xl border border-[rgba(221,192,191,0.1)] bg-[#f6f3ee]">
+            <div className="overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-soft)]">
               <button
                 type="button"
-                className="flex w-full items-center gap-4 p-4 text-left transition-colors active:bg-[#ba1a1a]/5"
+                className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-[color:var(--dept-edu-bg)]"
               >
-                <span className="material-symbols-outlined text-[#ba1a1a]">
+                <span className="material-symbols-outlined text-[color:var(--dept-edu-dot)]">
                   logout
                 </span>
-                <span className="amharic-text flex-1 text-sm font-semibold text-[#ba1a1a]">
+                <span className="amharic-text flex-1 text-sm font-semibold text-[color:var(--dept-edu-dot)]">
                   ውጣ
                 </span>
               </button>

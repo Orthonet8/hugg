@@ -8,28 +8,20 @@ interface MemberModalProps {
   onClose: () => void;
 }
 
-export const MemberModal = ({ member, onClose }: MemberModalProps) => {
-  if (!member) {
-    return null;
-  }
-
-  return (
-    <Modal isOpen={Boolean(member)} title={member.name} onClose={onClose}>
+export const MemberModal = ({ member, onClose }: MemberModalProps) => (
+  <Modal isOpen={Boolean(member)} title={member?.name ?? ""} onClose={onClose}>
+    {member ? (
       <div className="space-y-4">
         <h3 className="app-heading text-xl font-bold text-[color:var(--text-primary)]">
           {member.name}
         </h3>
         <div className="app-subtle-panel rounded-2xl p-4 text-sm text-[color:var(--text-secondary)]">
           <p>
-            <span className="font-semibold text-[color:var(--primary)]">
-              ሚና:
-            </span>{" "}
+            <span className="font-semibold text-[color:var(--primary)]">ሚና:</span>{" "}
             {member.role}
           </p>
           <p className="mt-2">
-            <span className="font-semibold text-[color:var(--primary)]">
-              አገልግሎት:
-            </span>{" "}
+            <span className="font-semibold text-[color:var(--primary)]">አገልግሎት:</span>{" "}
             {member.service}
           </p>
           <p className="mt-2 inline-flex items-center gap-1">
@@ -38,9 +30,7 @@ export const MemberModal = ({ member, onClose }: MemberModalProps) => {
           </p>
           {member.note ? (
             <p className="mt-2">
-              <span className="font-semibold text-[color:var(--primary)]">
-                ማብራሪያ:
-              </span>{" "}
+              <span className="font-semibold text-[color:var(--primary)]">ማብራሪያ:</span>{" "}
               {member.note}
             </p>
           ) : null}
@@ -53,6 +43,6 @@ export const MemberModal = ({ member, onClose }: MemberModalProps) => {
           </Button>
         </div>
       </div>
-    </Modal>
-  );
-};
+    ) : null}
+  </Modal>
+);

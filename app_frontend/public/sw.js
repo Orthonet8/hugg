@@ -24,26 +24,27 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") {
+  if (event.request.method !== "GET") return;
+
+  // For HTML navigation requests, always serve index.html (SPA fallback)
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      caches.match("/index.html").then(
+        (cached) => cached || fetch("/index.html"),
+      ),
+    );
     return;
   }
 
+  // For assets, use cache-first
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request)
-        .then((networkResponse) => {
-          const responseCopy = networkResponse.clone();
-
-          caches
-            .open(CACHE_NAME)
-            .then((cache) => cache.put(event.request, responseCopy));
-          return networkResponse;
-        })
-        .catch(() => caches.match("/index.html"));
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        return response;
+      });
     }),
   );
 });

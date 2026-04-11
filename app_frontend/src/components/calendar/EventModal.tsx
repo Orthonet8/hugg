@@ -9,13 +9,9 @@ interface EventModalProps {
   onClose: () => void;
 }
 
-export const EventModal = ({ event, onClose }: EventModalProps) => {
-  if (!event) {
-    return null;
-  }
-
-  return (
-    <Modal isOpen={Boolean(event)} title={event.title} onClose={onClose}>
+export const EventModal = ({ event, onClose }: EventModalProps) => (
+  <Modal isOpen={Boolean(event)} title={event?.title ?? ""} onClose={onClose}>
+    {event ? (
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -57,6 +53,6 @@ export const EventModal = ({ event, onClose }: EventModalProps) => {
           </Button>
         </div>
       </div>
-    </Modal>
-  );
-};
+    ) : null}
+  </Modal>
+);

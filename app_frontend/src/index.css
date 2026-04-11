@@ -214,6 +214,14 @@ select {
   padding: 1.25rem 1rem 7rem;
 }
 
+.app-web-layout {
+  display: flex;
+  gap: 2rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 @media (min-width: 768px) {
   .app-shell {
     max-width: 42rem;
@@ -224,6 +232,11 @@ select {
 
 @media (min-width: 1024px) {
   .app-shell {
-    max-width: 56rem;
+    max-width: 100%;
+    padding: 2rem 0 2rem;
+  }
+
+  .app-web-layout {
+    padding: 2rem 2rem;
   }
 }

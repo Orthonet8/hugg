@@ -131,7 +131,7 @@ export const CalendarPage = () => {
 
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-[color:var(--text-muted)]">
-          {new Date(selectedDate).toLocaleDateString("am-ET")} የሚካሄዱ ዝግጅቶች
+          {new Date(`${selectedDate}T00:00:00`).toLocaleDateString("am-ET")} የሚካሄዱ ዝግጅቶች
         </h3>
 
         {selectedDateEvents.length > 0 ? (

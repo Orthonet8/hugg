@@ -7,7 +7,64 @@
     <meta name="theme-color" content="#5f0113" />
     <meta name="description" content="ለዩኒቨርሲቲ ተማሪዎች የቤተክርስቲያን ማህበረሰብ መተግበሪያ" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root {
+        color-scheme: light;
+        background: #fff8f7;
+      }
+
+      html,
+      body,
+      #root {
+        min-height: 100%;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 5% 10%, rgba(243, 201, 19, 0.22), transparent 45%),
+          radial-gradient(circle at 90% 5%, rgba(95, 1, 19, 0.28), transparent 42%),
+          #fff8f7;
+        color: #241919;
+      }
+
+      html[data-theme="dark"] {
+        color-scheme: dark;
+        background: #140d0f;
+      }
+
+      html[data-theme="dark"] body {
+        background:
+          radial-gradient(circle at 5% 10%, rgba(236, 195, 2, 0.16), transparent 45%),
+          radial-gradient(circle at 90% 5%, rgba(180, 81, 99, 0.22), transparent 42%),
+          #140d0f;
+        color: #f8ecee;
+      }
+    </style>
+    <script>
+      (() => {
+        try {
+          const storageKey = "church-student-pwa-theme";
+          const savedTheme = localStorage.getItem(storageKey);
+          const prefersDark = window.matchMedia(
+            "(prefers-color-scheme: dark)",
+          ).matches;
+          const theme =
+            savedTheme === "dark" || savedTheme === "light"
+              ? savedTheme
+              : prefersDark
+                ? "dark"
+                : "light";
+
+          document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.style.colorScheme = theme;
+        } catch {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
     <title>የግቢ ጉባኤ መተግበሪያ</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   </head>
   <body>
     <div id="root"></div>
