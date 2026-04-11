@@ -12,8 +12,8 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -184,22 +184,6 @@ class SectionResource extends Resource
                     ->getSearchResultsUsing(fn (string $search): array => static::localizedSearchOptions('description_or', SectionType::descriptionOptionsFor('or'), $search))
                     ->getOptionLabelUsing(fn (?string $value): ?string => static::localizedOptionLabel('description_or', SectionType::descriptionOptionsFor('or'), $value))
                     ->afterStateUpdated(fn (callable $set, ?string $state) => static::normalizeNewOptionState('description_or', $set, $state)),
-                Select::make('primary_language')
-                    ->label('Primary Language')
-                    ->options([
-                        'am' => 'Amharic',
-                        'en' => 'English',
-                        'or' => 'Oromo',
-                        'other' => 'Other',
-                    ])
-                    ->default('am')
-                    ->required()
-                    ->live(),
-                TextInput::make('other_language')
-                    ->label('Other Language')
-                    ->maxLength(100)
-                    ->visible(fn ($get): bool => $get('primary_language') === 'other')
-                    ->required(fn ($get): bool => $get('primary_language') === 'other'),
                 Select::make('leader_id')
                     ->label('Leader')
                     ->relationship(
@@ -254,15 +238,6 @@ class SectionResource extends Resource
                     ->label('Leader')
                     ->placeholder('-')
                     ->searchable(),
-                TextColumn::make('primary_language')
-                    ->label('Language')
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'am' => 'Amharic',
-                        'en' => 'English',
-                        'or' => 'Oromo',
-                        default => 'Other',
-                    })
-                    ->badge(),
                 IconColumn::make('is_active')
                     ->label('Active')
                     ->boolean(),
@@ -272,7 +247,8 @@ class SectionResource extends Resource
             ])
             ->recordActions([
                 ActionGroup::make([
-                    EditAction::make(),
+                    EditAction::make()->slideOver(),
+                    ViewAction::make(),
                     DeleteAction::make(),
                 ]),
             ])

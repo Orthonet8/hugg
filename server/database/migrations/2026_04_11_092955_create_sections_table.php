@@ -19,8 +19,6 @@ return new class extends Migration
             $table->text('description_am')->nullable();
             $table->text('description_en')->nullable();
             $table->text('description_or')->nullable();
-            $table->enum('primary_language', ['am', 'en', 'or', 'other'])->default('am');
-            $table->string('other_language')->nullable();
             $table->foreignId('leader_id')->nullable()->constrained('users')->nullOnDelete();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

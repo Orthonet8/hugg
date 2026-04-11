@@ -14,8 +14,6 @@ class Section extends Model
         'description_am',
         'description_en',
         'description_or',
-        'primary_language',
-        'other_language',
         'leader_id',
         'is_active',
     ];
