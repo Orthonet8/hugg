@@ -1,4 +1,4 @@
-const CACHE_NAME = "church-student-pwa-v1";
+const CACHE_NAME = "church-student-pwa-v2";
 const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {

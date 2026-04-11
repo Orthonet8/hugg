@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Mail, Lock, User, Phone, ArrowRight, Loader2 } from "lucide-react";
@@ -8,6 +8,8 @@ import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
 import { ThemeToggle } from "../components/common/ThemeToggle";
 import { useAuthStore } from "../context/useAuthStore";
 import { useI18n } from "../i18n/I18nProvider";
+
+const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
 export const AuthPage = () => {
   const { t } = useI18n();
@@ -265,6 +267,75 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [identifierStatus, setIdentifierStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
+
+  const checkIdentifierNow = async (value: string): Promise<boolean> => {
+    const trimmed = value.trim();
+
+    if (trimmed.length < 3) {
+      return false;
+    }
+
+    const res = await fetch(
+      `${API_BASE}/api/auth/check-identifier?email_or_username=${encodeURIComponent(trimmed)}`,
+      {
+        headers: {
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      },
+    );
+
+    if (!res.ok) {
+      return false;
+    }
+
+    const data = (await res.json()) as { exists?: boolean };
+    return Boolean(data.exists);
+  };
+
+  useEffect(() => {
+    const value = emailOrUsername.trim();
+
+    if (value.length < 3) {
+      setIdentifierStatus("idle");
+      return;
+    }
+
+    let cancelled = false;
+    setIdentifierStatus("checking");
+
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/auth/check-identifier?email_or_username=${encodeURIComponent(value)}`,
+          {
+            headers: {
+              Accept: "application/json",
+              "X-Requested-With": "XMLHttpRequest",
+            },
+          },
+        );
+
+        if (!res.ok) {
+          if (!cancelled) setIdentifierStatus("idle");
+          return;
+        }
+
+        const data = (await res.json()) as { exists?: boolean };
+        if (!cancelled) {
+          setIdentifierStatus(data.exists ? "taken" : "available");
+        }
+      } catch {
+        if (!cancelled) setIdentifierStatus("idle");
+      }
+    }, 450);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [emailOrUsername]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -276,6 +347,22 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
     }
     if (password.length < 6) {
       setError(t("auth.passwordMinLength"));
+      return;
+    }
+    if (identifierStatus === "taken") {
+      setError(t("auth.alreadyRegistered"));
+      return;
+    }
+
+    if (identifierStatus === "checking") {
+      setError("Please wait while we check availability.");
+      return;
+    }
+
+    const exists = await checkIdentifierNow(emailOrUsername);
+    if (exists) {
+      setIdentifierStatus("taken");
+      setError(t("auth.alreadyRegistered"));
       return;
     }
 
@@ -294,8 +381,8 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
       } else {
         setError(t("auth.alreadyRegistered"));
       }
-    } catch {
-      setError("An unexpected error occurred.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
@@ -344,6 +431,15 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
           <Mail size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
           <input type="text" required placeholder={t("reg.emailOrUsernamePlaceholder")} value={emailOrUsername} onChange={(e) => setEmailOrUsername(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
         </div>
+        {identifierStatus === "checking" && (
+          <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
+        )}
+        {identifierStatus === "available" && (
+          <p className="mt-1 text-xs text-emerald-600">Available</p>
+        )}
+        {identifierStatus === "taken" && (
+          <p className="mt-1 text-xs text-red-600">Already registered</p>
+        )}
       </div>
 
       <div>

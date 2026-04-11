@@ -42,7 +42,16 @@ const api = async <T>(path: string, body: unknown, token?: string): Promise<T> =
 
   const json = await res.json();
   if (!res.ok) {
-    const msg = (json as { message?: string }).message;
+    const payload = json as {
+      message?: string;
+      errors?: Record<string, string[] | undefined>;
+    };
+
+    const firstFieldErrors = payload.errors
+      ? Object.values(payload.errors).find((messages) => Array.isArray(messages) && messages.length > 0)
+      : undefined;
+
+    const msg = firstFieldErrors?.[0] ?? payload.message;
     throw new Error(msg ?? "Request failed");
   }
   return json;
@@ -57,7 +66,17 @@ const apiGet = async <T>(path: string, token?: string): Promise<T> => {
 
   const res = await fetch(`${API_BASE}${path}`, { headers });
   const json = await res.json();
-  if (!res.ok) throw new Error(json.message ?? "Request failed");
+  if (!res.ok) {
+    const payload = json as {
+      message?: string;
+      errors?: Record<string, string[] | undefined>;
+    };
+    const firstFieldErrors = payload.errors
+      ? Object.values(payload.errors).find((messages) => Array.isArray(messages) && messages.length > 0)
+      : undefined;
+
+    throw new Error(firstFieldErrors?.[0] ?? payload.message ?? "Request failed");
+  }
   return json;
 };
 

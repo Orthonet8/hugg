@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 /* ------------------------------------------------------------------ */
 Route::post('/auth/register', [ApiMemberController::class, 'register']);
 Route::post('/auth/login', [ApiMemberController::class, 'login']);
+Route::get('/auth/check-identifier', [ApiMemberController::class, 'checkIdentifier']);
 
 /* ------------------------------------------------------------------ */
 /*  Public family routes */

@@ -23,8 +23,9 @@ class ApiMemberController extends Controller
             'full_name' => 'required|string|max:255',
             'christian_name' => 'nullable|string|max:255',
             'email_or_username' => 'required|string|unique:members,email_or_username|max:255',
-            'password' => ['required', 'confirmed', Password::defaults()],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
             'mobile' => 'nullable|string|max:50',
+            'batch' => 'nullable|string|max:50',
             'gender' => 'nullable|in:ወንድ,ሴት',
             'age' => 'nullable|string|max:10',
             'profile_photo' => 'nullable|string|max:255',
@@ -68,6 +69,7 @@ class ApiMemberController extends Controller
 
         $member = Member::create([
             ...$validated,
+            'batch' => $validated['batch'] ?? '2018',
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -79,6 +81,31 @@ class ApiMemberController extends Controller
             'member' => $this->formatMemberResponse($member),
             'token' => $token,
         ], 201);
+    }
+
+    public function checkIdentifier(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email_or_username' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $identifier = mb_strtolower(trim((string) $validator->validated()['email_or_username']));
+
+        $exists = Member::query()
+            ->whereRaw('LOWER(email_or_username) = ?', [$identifier])
+            ->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'available' => ! $exists,
+        ]);
     }
 
     /* ------------------------------------------------------------------ */
