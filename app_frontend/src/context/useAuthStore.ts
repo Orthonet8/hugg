@@ -60,37 +60,29 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
 
       login: async (emailOrUsername: string, password: string) => {
-        try {
-          const data = await api<{ member: UserProfile; token: string }>("/api/auth/login", {
-            email_or_username: emailOrUsername,
-            password,
-          });
-          set({ user: data.member, token: data.token, isAuthenticated: true });
-          return true;
-        } catch {
-          return false;
-        }
+        const data = await api<{ member: UserProfile; token: string }>("/api/auth/login", {
+          email_or_username: emailOrUsername,
+          password,
+        });
+        set({ user: data.member, token: data.token, isAuthenticated: true });
+        return true;
       },
 
       signup: async (data: SignupPayload) => {
-        try {
-          const payload = {
-            full_name: data.fullName,
-            email_or_username: data.emailOrUsername,
-            password: data.password,
-            password_confirmation: data.passwordConfirmation,
-            christian_name: data.christianName,
-            mobile: data.mobile,
-            gender: data.gender,
-            age: data.age,
-          };
+        const payload = {
+          full_name: data.fullName,
+          email_or_username: data.emailOrUsername,
+          password: data.password,
+          password_confirmation: data.passwordConfirmation,
+          christian_name: data.christianName,
+          mobile: data.mobile,
+          gender: data.gender,
+          age: data.age,
+        };
 
-          const res = await api<{ member: UserProfile; token: string }>("/api/auth/register", payload);
-          set({ user: res.member, token: res.token, isAuthenticated: true });
-          return true;
-        } catch {
-          return false;
-        }
+        const res = await api<{ member: UserProfile; token: string }>("/api/auth/register", payload);
+        set({ user: res.member, token: res.token, isAuthenticated: true });
+        return true;
       },
 
       logout: async () => {

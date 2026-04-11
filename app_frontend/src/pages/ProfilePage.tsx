@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -21,15 +20,13 @@ import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
 import { useAuthStore } from "../context/useAuthStore";
 import { useI18n } from "../i18n/I18nProvider";
-import { localeNames, type Locale } from "../i18n/translations";
 import { useThemeMode } from "../hooks/useThemeMode";
 
 export const ProfilePage = () => {
   const { user, logout } = useAuthStore();
-  const { t, locale, setLocale } = useI18n();
+  const { t } = useI18n();
   const { mode, toggleMode } = useThemeMode();
   const navigate = useNavigate();
-  const [showLangPicker, setShowLangPicker] = useState(false);
 
   if (!user) return null;
 
@@ -222,47 +219,6 @@ export const ProfilePage = () => {
           </span>
           <ChevronRight size={16} className="text-[color:var(--border-strong)]" />
         </button>
-
-        {/* Language Picker */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setShowLangPicker((v) => !v)}
-            className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[color:var(--soft-hover)]"
-          >
-            <Globe size={18} className="text-[color:var(--primary)] shrink-0" />
-            <span className="flex-1 text-sm font-semibold text-[color:var(--text-primary)]">
-              {t("common.language")}
-            </span>
-            <span className="text-xs font-medium text-[color:var(--text-muted)]">
-              {localeNames[locale]}
-            </span>
-            <ChevronRight size={16} className="text-[color:var(--border-strong)]" />
-          </button>
-
-          {showLangPicker && (
-            <div className="absolute right-4 z-100 mt-1 min-w-[180px] overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-xl">
-              {(["en", "am", "om"] as Locale[]).map((loc) => (
-                <button
-                  key={loc}
-                  type="button"
-                  onClick={() => {
-                    setLocale(loc);
-                    setShowLangPicker(false);
-                  }}
-                  className={`flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm transition-colors hover:bg-[color:var(--soft-hover)] ${
-                    loc === locale
-                      ? "bg-[color:var(--nav-active)] font-semibold text-[color:var(--primary)]"
-                      : "text-[color:var(--text-primary)]"
-                  }`}
-                >
-                  {loc === locale && <Check size={14} />}
-                  <span className={loc === locale ? "" : "pl-5"}>{localeNames[loc]}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
 
         {/* Theme Toggle */}
         <button

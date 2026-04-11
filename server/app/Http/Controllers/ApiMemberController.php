@@ -85,9 +85,10 @@ class ApiMemberController extends Controller
 
         $identifier = 'login:' . $validated['email_or_username'];
         $attempts = (int) Cache::get($identifier, 0);
+        $maxAttempts = 3;
 
         // If locked out
-        if ($attempts >= 2) {
+        if ($attempts >= $maxAttempts) {
             $lockedUntil = Cache::get($identifier . ':locked_until');
             if ($lockedUntil && $lockedUntil > now()->timestamp) {
                 $minutesRemaining = ceil(($lockedUntil - now()->timestamp) / 60);
@@ -96,7 +97,6 @@ class ApiMemberController extends Controller
                     'retryAfter' => $lockedUntil,
                 ], 429);
             }
-            // Lock expired, reset
             Cache::forget($identifier);
             Cache::forget($identifier . ':locked_until');
             $attempts = 0;
@@ -104,25 +104,39 @@ class ApiMemberController extends Controller
 
         $member = Member::where('email_or_username', $validated['email_or_username'])->first();
 
-        if (! $member || ! Hash::check($validated['password'], $member->password)) {
+        $isDeactivated = $member && $member->is_active === false;
+
+        // Failed credential check (invalid password OR deactivated account)
+        if (! $member || ! Hash::check($validated['password'], $member->password) || $isDeactivated) {
             $attempts++;
 
-            if ($attempts >= 2) {
-                // Lock for 60 minutes
+            if ($attempts >= $maxAttempts) {
                 $lockedUntil = now()->addMinutes(60)->timestamp;
                 Cache::put($identifier, $attempts, now()->addMinutes(60));
                 Cache::put($identifier . ':locked_until', $lockedUntil, now()->addMinutes(60));
 
+                $msg = $isDeactivated
+                    ? 'Account is deactivated. 3 failed attempts reached. Locked for 60 minutes.'
+                    : 'Too many failed attempts. Your account is locked for 60 minutes.';
+
                 return response()->json([
-                    'message' => 'Too many failed attempts. Your account is locked for 60 minutes.',
+                    'message' => $msg,
                     'retryAfter' => $lockedUntil,
                 ], 429);
             }
 
             Cache::put($identifier, $attempts, now()->addMinutes(60));
 
+            $remaining = $maxAttempts - $attempts;
+
+            if ($isDeactivated) {
+                return response()->json([
+                    'message' => "Your account is deactivated. {$remaining} attempt(s) remaining before lockout.",
+                ], 403);
+            }
+
             return response()->json([
-                'message' => 'Invalid credentials. ' . (2 - $attempts) . ' attempt(s) remaining before lockout.',
+                'message' => "Invalid credentials. {$remaining} attempt(s) remaining before lockout.",
             ], 401);
         }
 
@@ -130,24 +144,14 @@ class ApiMemberController extends Controller
         Cache::forget($identifier);
         Cache::forget($identifier . ':locked_until');
 
-        if (! $member->is_active) {
-            return response()->json([
-                'message' => 'Your account is deactivated. Please contact support.',
-            ], 403);
-        }
-
         $token = $member->email_or_username.':'.bin2hex(random_bytes(16));
 
         return response()->json([
             'message' => 'Login successful',
-            'member' => $this->formatMemberResponse($member),
-            'token' => $token,
+            'member'  => $this->formatMemberResponse($member),
+            'token'   => $token,
         ]);
     }
-
-    /* ------------------------------------------------------------------ */
-    /*  POST /api/auth/logout */
-    /* ------------------------------------------------------------------ */
 
     public function logout(Request $request): JsonResponse
     {

@@ -32,6 +32,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class MemberResource extends Resource
@@ -112,7 +113,14 @@ class MemberResource extends Resource
                 TextColumn::make('section.display_name')
                     ->label('Section')
                     ->placeholder('—')
-                    ->searchable(),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('section', function (Builder $sectionQuery) use ($search): void {
+                            $sectionQuery
+                                ->where('name_am', 'ilike', "%{$search}%")
+                                ->orWhere('name_en', 'ilike', "%{$search}%")
+                                ->orWhere('name_or', 'ilike', "%{$search}%");
+                        });
+                    }),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->since()
