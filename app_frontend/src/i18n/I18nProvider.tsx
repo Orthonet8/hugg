@@ -28,7 +28,7 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   const setLocale = (locale: Locale) => setLocaleState(locale);
 
   const t = useMemo(() => {
-    const dict = translations[locale];
+    const dict = translations[locale] as Record<string, string>;
     return (key: string): string => dict[key] ?? key;
   }, [locale]);
 

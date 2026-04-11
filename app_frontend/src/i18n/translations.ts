@@ -6,7 +6,7 @@ export const localeNames: Record<Locale, string> = {
   om: "Afaan Oromoo",
 };
 
-/* English */
+/* =========================== English =========================== */
 const en = {
   "nav.news": "News",
   "nav.calendar": "Calendar",
@@ -127,10 +127,6 @@ const en = {
   "calendar.subtitle": "Upcoming events and programs",
   "calendar.noEvents": "No events found for this date.",
   "calendar.events": "Events",
-  "calendar.allEvents": "All Events",
-  "calendar.location": "Location",
-  "calendar.time": "Time",
-  "calendar.description": "Description",
   "family.title": "Family",
   "family.subtitle": "Spiritual family group members",
   "family.addMember": "Add Member",
@@ -162,7 +158,7 @@ const en = {
   "passwordReset.confirm": "Confirm new password",
 };
 
-/* Amharic */
+/* =========================== Amharic =========================== */
 const am: typeof en = {
   "nav.news": "ዜና",
   "nav.calendar": "ቀን መቁጠሪያ",
@@ -283,10 +279,6 @@ const am: typeof en = {
   "calendar.subtitle": "መጪ ዝግጅቶች እና ፕሮግራሞች",
   "calendar.noEvents": "ለዚህ ቀን ምንም ዝግጅት አልተገኘም።",
   "calendar.events": "ዝግጅቶች",
-  "calendar.allEvents": "ሁሉም ዝግጅቶች",
-  "calendar.location": "ስፍራ",
-  "calendar.time": "ሰዓት",
-  "calendar.description": "ማብራሪያ",
   "family.title": "ቤተሰብ",
   "family.subtitle": "የመንፈሳዊ ቤተሰብ ቡድን አባላት",
   "family.addMember": "አባል ጨምር",
@@ -318,7 +310,7 @@ const am: typeof en = {
   "passwordReset.confirm": "አዲስ የይለፍ ቃል ያረጋግጡ",
 };
 
-/* Oromo */
+/* =========================== Oromo =========================== */
 const om: typeof en = {
   "nav.news": "Oduu",
   "nav.calendar": "Kaalee",
@@ -360,7 +352,7 @@ const om: typeof en = {
   "auth.passwordMismatch": "Jeewwan darbii wal hin siman.",
   "auth.passwordMinLength": "Jechi darbii yoo xiqqaate qubbee 6 ta'uu qaba.",
   "auth.alreadyRegistered": "Imeeliin ykn bilbilli kun dursee galmaa'eera.",
-  "auth.loginError": "Imeelii/bilbila ykn jecha darbii dogoggora. Maa.",
+  "auth.loginError": "Imeelii/bilbila ykn jecha darbii dogoggora. Maaloo irra deebi'ii yaali.",
   "auth.termsAgree": "Itti fufuudhaan,",
   "auth.termsOfService": "Haalawwan Tajaajilaa",
   "auth.privacyPolicy": "Imaammata Dhuunfaa",
@@ -404,7 +396,7 @@ const om: typeof en = {
   "reg.ordination": "Ajaja Qulqullummaa",
   "reg.ordinationYear": "Waggaa Ajajaa",
   "reg.diocese": "Diyoosesii",
-  "reg.bishop": "Bishoooppii",
+  "reg.bishop": "Bishooppii",
   "reg.mobile": "Bilbila",
   "reg.facebook": "Feesbuukii",
   "reg.fieldOfStudy": "Saayinsii Barumsaa",
@@ -430,4 +422,45 @@ const om: typeof en = {
   "reg.localChurchPlaceholder": "Maqaa kilisaa naannoo keessan",
   "reg.ordinationYearPlaceholder": "fkn, 2018",
   "reg.diocesePlaceholder": "Diyoosesii keessan",
-  "reg.bishopPlaceholder": "Maqaa bishoopp
+  "reg.bishopPlaceholder": "Maqaa bishooppii",
+
+  "reg.mobilePlaceholder": "+251912345678",
+  "reg.emailPlaceholder": "example@gmail.com",
+  "reg.facebookPlaceholder": "URL ykn maqaa feesbuukii",
+  "reg.telegramPlaceholder": "@maqaafayyadamaa",
+  "calendar.title": "Kaalee",
+  "calendar.subtitle": "Tajaajiloota fi sagantaa dhufu",
+  "calendar.noEvents": "Guyyaa kanaaf tajaajilli hin argamne.",
+  "calendar.events": "Tajaajiloota",
+  "family.title": "Maatii",
+  "family.subtitle": "Miseensota maatii hafuuraa",
+  "family.addMember": "Miseensa Dabaluu",
+  "family.noMembers": "Miseensi hin argamne.",
+  "family.leader": "Hoogganaa",
+  "family.member": "Miseensa",
+  "family.contact": "Quunnamtii",
+  "family.role": "Ga'ee",
+  "family.service": "Tajaajila",
+  "family.note": "Yaadachiisa",
+  "news.title": "Oduu",
+  "news.subtitle": "Beeksisisa wiirtuu yuunivarsiitii",
+  "news.allNews": "Oduu Hunda",
+  "news.saved": "Kuusama",
+  "news.noNews": "Oduun kutaa kanaa hin argamne.",
+  "news.noSavedNews": "Oduun kuusamee hin jiru.",
+  "notifications.title": "Beeksisa",
+  "notifications.subtitle": "Beeksisisa sochii keessanii",
+  "notifications.noNotifications": "Beeksisni hin jiru.",
+  "notifications.markAllRead": "Hunda kan affeerraa agarsiisi",
+  "passwordReset.title": "Jecha Darbii Saagi",
+  "passwordReset.subtitle": "Herreega keessan eeguuf jecha darbii haaraa galchaa.",
+  "passwordReset.newPassword": "Jecha Darbii Haaraa",
+  "passwordReset.confirmPassword": "Jecha Darbii Haaraa Mirkaneessi",
+  "passwordReset.submit": "Jecha Darbii Haaraa Saagi",
+  "passwordReset.success": "Jechi darbii milkaa'inaan saagameera!",
+  "passwordReset.redirecting": "Galuutti geeffamaa jira...",
+  "passwordReset.enterNew": "Jecha darbii haaraa galchaa",
+  "passwordReset.confirm": "Jecha darbii haaraa mirkaneessi",
+};
+
+export const translations: Record<Locale, typeof en> = { en, am, om };

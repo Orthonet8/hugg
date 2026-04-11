@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Lock, ArrowLeft, Loader2 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
+import { useI18n } from "../i18n/I18nProvider";
 
 export const SetPasswordPage = () => {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,24 +19,20 @@ export const SetPasswordPage = () => {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("የይለፍ ቃሎች አይዛመዱም።");
+      setError(t("auth.passwordMismatch"));
       return;
     }
     if (password.length < 6) {
-      setError("Password should be at least 6 characters.");
+      setError(t("auth.passwordMinLength"));
       return;
     }
 
     setLoading(true);
-    // TODO: Replace with API call
-    // await fetch("/api/auth/reset-password", { method: "POST", body: JSON.stringify({ password }) });
     await new Promise((r) => setTimeout(r, 600));
     setLoading(false);
     setSuccess(true);
 
-    setTimeout(() => {
-      navigate("/login");
-    }, 1200);
+    setTimeout(() => navigate("/login"), 1200);
   };
 
   return (
@@ -46,7 +44,7 @@ export const SetPasswordPage = () => {
           className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-[color:var(--text-muted)] transition hover:text-[color:var(--primary)]"
         >
           <ArrowLeft size={16} />
-          ተመለስ
+          {t("common.back")}
         </button>
 
         <Card className="overflow-hidden border-0 p-0 shadow-2xl">
@@ -54,34 +52,24 @@ export const SetPasswordPage = () => {
             {success ? (
               <div className="py-10 text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                  <svg
-                    className="h-8 w-8 text-green-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
+                  <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <h2 className="app-heading text-xl font-bold text-[color:var(--text-primary)]">
-                  የይለፍ ቃል ተቀምጧል!
+                  {t("passwordReset.success")}
                 </h2>
                 <p className="mt-2 text-sm text-[color:var(--text-muted)]">
-                  Redirecting to login...
+                  {t("passwordReset.redirecting")}
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <h2 className="app-heading text-xl font-bold text-[color:var(--text-primary)]">
-                  የይለፍ ቃል አዘጋጅ
+                  {t("passwordReset.title")}
                 </h2>
                 <p className="text-sm text-[color:var(--text-muted)]">
-                  መለያዎን ለመጠበቅ አዲስ የይለፍ ቃል ያስገቡ።
+                  {t("passwordReset.subtitle")}
                 </p>
 
                 {error && (
@@ -92,56 +80,26 @@ export const SetPasswordPage = () => {
 
                 <div>
                   <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-                    አዲስ የይለፍ ቃል
+                    {t("passwordReset.newPassword")}
                   </label>
                   <div className="relative">
-                    <Lock
-                      size={18}
-                      className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]"
-                    />
-                    <input
-                      type="password"
-                      required
-                      placeholder="Enter new password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm"
-                    />
+                    <Lock size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
+                    <input type="password" required placeholder={t("passwordReset.enterNew")} value={password} onChange={(e) => setPassword(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
                   </div>
                 </div>
 
                 <div>
                   <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-                    የይለፍ ቃል ያረጋግጡ
+                    {t("passwordReset.confirmPassword")}
                   </label>
                   <div className="relative">
-                    <Lock
-                      size={18}
-                      className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]"
-                    />
-                    <input
-                      type="password"
-                      required
-                      placeholder="Confirm new password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm"
-                    />
+                    <Lock size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
+                    <input type="password" required placeholder={t("passwordReset.confirm")} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
                   </div>
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  variant="primary"
-                  size="lg"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    "አዲስ የይለፍ ቃል አስቀምጥ"
-                  )}
+                <Button type="submit" className="w-full" variant="primary" size="lg" disabled={loading}>
+                  {loading ? <Loader2 size={18} className="animate-spin" /> : t("passwordReset.submit")}
                 </Button>
               </form>
             )}

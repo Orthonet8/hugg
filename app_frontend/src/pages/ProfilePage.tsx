@@ -7,7 +7,6 @@ import {
   Phone,
   Send,
   Music,
-  BookOpen,
   Heart,
   Globe,
   Bell,
@@ -17,7 +16,6 @@ import {
   Check,
   Moon,
   Sun,
-  Languages,
 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";

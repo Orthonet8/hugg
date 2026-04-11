@@ -11,6 +11,7 @@ import { SlideBackgroundParticipation } from "../components/registration/SlideBa
 import { SlideSkillsService } from "../components/registration/SlideSkillsService";
 import { SlideContactSocial } from "../components/registration/SlideContactSocial";
 import { useAuthStore } from "../context/useAuthStore";
+import { useI18n } from "../i18n/I18nProvider";
 
 /* Map slide IDs to components */
 const slideMap: Record<string, React.ComponentType<{ form: RegistrationForm; setForm: React.Dispatch<React.SetStateAction<RegistrationForm>> }>> = {
@@ -21,18 +22,14 @@ const slideMap: Record<string, React.ComponentType<{ form: RegistrationForm; set
   "contact-social": SlideContactSocial,
 };
 
-/* Registration form state — extends auth credentials */
 export interface RegistrationForm {
-  /* Basic Info */
   fullName: string;
   christianName: string;
   gender: string;
   age: string;
-  /* Campus & Academics */
   campus: string;
   fieldOfStudy: string;
   dorm: string;
-  /* Background & Participation */
   region: string;
   zone: string;
   woreda: string;
@@ -40,7 +37,6 @@ export interface RegistrationForm {
   extraLanguages: string;
   previousParticipation: string;
   localChurch: string;
-  /* Skills & Service */
   ordination: string;
   ordinationYear: string;
   diocese: string;
@@ -48,7 +44,6 @@ export interface RegistrationForm {
   serviceDepartments: string[];
   talents: string[];
   talentDescription: string;
-  /* Contact & Social */
   mobile: string;
   email: string;
   facebook: string;
@@ -56,40 +51,22 @@ export interface RegistrationForm {
 }
 
 const initialForm: RegistrationForm = {
-  fullName: "",
-  christianName: "",
-  gender: "",
-  age: "",
-  campus: "",
-  fieldOfStudy: "",
-  dorm: "",
-  region: "",
-  zone: "",
-  woreda: "",
-  nativeLanguage: "",
-  extraLanguages: "",
-  previousParticipation: "",
-  localChurch: "",
-  ordination: "",
-  ordinationYear: "",
-  diocese: "",
-  bishop: "",
-  serviceDepartments: [],
-  talents: [],
-  talentDescription: "",
-  mobile: "",
-  email: "",
-  facebook: "",
-  telegram: "",
+  fullName: "", christianName: "", gender: "", age: "",
+  campus: "", fieldOfStudy: "", dorm: "",
+  region: "", zone: "", woreda: "", nativeLanguage: "", extraLanguages: "",
+  previousParticipation: "", localChurch: "",
+  ordination: "", ordinationYear: "", diocese: "", bishop: "",
+  serviceDepartments: [], talents: [], talentDescription: "",
+  mobile: "", email: "", facebook: "", telegram: "",
 };
 
 export const RegistrationPage = () => {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { stepId } = useParams<{ stepId: string }>();
   const { user } = useAuthStore();
 
   const [form, setForm] = useState<RegistrationForm>(() => {
-    // Pre-fill with auth data if available
     const base = { ...initialForm };
     if (user) {
       base.fullName = user.fullName || "";
@@ -112,7 +89,22 @@ export const RegistrationPage = () => {
   const currentSlide = registrationSlides[currentIndex];
   const SlideComponent = slideMap[currentSlide?.id];
 
-  /* Per-step validators */
+  /* Per-step title/subtitle keys */
+  const slideTitleKeys: Record<string, string> = {
+    "basic-info": "reg.step1Title",
+    "campus-academics": "reg.step2Title",
+    "background-participation": "reg.step3Title",
+    "skills-service": "reg.step4Title",
+    "contact-social": "reg.step5Title",
+  };
+  const slideSubtitleKeys: Record<string, string> = {
+    "basic-info": "reg.step1Subtitle",
+    "campus-academics": "reg.step2Subtitle",
+    "background-participation": "reg.step3Subtitle",
+    "skills-service": "reg.step4Subtitle",
+    "contact-social": "reg.step5Subtitle",
+  };
+
   const validators: Record<string, () => boolean> = {
     "basic-info": () => !!(form.fullName && form.christianName && form.gender && form.age),
     "campus-academics": () => !!(form.campus && form.fieldOfStudy),
@@ -130,16 +122,13 @@ export const RegistrationPage = () => {
   const handleNext = async () => {
     const isValid = validators[currentSlide?.id]?.();
     if (!isValid) {
-      setError("እባክዎ ከመቀጠልዎ በፊት አስፈላጊ መረጃዎችን ያስገቡ።");
+      setError(t("reg.validationError"));
       return;
     }
     setError("");
 
-    // Last step — submit
     if (currentIndex === registrationSlides.length - 1) {
       setSubmitting(true);
-      // TODO: Replace with API call
-      // await fetch("/api/users", { method: "POST", body: JSON.stringify(form) });
       setTimeout(() => {
         setSubmitting(false);
         navigate("/news");
@@ -160,15 +149,9 @@ export const RegistrationPage = () => {
   const handleTopBack = currentIndex === 0 ? handleExit : handleBack;
 
   const variants = {
-    enter: (dir: "forward" | "backward") => ({
-      x: dir === "forward" ? 60 : -60,
-      opacity: 0,
-    }),
+    enter: (dir: "forward" | "backward") => ({ x: dir === "forward" ? 60 : -60, opacity: 0 }),
     center: { x: 0, opacity: 1 },
-    exit: (dir: "forward" | "backward") => ({
-      x: dir === "forward" ? -60 : 60,
-      opacity: 0,
-    }),
+    exit: (dir: "forward" | "backward") => ({ x: dir === "forward" ? -60 : 60, opacity: 0 }),
   };
 
   return (
@@ -176,13 +159,9 @@ export const RegistrationPage = () => {
       <Card className="overflow-hidden border-0 p-0 shadow-2xl">
         {/* Top Bar */}
         <div className="flex items-center justify-between border-b border-[color:var(--border)] px-5 py-4">
-          <button
-            type="button"
-            onClick={handleTopBack}
-            className="inline-flex items-center gap-1 text-sm font-medium text-[color:var(--text-muted)] transition hover:text-[color:var(--primary)]"
-          >
+          <button type="button" onClick={handleTopBack} className="inline-flex items-center gap-1 text-sm font-medium text-[color:var(--text-muted)] transition hover:text-[color:var(--primary)]">
             <ArrowLeft size={16} />
-            ተመለስ
+            {t("common.back")}
           </button>
           <div className="app-gradient rounded-lg px-3 py-1.5 text-xs font-bold text-[color:var(--on-primary)]">
             HUGGB
@@ -200,110 +179,67 @@ export const RegistrationPage = () => {
             </span>
           </div>
 
-          {/* Progress Bar */}
           <div className="mb-4 h-2 overflow-hidden rounded-full bg-[color:var(--surface-soft)]">
-            <motion.div
-              className="h-full rounded-full bg-[color:var(--accent)]"
-              initial={{ width: 0 }}
-              animate={{ width: `${currentSlide.progress}%` }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-            />
+            <motion.div className="h-full rounded-full bg-[color:var(--accent)]" initial={{ width: 0 }} animate={{ width: `${currentSlide.progress}%` }} transition={{ duration: 0.4, ease: "easeOut" }} />
           </div>
 
           <h2 className="app-heading text-xl font-bold text-[color:var(--text-primary)] sm:text-2xl">
-            {currentSlide.title}
+            {t(slideTitleKeys[currentSlide.id] ?? currentSlide.title)}
           </h2>
           <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-            {currentSlide.subtitle}
+            {t(slideSubtitleKeys[currentSlide.id] ?? currentSlide.subtitle)}
           </p>
         </div>
 
         {/* Slide Content */}
         <div className="relative min-h-[280px] px-5 pb-5">
           {error && (
-            <div className="mb-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-700">
-              {error}
-            </div>
+            <div className="mb-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-700">{error}</div>
           )}
 
           <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={currentSlide.id}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.25, ease: "easeInOut" }}
-            >
+            <motion.div key={currentSlide.id} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25, ease: "easeInOut" }}>
               {SlideComponent ? (
                 <SlideComponent form={form} setForm={setForm} />
               ) : (
-                <p className="py-10 text-center text-sm text-[color:var(--text-muted)]">
-                  Slide not found.
-                </p>
+                <p className="py-10 text-center text-sm text-[color:var(--text-muted)]">Slide not found.</p>
               )}
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Footer Navigation */}
+        {/* Footer */}
         <div className="flex items-center justify-between border-t border-[color:var(--border)] bg-[color:var(--surface-soft)] px-5 py-4">
-          <button
-            type="button"
-            onClick={handleExit}
-            className="text-sm text-[color:var(--text-muted)] transition hover:text-red-600"
-          >
+          <button type="button" onClick={handleExit} className="text-sm text-[color:var(--text-muted)] transition hover:text-red-600">
             <X size={14} className="inline mr-1" />
-            ውጣ
+            {t("common.exit")}
           </button>
 
           <div className="flex items-center gap-3">
             {currentIndex > 0 && (
-              <Button
-                variant="outline"
-                size="md"
-                onClick={handleBack}
-                disabled={submitting}
-              >
+              <Button variant="outline" size="md" onClick={handleBack} disabled={submitting}>
                 <ChevronLeft size={16} />
-                ቀዳሚ
+                {t("common.back")}
               </Button>
             )}
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleNext}
-              disabled={submitting}
-            >
-              {submitting
-                ? "እያስገባ ነው..."
-                : currentIndex === registrationSlides.length - 1
-                  ? "አስገባ"
-                  : "ቀጥል"}
+            <Button variant="primary" size="md" onClick={handleNext} disabled={submitting}>
+              {submitting ? t("common.submitting") : currentIndex === registrationSlides.length - 1 ? t("common.submit") : t("common.next")}
             </Button>
           </div>
         </div>
       </Card>
 
-      {/* Slide Dots Indicator */}
+      {/* Slide Dots */}
       <div className="mt-4 flex items-center justify-center gap-2">
         {registrationSlides.map((slide, idx) => (
           <button
             key={slide.id}
             type="button"
-            onClick={() => {
-              setDirection(idx > currentIndex ? "forward" : "backward");
-              goToIndex(idx);
-            }}
+            onClick={() => { setDirection(idx > currentIndex ? "forward" : "backward"); goToIndex(idx); }}
             className={`h-2.5 rounded-full transition-all duration-200 ${
-              idx === currentIndex
-                ? "w-8 bg-[color:var(--primary)]"
-                : idx < currentIndex
-                  ? "w-2.5 bg-[color:var(--primary)] opacity-40"
-                  : "w-2.5 bg-[color:var(--border-strong)]"
+              idx === currentIndex ? "w-8 bg-[color:var(--primary)]" : idx < currentIndex ? "w-2.5 bg-[color:var(--primary)] opacity-40" : "w-2.5 bg-[color:var(--border-strong)]"
             }`}
-            aria-label={`Go to step ${idx + 1}: ${slide.title}`}
+            aria-label={`Go to step ${idx + 1}`}
           />
         ))}
       </div>
