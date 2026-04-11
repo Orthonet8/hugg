@@ -25,4 +25,5 @@ Route::middleware('api')->group(function () {
 
     // Members CRUD
     Route::apiResource('members', ApiMemberController::class)->except(['store']);
+    Route::patch('members/{id}/profile', [ApiMemberController::class, 'updateProfile']);
 });

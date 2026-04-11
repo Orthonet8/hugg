@@ -173,6 +173,51 @@ class ApiMemberController extends Controller
         return response()->json(['member' => $this->formatMemberResponse($member)]);
     }
 
+
+    /* ------------------------------------------------------------------ */
+    /*  PATCH /api/members/{id}/profile                                   */
+    /* ------------------------------------------------------------------ */
+
+    public function updateProfile(Request $request, int $id): JsonResponse
+    {
+        $member = Member::find($id);
+
+        if (! $member) {
+            return response()->json(["message" => "Member not found"], 404);
+        }
+
+        $validated = $request->validate([
+            "christian_name"       => "nullable|string|max:255",
+            "gender"               => "nullable|in:ወንድ,ሴት",
+            "age"                  => "nullable|string|max:10",
+            "campus"               => "nullable|string|max:255",
+            "field_of_study"       => "nullable|string|max:255",
+            "dorm"                 => "nullable|string|max:255",
+            "region"               => "nullable|string|max:255",
+            "zone"                 => "nullable|string|max:255",
+            "woreda"               => "nullable|string|max:255",
+            "native_language"      => "nullable|string|max:255",
+            "extra_languages"      => "nullable|string|max:255",
+            "previous_participation" => "nullable|string|max:255",
+            "local_church"         => "nullable|string|max:255",
+            "ordination"           => "nullable|string|max:255",
+            "ordination_year"      => "nullable|string|max:255",
+            "diocese"              => "nullable|string|max:255",
+            "bishop"               => "nullable|string|max:255",
+            "service_departments"  => "nullable|array",
+            "talents"              => "nullable|array",
+            "talent_description"   => "nullable|string|max:1000",
+            "mobile"               => "nullable|string|max:50",
+            "telegram"             => "nullable|string|max:255",
+        ]);
+
+        $member->update($validated);
+
+        return response()->json([
+            "message" => "Profile updated",
+            "member"  => $this->formatMemberResponse($member),
+        ]);
+    }
     /* ------------------------------------------------------------------ */
     /*  GET /api/members */
     /* ------------------------------------------------------------------ */

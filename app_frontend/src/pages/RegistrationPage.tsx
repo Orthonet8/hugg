@@ -4,8 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, X } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
-import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
-import { ThemeToggle } from "../components/common/ThemeToggle";
 import { registrationSlides } from "../data/registrationSlides";
 import { SlideBasicInfo } from "../components/registration/SlideBasicInfo";
 import { SlideCampusAcademics } from "../components/registration/SlideCampusAcademics";
@@ -66,6 +64,7 @@ export const RegistrationPage = () => {
   const navigate = useNavigate();
   const { stepId } = useParams<{ stepId: string }>();
   const { user } = useAuthStore();
+  const updateProfile = useAuthStore((s) => s.updateProfile);
 
   const [form, setForm] = useState<RegistrationForm>(() => {
     const base = { ...initialForm };
@@ -130,10 +129,13 @@ export const RegistrationPage = () => {
 
     if (currentIndex === registrationSlides.length - 1) {
       setSubmitting(true);
-      setTimeout(() => {
-        setSubmitting(false);
+      try {
+        await updateProfile(form);
         navigate("/news");
-      }, 900);
+      } catch {
+        setError("Failed to save registration. Please try again.");
+        setSubmitting(false);
+      }
       return;
     }
 
@@ -165,8 +167,6 @@ export const RegistrationPage = () => {
             {t("common.back")}
           </button>
           <div className="flex items-center gap-2">
-            <LanguageSwitcher />
-            <ThemeToggle />
             <div className="app-gradient rounded-lg px-3 py-1.5 text-xs font-bold text-[color:var(--on-primary)]">
               HUGGB
             </div>

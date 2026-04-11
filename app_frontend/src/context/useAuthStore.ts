@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import type { UserProfile } from "../types";
+import type { RegistrationForm } from "../pages/RegistrationPage";
 
 interface AuthState {
   user: UserProfile | null;
@@ -8,6 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
   login: (emailOrUsername: string, password: string) => Promise<boolean>;
   signup: (data: SignupPayload) => Promise<boolean>;
+  updateProfile: (data: RegistrationForm) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
@@ -82,6 +84,44 @@ export const useAuthStore = create<AuthState>()(
 
         const res = await api<{ member: UserProfile; token: string }>("/api/auth/register", payload);
         set({ user: res.member, token: res.token, isAuthenticated: true });
+        return true;
+      },
+
+      updateProfile: async (data: RegistrationForm) => {
+        const state = get();
+        if (!state.user || !state.token) return false;
+
+        const payload = {
+          christian_name: data.christianName,
+          gender: data.gender,
+          age: data.age,
+          campus: data.campus,
+          field_of_study: data.fieldOfStudy,
+          dorm: data.dorm,
+          region: data.region,
+          zone: data.zone,
+          woreda: data.woreda,
+          native_language: data.nativeLanguage,
+          extra_languages: data.extraLanguages,
+          previous_participation: data.previousParticipation,
+          local_church: data.localChurch,
+          ordination: data.ordination,
+          ordination_year: data.ordinationYear,
+          diocese: data.diocese,
+          bishop: data.bishop,
+          service_departments: data.serviceDepartments,
+          talents: data.talents,
+          talent_description: data.talentDescription,
+          mobile: data.mobile,
+          telegram: data.telegram,
+        };
+
+        const res = await api<{ member: UserProfile }>(
+          `/api/members/${state.user.id}/profile`,
+          payload,
+          state.token,
+        );
+        set({ user: res.member });
         return true;
       },
 
