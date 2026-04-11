@@ -19,9 +19,9 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use UnitEnum;
 use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
+use UnitEnum;
 
 class UserResource extends Resource
 {

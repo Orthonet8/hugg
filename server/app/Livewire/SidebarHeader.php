@@ -34,9 +34,9 @@ class SidebarHeader extends Component
         $this->motto = (string) ($user?->motto ?: '');
 
         if ($user?->logo) {
-            $this->logo = asset('storage/' . ltrim((string) $user->logo, '/'));
+            $this->logo = asset('storage/'.ltrim((string) $user->logo, '/'));
         } elseif ($user?->avatar_url) {
-            $this->logo = asset('storage/' . ltrim((string) $user->avatar_url, '/'));
+            $this->logo = asset('storage/'.ltrim((string) $user->avatar_url, '/'));
         } else {
             $this->logo = asset('images/logo.png');
         }

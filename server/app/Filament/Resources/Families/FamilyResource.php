@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\Families;
 
-use App\Models\Member;
+use App\Filament\Resources\Families\Pages\ManageFamilies;
 use App\Models\Family;
+use App\Models\Member;
 use App\Models\User;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -30,48 +31,52 @@ class FamilyResource extends Resource
     protected static function canManageFamilies(): bool
     {
         $user = auth('internal')->user();
+
         return $user instanceof User && $user->hasPermissionTo('manage families', 'web');
     }
 
-    public static function canViewAny(): bool { return static::canManageFamilies(); }
-    public static function canCreate(): bool { return static::canManageFamilies(); }
-    public static function canEdit($record): bool { return static::canManageFamilies(); }
-    public static function canDelete($record): bool { return static::canManageFamilies(); }
-    public static function canDeleteAny(): bool { return static::canManageFamilies(); }
+    public static function canViewAny(): bool
+    {
+        return static::canManageFamilies();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::canManageFamilies();
+    }
+
+    public static function canEdit($record): bool
+    {
+        return static::canManageFamilies();
+    }
+
+    public static function canDelete($record): bool
+    {
+        return static::canManageFamilies();
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return static::canManageFamilies();
+    }
 
     /* ------------------------------------------------------------------ */
-    /*  Table                                                              */
+    /*  Table */
     /* ------------------------------------------------------------------ */
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('family_name')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('members_count')
-                    ->label('Members')
-                    ->state(fn (Family $r): int => count($r->members_data ?? []))
-                    ->badge()
+                TextColumn::make('family_overview')
+                    ->label('Family')
+                    ->state(fn (Family $record): string => static::renderFamilyOverview($record))
+                    ->html()
+                    ->wrap()
+                    ->searchable(['family_name'])
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderByRaw('jsonb_array_length(members_data) ' . $direction);
+                        return $query->orderBy('family_name', $direction);
                     }),
-                TextColumn::make('father_display')
-                    ->label('Father')
-                    ->state(fn (Family $record): string => static::renderMemberCard($record->father))
-                    ->html()
-                    ->wrap(),
-                TextColumn::make('mother_display')
-                    ->label('Mother')
-                    ->state(fn (Family $record): string => static::renderMemberCard($record->mother))
-                    ->html()
-                    ->wrap(),
-                TextColumn::make('children_display')
-                    ->label('Children')
-                    ->state(fn (Family $record): string => static::renderChildrenGrid($record))
-                    ->html()
-                    ->wrap(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->since()
@@ -87,22 +92,45 @@ class FamilyResource extends Resource
             ]);
     }
 
-    protected static function renderMemberCard(?Member $member): string
+    protected static function renderFamilyOverview(Family $record): string
+    {
+        $familyName = e($record->family_name);
+        $father = static::renderMemberCard($record->father, 'Father');
+        $mother = static::renderMemberCard($record->mother, 'Mother');
+        $children = static::renderChildrenGrid($record);
+
+        return <<<HTML
+<div class="space-y-1.5">
+    <div class="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-700">{$familyName}</div>
+    <div class="grid gap-1 sm:grid-cols-2">
+        {$father}
+        {$mother}
+    </div>
+    <div>
+        <div class="mb-1 text-[9px] font-semibold uppercase tracking-wide text-slate-500">Children</div>
+        {$children}
+    </div>
+</div>
+HTML;
+    }
+
+    protected static function renderMemberCard(?Member $member, string $role): string
     {
         $name = e($member?->full_name ?? '—');
 
         if (! $member) {
-            return '<div class="flex flex-col items-start gap-2"><span class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-slate-500">'.static::placeholderIconSvg().'</span><span class="text-sm font-semibold text-slate-900">—</span></div>';
+            return '<div class="rounded-md border border-slate-200 bg-white px-1.5 py-1"><div class="flex items-center gap-1.5"><span class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-200 text-slate-500">'.static::placeholderIconSvg().'</span><div class="min-w-0"><div class="text-[9px] font-semibold uppercase tracking-wide text-slate-500">'.e($role).'</div><div class="truncate text-[11px] font-semibold leading-4 text-slate-900">—</div></div></div></div>';
         }
 
         $photo = $member->profile_photo
-            ? asset('storage/' . $member->profile_photo)
+            ? asset('storage/'.$member->profile_photo)
             : static::placeholderImageUrl();
 
         return sprintf(
-            '<div class="flex flex-col items-start gap-2"><img src="%s" alt="%s" class="h-12 w-12 rounded-full object-cover ring-1 ring-slate-200" /><span class="text-sm font-semibold text-slate-900">%s</span></div>',
+            '<div class="rounded-md border border-slate-200 bg-white px-1.5 py-1"><div class="flex items-center gap-1.5"><img src="%s" alt="%s" class="h-7 w-7 rounded-full object-cover ring-1 ring-slate-200" /><div class="min-w-0"><div class="text-[9px] font-semibold uppercase tracking-wide text-slate-500">%s</div><div class="truncate text-[11px] font-semibold leading-4 text-slate-900">%s</div></div></div></div>',
             e($photo),
             $name,
+            e($role),
             $name,
         );
     }
@@ -117,28 +145,28 @@ class FamilyResource extends Resource
             ->filter();
 
         if ($children->isEmpty()) {
-            return '<span class="text-sm text-slate-500">—</span>';
+            return '<span class="text-xs text-slate-500">—</span>';
         }
 
-        return '<div class="grid grid-cols-2 gap-3">'
-            . $children->map(function (Member $child): string {
+        return '<div class="grid grid-cols-2 gap-1 lg:grid-cols-4">'
+            .$children->map(function (Member $child): string {
                 $photo = $child->profile_photo
-                    ? asset('storage/' . $child->profile_photo)
+                    ? asset('storage/'.$child->profile_photo)
                     : static::placeholderImageUrl();
 
                 return sprintf(
-                    '<div class="flex flex-col items-start gap-2 rounded-xl border border-slate-200 bg-white p-3"><img src="%s" alt="%s" class="h-10 w-10 rounded-full object-cover ring-1 ring-slate-200" /><span class="text-sm font-medium text-slate-900">%s</span></div>',
+                    '<div class="flex items-center gap-1 rounded-md border border-slate-200 bg-white px-1.5 py-1"><img src="%s" alt="%s" class="h-6 w-6 rounded-full object-cover ring-1 ring-slate-200" /><span class="truncate text-[10px] font-medium leading-4 text-slate-900">%s</span></div>',
                     e($photo),
                     e($child->full_name),
                     e($child->full_name),
                 );
             })->implode('')
-            . '</div>';
+            .'</div>';
     }
 
     protected static function placeholderIconSvg(): string
     {
-        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/></svg>';
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5Z"/></svg>';
     }
 
     protected static function placeholderImageUrl(): string
@@ -151,13 +179,13 @@ class FamilyResource extends Resource
 </svg>
 SVG;
 
-        return 'data:image/svg+xml;base64,' . base64_encode($svg);
+        return 'data:image/svg+xml;base64,'.base64_encode($svg);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => \App\Filament\Resources\Families\Pages\ManageFamilies::route('/'),
+            'index' => ManageFamilies::route('/'),
         ];
     }
 }

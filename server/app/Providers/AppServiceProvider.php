@@ -3,9 +3,9 @@
 namespace App\Providers;
 
 use App\Filament\Pages\Auth\EditProfileForm;
+use App\Livewire\SidebarHeader;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
-use App\Livewire\SidebarHeader;
 
 class AppServiceProvider extends ServiceProvider
 {

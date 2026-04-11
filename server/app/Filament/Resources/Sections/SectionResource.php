@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Sections;
 
-use App\Filament\Resources\Sections\Pages\ManageSections;
 use App\Enums\SectionType;
+use App\Filament\Resources\Sections\Pages\ManageSections;
 use App\Models\Section;
 use App\Models\User;
 use BackedEnum;

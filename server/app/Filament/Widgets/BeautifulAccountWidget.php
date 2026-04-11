@@ -2,8 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\User;
 use Andegna\DateTimeFactory;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Widgets\Widget;
@@ -52,7 +52,7 @@ class BeautifulAccountWidget extends Widget
         $greeting = match (true) {
             $hour < 12 => 'Good morning',
             $hour < 18 => 'Good afternoon',
-            default    => 'Good evening',
+            default => 'Good evening',
         };
 
         return [

@@ -53,34 +53,34 @@ class Member extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password'              => 'hashed',
-            'is_active'             => 'boolean',
+            'password' => 'hashed',
+            'is_active' => 'boolean',
             'is_assigned_to_family' => 'boolean',
-            'service_departments'   => 'array',
-            'talents'               => 'array',
-            'email_verified_at'     => 'datetime',
+            'service_departments' => 'array',
+            'talents' => 'array',
+            'email_verified_at' => 'datetime',
         ];
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Relationships                                                      */
+    /*  Relationships */
     /* ------------------------------------------------------------------ */
 
     public function section(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Section::class);
+        return $this->belongsTo(Section::class);
     }
 
     /**
      * Find the family this member belongs to (via JSON scan).
      */
-    public function family(): ?\App\Models\Family
+    public function family(): ?Family
     {
-        return \App\Models\Family::whereJsonContains('members_data', [['member_id' => $this->id]])->first();
+        return Family::whereJsonContains('members_data', [['member_id' => $this->id]])->first();
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Accessors / Mutators                                               */
+    /*  Accessors / Mutators */
     /* ------------------------------------------------------------------ */
 
     public function getDisplayNameAttribute(): string
@@ -89,7 +89,7 @@ class Member extends Authenticatable
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Scopes                                                             */
+    /*  Scopes */
     /* ------------------------------------------------------------------ */
 
     public function scopeActive($query)
@@ -110,8 +110,8 @@ class Member extends Authenticatable
 
         return $query->where(function ($q) use ($search) {
             $q->where('full_name', 'ilike', "%{$search}%")
-              ->orWhere('email_or_username', 'ilike', "%{$search}%")
-              ->orWhere('mobile', 'ilike', "%{$search}%");
+                ->orWhere('email_or_username', 'ilike', "%{$search}%")
+                ->orWhere('mobile', 'ilike', "%{$search}%");
         });
     }
 }

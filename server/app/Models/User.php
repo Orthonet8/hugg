@@ -7,15 +7,15 @@ use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     protected $fillable = [
         'name',
@@ -56,6 +56,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function ledSections(): HasMany
     {
-        return $this->hasMany(\App\Models\Section::class, 'leader_id');
+        return $this->hasMany(Section::class, 'leader_id');
     }
 }

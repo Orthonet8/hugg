@@ -15,12 +15,16 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\BadgeColumn;
@@ -28,29 +32,51 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use UnitEnum;
 
 class MemberResource extends Resource
 {
     protected static ?string $model = Member::class;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
+
     protected static ?string $navigationLabel = 'Member Management';
+
     protected static string|UnitEnum|null $navigationGroup = 'Member Management';
+
     protected static ?int $navigationSort = 1;
 
     protected static function canManageMembers(): bool
     {
         $user = auth('internal')->user();
+
         return $user instanceof User && $user->hasPermissionTo('manage members', 'web');
     }
 
-    public static function canViewAny(): bool { return static::canManageMembers(); }
-    public static function canCreate(): bool { return static::canManageMembers(); }
-    public static function canEdit($record): bool { return static::canManageMembers(); }
-    public static function canDelete($record): bool { return static::canManageMembers(); }
-    public static function canDeleteAny(): bool { return static::canManageMembers(); }
+    public static function canViewAny(): bool
+    {
+        return static::canManageMembers();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::canManageMembers();
+    }
+
+    public static function canEdit($record): bool
+    {
+        return static::canManageMembers();
+    }
+
+    public static function canDelete($record): bool
+    {
+        return static::canManageMembers();
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return static::canManageMembers();
+    }
 
     public static function table(Table $table): Table
     {
@@ -59,7 +85,7 @@ class MemberResource extends Resource
                 ImageColumn::make('profile_photo')
                     ->label('Photo')
                     ->circular()
-                    ->defaultImageUrl(fn (Member $r): ?string => $r->profile_photo ? asset('storage/' . $r->profile_photo) : null)
+                    ->defaultImageUrl(fn (Member $r): ?string => $r->profile_photo ? asset('storage/'.$r->profile_photo) : null)
                     ->size(40),
                 TextColumn::make('full_name')
                     ->searchable()
@@ -126,9 +152,9 @@ class MemberResource extends Resource
                     }
 
                     $repeaterItems[] = [
-                        'member_id'   => $member->id,
+                        'member_id' => $member->id,
                         'member_name' => $member->full_name,
-                        'role'        => $role,
+                        'role' => $role,
                     ];
                     $index++;
                 }
@@ -150,7 +176,7 @@ class MemberResource extends Resource
                                 ->options([
                                     'father' => 'Father',
                                     'mother' => 'Mother',
-                                    'child'  => 'Child',
+                                    'child' => 'Child',
                                 ])
                                 ->required(),
                         ])
@@ -171,6 +197,7 @@ class MemberResource extends Resource
                         ->body('At least 5 members must be selected to form a family.')
                         ->danger()
                         ->send();
+
                     return;
                 }
 
@@ -184,6 +211,7 @@ class MemberResource extends Resource
                         ->body('One or more selected members are already assigned to a family.')
                         ->danger()
                         ->send();
+
                     return;
                 }
 
@@ -191,12 +219,12 @@ class MemberResource extends Resource
                 foreach ($data['family_members'] ?? [] as $entry) {
                     $membersData[] = [
                         'member_id' => (int) $entry['member_id'],
-                        'role'      => $entry['role'],
+                        'role' => $entry['role'],
                     ];
                 }
 
                 Family::create([
-                    'family_name'  => $data['family_name'],
+                    'family_name' => $data['family_name'],
                     'members_data' => $membersData,
                 ]);
 
@@ -205,7 +233,7 @@ class MemberResource extends Resource
 
                 Notification::make()
                     ->title('Family Created')
-                    ->body("Family \"{$data['family_name']}\" has been formed with " . count($ids) . ' members.')
+                    ->body("Family \"{$data['family_name']}\" has been formed with ".count($ids).' members.')
                     ->success()
                     ->send();
             })
@@ -216,10 +244,10 @@ class MemberResource extends Resource
     {
         return $schema
             ->components([
-                \Filament\Schemas\Components\Tabs::make('Member Details')
+                Tabs::make('Member Details')
                     ->columnSpanFull()
                     ->tabs([
-                        \Filament\Schemas\Components\Tabs\Tab::make('Credentials')
+                        Tab::make('Credentials')
                             ->icon(Heroicon::OutlinedKey)
                             ->schema([
                                 TextInput::make('email_or_username')
@@ -235,14 +263,14 @@ class MemberResource extends Resource
                                     ->dehydrated(fn (?string $state): bool => filled($state))
                                     ->maxLength(255)
                                     ->columnSpan(2),
-                                \Filament\Forms\Components\FileUpload::make('profile_photo')
+                                FileUpload::make('profile_photo')
                                     ->image()
                                     ->directory('avatars/members')
                                     ->maxSize(2048)
                                     ->columnSpan(2),
                             ])->columns(2),
 
-                        \Filament\Schemas\Components\Tabs\Tab::make('Personal Info')
+                        Tab::make('Personal Info')
                             ->icon(Heroicon::OutlinedUser)
                             ->schema([
                                 TextInput::make('full_name')
@@ -261,7 +289,7 @@ class MemberResource extends Resource
                                     ->maxLength(10),
                             ])->columns(2),
 
-                        \Filament\Schemas\Components\Tabs\Tab::make('Campus & Academics')
+                        Tab::make('Campus & Academics')
                             ->icon(Heroicon::OutlinedAcademicCap)
                             ->schema([
                                 TextInput::make('campus')->maxLength(255),
@@ -269,7 +297,7 @@ class MemberResource extends Resource
                                 TextInput::make('dorm')->maxLength(255),
                             ])->columns(3),
 
-                        \Filament\Schemas\Components\Tabs\Tab::make('Background')
+                        Tab::make('Background')
                             ->icon(Heroicon::OutlinedGlobeAlt)
                             ->schema([
                                 TextInput::make('region')->maxLength(255),
@@ -281,19 +309,19 @@ class MemberResource extends Resource
                                 TextInput::make('local_church')->maxLength(255),
                             ])->columns(2),
 
-                        \Filament\Schemas\Components\Tabs\Tab::make('Skills & Service')
+                        Tab::make('Skills & Service')
                             ->icon(Heroicon::OutlinedHandRaised)
                             ->schema([
                                 TextInput::make('ordination')->maxLength(255),
                                 TextInput::make('ordination_year')->maxLength(255),
                                 TextInput::make('diocese')->maxLength(255),
                                 TextInput::make('bishop')->maxLength(255),
-                                \Filament\Forms\Components\Textarea::make('service_departments')->helperText('Comma-separated')->maxLength(500),
-                                \Filament\Forms\Components\Textarea::make('talents')->helperText('Comma-separated')->maxLength(500),
-                                \Filament\Forms\Components\Textarea::make('talent_description')->maxLength(1000),
+                                Textarea::make('service_departments')->helperText('Comma-separated')->maxLength(500),
+                                Textarea::make('talents')->helperText('Comma-separated')->maxLength(500),
+                                Textarea::make('talent_description')->maxLength(1000),
                             ])->columns(2),
 
-                        \Filament\Schemas\Components\Tabs\Tab::make('Contact')
+                        Tab::make('Contact')
                             ->icon(Heroicon::OutlinedPhone)
                             ->schema([
                                 TextInput::make('mobile')->maxLength(50),

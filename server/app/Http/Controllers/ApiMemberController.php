@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Family;
 use App\Models\Member;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,38 +13,38 @@ use Illuminate\Validation\Rules\Password;
 class ApiMemberController extends Controller
 {
     /* ------------------------------------------------------------------ */
-    /*  POST /api/auth/register                                           */
+    /*  POST /api/auth/register */
     /* ------------------------------------------------------------------ */
 
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'full_name'      => 'required|string|max:255',
+            'full_name' => 'required|string|max:255',
             'christian_name' => 'nullable|string|max:255',
             'email_or_username' => 'required|string|unique:members,email_or_username|max:255',
-            'password'       => ['required', 'confirmed', Password::defaults()],
-            'mobile'         => 'nullable|string|max:50',
-            'gender'         => 'nullable|in:ወንድ,ሴት',
-            'age'            => 'nullable|string|max:10',
-            'profile_photo'  => 'nullable|string|max:255',
-            'campus'         => 'nullable|string|max:255',
+            'password' => ['required', 'confirmed', Password::defaults()],
+            'mobile' => 'nullable|string|max:50',
+            'gender' => 'nullable|in:ወንድ,ሴት',
+            'age' => 'nullable|string|max:10',
+            'profile_photo' => 'nullable|string|max:255',
+            'campus' => 'nullable|string|max:255',
             'field_of_study' => 'nullable|string|max:255',
-            'dorm'           => 'nullable|string|max:255',
-            'region'         => 'nullable|string|max:255',
-            'zone'           => 'nullable|string|max:255',
-            'woreda'         => 'nullable|string|max:255',
-            'native_language'  => 'nullable|string|max:255',
-            'extra_languages'  => 'nullable|string|max:255',
+            'dorm' => 'nullable|string|max:255',
+            'region' => 'nullable|string|max:255',
+            'zone' => 'nullable|string|max:255',
+            'woreda' => 'nullable|string|max:255',
+            'native_language' => 'nullable|string|max:255',
+            'extra_languages' => 'nullable|string|max:255',
             'previous_participation' => 'nullable|string|max:255',
-            'local_church'   => 'nullable|string|max:255',
-            'ordination'     => 'nullable|string|max:255',
+            'local_church' => 'nullable|string|max:255',
+            'ordination' => 'nullable|string|max:255',
             'ordination_year' => 'nullable|string|max:255',
-            'diocese'        => 'nullable|string|max:255',
-            'bishop'         => 'nullable|string|max:255',
+            'diocese' => 'nullable|string|max:255',
+            'bishop' => 'nullable|string|max:255',
             'service_departments' => 'nullable|array',
-            'talents'        => 'nullable|array',
+            'talents' => 'nullable|array',
             'talent_description' => 'nullable|string|max:1000',
-            'telegram'       => 'nullable|string|max:255',
+            'telegram' => 'nullable|string|max:255',
         ]);
 
         // Handle profile photo upload (file or URL string)
@@ -61,17 +62,17 @@ class ApiMemberController extends Controller
         ]);
 
         // Generate a simple token (in production, use Laravel Sanctum)
-        $token = $member->email_or_username . ':' . bin2hex(random_bytes(16));
+        $token = $member->email_or_username.':'.bin2hex(random_bytes(16));
 
         return response()->json([
             'message' => 'Registration successful',
-            'member'  => $this->formatMemberResponse($member),
-            'token'   => $token,
+            'member' => $this->formatMemberResponse($member),
+            'token' => $token,
         ], 201);
     }
 
     /* ------------------------------------------------------------------ */
-    /*  POST /api/auth/login                                              */
+    /*  POST /api/auth/login */
     /* ------------------------------------------------------------------ */
 
     public function login(Request $request): JsonResponse
@@ -91,17 +92,17 @@ class ApiMemberController extends Controller
             ], 401);
         }
 
-        $token = $member->email_or_username . ':' . bin2hex(random_bytes(16));
+        $token = $member->email_or_username.':'.bin2hex(random_bytes(16));
 
         return response()->json([
             'message' => 'Login successful',
-            'member'  => $this->formatMemberResponse($member),
-            'token'   => $token,
+            'member' => $this->formatMemberResponse($member),
+            'token' => $token,
         ]);
     }
 
     /* ------------------------------------------------------------------ */
-    /*  POST /api/auth/logout                                             */
+    /*  POST /api/auth/logout */
     /* ------------------------------------------------------------------ */
 
     public function logout(Request $request): JsonResponse
@@ -111,7 +112,7 @@ class ApiMemberController extends Controller
     }
 
     /* ------------------------------------------------------------------ */
-    /*  GET /api/auth/me                                                  */
+    /*  GET /api/auth/me */
     /* ------------------------------------------------------------------ */
 
     public function me(Request $request): JsonResponse
@@ -125,7 +126,7 @@ class ApiMemberController extends Controller
     }
 
     /* ------------------------------------------------------------------ */
-    /*  GET /api/members                                                  */
+    /*  GET /api/members */
     /* ------------------------------------------------------------------ */
 
     public function index(Request $request): JsonResponse
@@ -148,15 +149,15 @@ class ApiMemberController extends Controller
             'data' => $members->getCollection()->map(fn ($m) => $this->formatMemberResponse($m)),
             'meta' => [
                 'current_page' => $members->currentPage(),
-                'last_page'    => $members->lastPage(),
-                'per_page'     => $members->perPage(),
-                'total'        => $members->total(),
+                'last_page' => $members->lastPage(),
+                'per_page' => $members->perPage(),
+                'total' => $members->total(),
             ],
         ]);
     }
 
     /* ------------------------------------------------------------------ */
-    /*  GET /api/members/{id}                                             */
+    /*  GET /api/members/{id} */
     /* ------------------------------------------------------------------ */
 
     public function show(int $id): JsonResponse
@@ -171,7 +172,7 @@ class ApiMemberController extends Controller
     }
 
     /* ------------------------------------------------------------------ */
-    /*  PATCH /api/members/{id}                                           */
+    /*  PATCH /api/members/{id} */
     /* ------------------------------------------------------------------ */
 
     public function update(Request $request, int $id): JsonResponse
@@ -183,34 +184,34 @@ class ApiMemberController extends Controller
         }
 
         $validated = $request->validate([
-            'full_name'      => 'sometimes|string|max:255',
+            'full_name' => 'sometimes|string|max:255',
             'christian_name' => 'nullable|string|max:255',
-            'username'       => 'sometimes|string|unique:members,username,' . $id . '|max:255',
-            'password'       => ['sometimes', 'confirmed', Password::defaults()],
+            'username' => 'sometimes|string|unique:members,username,'.$id.'|max:255',
+            'password' => ['sometimes', 'confirmed', Password::defaults()],
             'email_or_username' => 'nullable|string|max:255',
-            'mobile'         => 'nullable|string|max:50',
-            'gender'         => 'nullable|in:ወንድ,ሴት',
-            'age'            => 'nullable|string|max:10',
-            'campus'         => 'nullable|string|max:255',
+            'mobile' => 'nullable|string|max:50',
+            'gender' => 'nullable|in:ወንድ,ሴት',
+            'age' => 'nullable|string|max:10',
+            'campus' => 'nullable|string|max:255',
             'field_of_study' => 'nullable|string|max:255',
-            'dorm'           => 'nullable|string|max:255',
-            'region'         => 'nullable|string|max:255',
-            'zone'           => 'nullable|string|max:255',
-            'woreda'         => 'nullable|string|max:255',
-            'native_language'  => 'nullable|string|max:255',
-            'extra_languages'  => 'nullable|string|max:255',
+            'dorm' => 'nullable|string|max:255',
+            'region' => 'nullable|string|max:255',
+            'zone' => 'nullable|string|max:255',
+            'woreda' => 'nullable|string|max:255',
+            'native_language' => 'nullable|string|max:255',
+            'extra_languages' => 'nullable|string|max:255',
             'previous_participation' => 'nullable|string|max:255',
-            'local_church'   => 'nullable|string|max:255',
-            'ordination'     => 'nullable|string|max:255',
+            'local_church' => 'nullable|string|max:255',
+            'ordination' => 'nullable|string|max:255',
             'ordination_year' => 'nullable|string|max:255',
-            'diocese'        => 'nullable|string|max:255',
-            'bishop'         => 'nullable|string|max:255',
+            'diocese' => 'nullable|string|max:255',
+            'bishop' => 'nullable|string|max:255',
             'service_departments' => 'nullable|array',
-            'talents'        => 'nullable|array',
+            'talents' => 'nullable|array',
             'talent_description' => 'nullable|string|max:1000',
-            'telegram'       => 'nullable|string|max:255',
-            'section_id'     => 'nullable|exists:sections,id',
-            'is_active'      => 'sometimes|boolean',
+            'telegram' => 'nullable|string|max:255',
+            'section_id' => 'nullable|exists:sections,id',
+            'is_active' => 'sometimes|boolean',
         ]);
 
         if (isset($validated['password'])) {
@@ -227,12 +228,12 @@ class ApiMemberController extends Controller
 
         return response()->json([
             'message' => 'Member updated',
-            'member'  => $this->formatMemberResponse($member),
+            'member' => $this->formatMemberResponse($member),
         ]);
     }
 
     /* ------------------------------------------------------------------ */
-    /*  DELETE /api/members/{id}                                          */
+    /*  DELETE /api/members/{id} */
     /* ------------------------------------------------------------------ */
 
     public function destroy(int $id): JsonResponse
@@ -253,8 +254,83 @@ class ApiMemberController extends Controller
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Helpers                                                            */
+    /*  GET /api/families */
     /* ------------------------------------------------------------------ */
+
+    public function familiesIndex(): JsonResponse
+    {
+        $families = Family::with([])->orderBy('family_name')->get();
+
+        return response()->json([
+            'data' => $families->map(fn ($f) => $this->formatFamilyResponse($f)),
+        ]);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  GET /api/families/{id} */
+    /* ------------------------------------------------------------------ */
+
+    public function familiesShow(int $id): JsonResponse
+    {
+        $family = Family::find($id);
+
+        if (! $family) {
+            return response()->json(['message' => 'Family not found'], 404);
+        }
+
+        return response()->json(['family' => $this->formatFamilyResponse($family)]);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Helpers */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Format family data for API response.
+     */
+    protected function formatFamilyResponse(Family $family): array
+    {
+        $members = collect($family->members_data ?? [])
+            ->map(function ($entry) {
+                $member = Member::find($entry['member_id'] ?? null);
+                if (! $member) {
+                    return null;
+                }
+
+                $photoUrl = null;
+                if ($member->profile_photo) {
+                    $photoUrl = filter_var($member->profile_photo, FILTER_VALIDATE_URL)
+                        ? $member->profile_photo
+                        : asset('storage/'.$member->profile_photo);
+                }
+
+                return [
+                    'id' => $member->id,
+                    'fullName' => $member->full_name,
+                    'role' => $entry['role'] ?? 'unknown',
+                    'avatar' => $photoUrl ?? '',
+                    'email' => $member->email_or_username ?? '',
+                    'phone' => $member->mobile ?? '',
+                ];
+            })
+            ->filter()
+            ->values();
+
+        $father = $members->firstWhere('role', 'father');
+        $mother = $members->firstWhere('role', 'mother');
+        $children = $members->filter(fn ($m) => $m['role'] === 'child')->values();
+
+        return [
+            'id' => $family->id,
+            'familyName' => $family->family_name,
+            'members' => $members,
+            'father' => $father,
+            'mother' => $mother,
+            'children' => $children,
+            'memberCount' => $members->count(),
+            'createdAt' => $family->created_at?->toISOString(),
+        ];
+    }
 
     /**
      * Format member data for API response (matching React UserProfile type).
@@ -268,48 +344,48 @@ class ApiMemberController extends Controller
                 $photoUrl = $member->profile_photo;
             } else {
                 // Local file — generate public URL via storage symlink
-                $photoUrl = asset('storage/' . $member->profile_photo);
+                $photoUrl = asset('storage/'.$member->profile_photo);
             }
         }
 
         return [
-            'id'                   => $member->id,
-            'fullName'             => $member->full_name,
-            'christianName'        => $member->christian_name,
-            'emailOrUsername'      => $member->email_or_username,
-            'gender'               => $member->gender,
-            'age'                  => $member->age,
-            'campus'               => $member->campus,
-            'dorm'                 => $member->dorm,
-            'languages'            => array_filter(array_merge(
+            'id' => $member->id,
+            'fullName' => $member->full_name,
+            'christianName' => $member->christian_name,
+            'emailOrUsername' => $member->email_or_username,
+            'gender' => $member->gender,
+            'age' => $member->age,
+            'campus' => $member->campus,
+            'dorm' => $member->dorm,
+            'languages' => array_filter(array_merge(
                 $member->native_language ? [$member->native_language] : [],
                 $member->extra_languages ? explode(',', $member->extra_languages) : [],
             )),
-            'talents'              => $member->talents ?? [],
-            'services'             => $member->service_departments ?? [],
-            'avatar'               => $photoUrl ?? '',
-            'email'                => $member->email_or_username ?? '',
-            'phone'                => $member->mobile ?? '',
-            'telegram'             => $member->telegram ?? '',
-            'sectionId'            => $member->section_id,
-            'section'              => $member->section ? [
-                'id'   => $member->section->id,
+            'talents' => $member->talents ?? [],
+            'services' => $member->service_departments ?? [],
+            'avatar' => $photoUrl ?? '',
+            'email' => $member->email_or_username ?? '',
+            'phone' => $member->mobile ?? '',
+            'telegram' => $member->telegram ?? '',
+            'sectionId' => $member->section_id,
+            'section' => $member->section ? [
+                'id' => $member->section->id,
                 'name' => $member->section->display_name,
             ] : null,
-            'isActive'             => $member->is_active,
-            'donationAccounts'     => [],  // Future feature
-            'region'               => $member->region,
-            'zone'                 => $member->zone,
-            'woreda'               => $member->woreda,
-            'fieldOfStudy'         => $member->field_of_study,
-            'previousParticipation'=> $member->previous_participation,
-            'localChurch'          => $member->local_church,
-            'ordination'           => $member->ordination,
-            'ordinationYear'       => $member->ordination_year,
-            'diocese'              => $member->diocese,
-            'bishop'               => $member->bishop,
-            'talentDescription'    => $member->talent_description,
-            'createdAt'            => $member->created_at?->toISOString(),
+            'isActive' => $member->is_active,
+            'donationAccounts' => [],  // Future feature
+            'region' => $member->region,
+            'zone' => $member->zone,
+            'woreda' => $member->woreda,
+            'fieldOfStudy' => $member->field_of_study,
+            'previousParticipation' => $member->previous_participation,
+            'localChurch' => $member->local_church,
+            'ordination' => $member->ordination,
+            'ordinationYear' => $member->ordination_year,
+            'diocese' => $member->diocese,
+            'bishop' => $member->bishop,
+            'talentDescription' => $member->talent_description,
+            'createdAt' => $member->created_at?->toISOString(),
         ];
     }
 
@@ -330,6 +406,7 @@ class ApiMemberController extends Controller
         }
 
         $username = $parts[0];
+
         return Member::active()->where('email_or_username', $username)->first();
     }
 }

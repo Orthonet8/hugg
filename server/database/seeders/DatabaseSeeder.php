@@ -2,9 +2,6 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\AdminUserSeeder;
-use Database\Seeders\MemberSeeder;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
