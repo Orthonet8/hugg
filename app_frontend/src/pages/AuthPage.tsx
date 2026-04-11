@@ -139,8 +139,9 @@ function LoginForm({ onLogin, onForgotPassword }: { onLogin: () => void; onForgo
       } else {
         setError(t("auth.loginError"));
       }
-    } catch {
-      setError("An unexpected error occurred.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(message);
     } finally {
       setLoading(false);
     }

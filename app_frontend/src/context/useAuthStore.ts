@@ -35,7 +35,10 @@ const api = async <T>(path: string, body: unknown, token?: string): Promise<T> =
   });
 
   const json = await res.json();
-  if (!res.ok) throw new Error(json.message ?? "Request failed");
+  if (!res.ok) {
+    const msg = (json as { message?: string }).message;
+    throw new Error(msg ?? "Request failed");
+  }
   return json;
 };
 

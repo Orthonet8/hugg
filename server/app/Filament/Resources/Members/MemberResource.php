@@ -28,9 +28,9 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -91,24 +91,32 @@ class MemberResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->description(fn (Member $r): string => $r->email_or_username),
+                ToggleColumn::make('is_active')
+                    ->label('Active')
+                    ->onColor('success')
+                    ->offColor('gray')
+                    ->updateStateUsing(function (Member $record, bool $state): bool {
+                        $record->update(['is_active' => $state]);
+
+                        return $state;
+                    }),
                 BadgeColumn::make('is_assigned_to_family')
-                    ->label('Status')
+                    ->label('Family')
                     ->formatStateUsing(fn (Member $r): string => $r->is_assigned_to_family ? 'Assigned' : 'Not Assigned')
                     ->color(fn (Member $r): string => $r->is_assigned_to_family ? 'success' : 'danger'),
+                BadgeColumn::make('batch')
+                    ->color('info')
+                    ->searchable(),
                 TextColumn::make('mobile')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable(),
                 TextColumn::make('section.display_name')
                     ->label('Section')
                     ->placeholder('—')
                     ->searchable(),
-                IconColumn::make('is_active')
-                    ->label('Active')
-                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->since()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
                 //

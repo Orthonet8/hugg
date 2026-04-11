@@ -7,6 +7,7 @@ use App\Models\Member;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -82,14 +83,57 @@ class ApiMemberController extends Controller
             'password' => 'required|string',
         ]);
 
-        $member = Member::active()
-            ->where('email_or_username', $validated['email_or_username'])
-            ->first();
+        $identifier = 'login:' . $validated['email_or_username'];
+        $attempts = (int) Cache::get($identifier, 0);
+
+        // If locked out
+        if ($attempts >= 2) {
+            $lockedUntil = Cache::get($identifier . ':locked_until');
+            if ($lockedUntil && $lockedUntil > now()->timestamp) {
+                $minutesRemaining = ceil(($lockedUntil - now()->timestamp) / 60);
+                return response()->json([
+                    'message' => "Too many failed attempts. Please try again in {$minutesRemaining} minute(s).",
+                    'retryAfter' => $lockedUntil,
+                ], 429);
+            }
+            // Lock expired, reset
+            Cache::forget($identifier);
+            Cache::forget($identifier . ':locked_until');
+            $attempts = 0;
+        }
+
+        $member = Member::where('email_or_username', $validated['email_or_username'])->first();
 
         if (! $member || ! Hash::check($validated['password'], $member->password)) {
+            $attempts++;
+
+            if ($attempts >= 2) {
+                // Lock for 60 minutes
+                $lockedUntil = now()->addMinutes(60)->timestamp;
+                Cache::put($identifier, $attempts, now()->addMinutes(60));
+                Cache::put($identifier . ':locked_until', $lockedUntil, now()->addMinutes(60));
+
+                return response()->json([
+                    'message' => 'Too many failed attempts. Your account is locked for 60 minutes.',
+                    'retryAfter' => $lockedUntil,
+                ], 429);
+            }
+
+            Cache::put($identifier, $attempts, now()->addMinutes(60));
+
             return response()->json([
-                'message' => 'Invalid credentials',
+                'message' => 'Invalid credentials. ' . (2 - $attempts) . ' attempt(s) remaining before lockout.',
             ], 401);
+        }
+
+        // Successful login — reset attempts
+        Cache::forget($identifier);
+        Cache::forget($identifier . ':locked_until');
+
+        if (! $member->is_active) {
+            return response()->json([
+                'message' => 'Your account is deactivated. Please contact support.',
+            ], 403);
         }
 
         $token = $member->email_or_username.':'.bin2hex(random_bytes(16));
