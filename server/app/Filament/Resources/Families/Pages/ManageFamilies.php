@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Families\Pages;
 
 use App\Filament\Resources\Families\FamilyResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManageFamilies extends ManageRecords
@@ -12,10 +11,6 @@ class ManageFamilies extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make()
-                ->label('Create Family')
-                ->slideOver(),
-        ];
+        return [];
     }
 }

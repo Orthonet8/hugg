@@ -14,6 +14,7 @@ class MemberSeeder extends Seeder
     {
         for ($i = 0; $i < 100; $i++) {
             $username = sprintf('user%02d', $i);
+            $batches = ['2016', '2017', '2018'];
 
             Member::updateOrCreate(
                 ['email_or_username' => $username],
@@ -23,7 +24,7 @@ class MemberSeeder extends Seeder
                     'christian_name' => 'Christian '.sprintf('%02d', $i),
                     'gender' => $i % 2 === 0 ? 'ወንድ' : 'ሴት',
                     'age' => (string) (18 + ($i % 20)),
-                    'batch' => null,
+                    'batch' => $batches[array_rand($batches)],
                     'is_active' => true,
                     'section_id' => null,
                 ],

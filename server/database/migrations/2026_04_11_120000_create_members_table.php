@@ -29,6 +29,7 @@ return new class extends Migration
             // Campus & Academics
             $table->string('campus')->nullable();
             $table->string('field_of_study')->nullable();
+            $table->string('batch');
             $table->string('dorm')->nullable();
 
             // Background & Participation
@@ -55,6 +56,7 @@ return new class extends Migration
 
             // Section assignment
             $table->foreignId('section_id')->nullable()->constrained('sections')->nullOnDelete();
+            $table->boolean('is_assigned_to_family')->default(false);
 
             // Metadata
             $table->boolean('is_active')->default(true);

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Members;
 
 use App\Filament\Resources\Members\Pages\ManageMembers;
+use App\Models\Family;
 use App\Models\Member;
 use App\Models\Section;
 use App\Models\User;
@@ -26,21 +27,17 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use UnitEnum;
 
 class MemberResource extends Resource
 {
     protected static ?string $model = Member::class;
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
-
     protected static ?string $navigationLabel = 'Member Management';
-
     protected static string|UnitEnum|null $navigationGroup = 'Member Management';
-
     protected static ?int $navigationSort = 1;
 
     protected static function canManageMembers(): bool
@@ -55,10 +52,6 @@ class MemberResource extends Resource
     public static function canDelete($record): bool { return static::canManageMembers(); }
     public static function canDeleteAny(): bool { return static::canManageMembers(); }
 
-    /* ------------------------------------------------------------------ */
-    /*  Table                                                              */
-    /* ------------------------------------------------------------------ */
-
     public static function table(Table $table): Table
     {
         return $table
@@ -72,19 +65,12 @@ class MemberResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->description(fn (Member $r): string => $r->email_or_username),
-                BadgeColumn::make('batch')
-                    ->label('Batch')
-                    ->placeholder('—'),
                 BadgeColumn::make('is_assigned_to_family')
-                    ->label('Family')
+                    ->label('Status')
                     ->formatStateUsing(fn (Member $r): string => $r->is_assigned_to_family ? 'Assigned' : 'Not Assigned')
                     ->color(fn (Member $r): string => $r->is_assigned_to_family ? 'success' : 'danger'),
                 TextColumn::make('mobile')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('batch')
-                    ->label('Batch')
-                    ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('section.display_name')
                     ->label('Section')
@@ -99,33 +85,7 @@ class MemberResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('batch')
-                    ->label('Batch')
-                    ->options(function (): array {
-                        return ['__empty__' => 'Empty'] + Member::query()
-                            ->whereNotNull('batch')
-                            ->where('batch', '!=', '')
-                            ->distinct()
-                            ->orderBy('batch')
-                            ->pluck('batch', 'batch')
-                            ->all();
-                    })
-                    ->searchable()
-                    ->query(function (Builder $query, array $data): Builder {
-                        $value = $data['value'] ?? null;
-
-                        if (blank($value)) {
-                            return $query;
-                        }
-
-                        if ($value === '__empty__') {
-                            return $query->where(function (Builder $nested): void {
-                                $nested->whereNull('batch')->orWhere('batch', '');
-                            });
-                        }
-
-                        return $query->where('batch', $value);
-                    }),
+                //
             ])
             ->recordActions([
                 ActionGroup::make([
@@ -142,10 +102,6 @@ class MemberResource extends Resource
             ]);
     }
 
-    /* ------------------------------------------------------------------ */
-    /*  Form Family Bulk Action                                            */
-    /* ------------------------------------------------------------------ */
-
     protected static function formFamilyBulkAction(): BulkAction
     {
         return BulkAction::make('formFamily')
@@ -154,26 +110,34 @@ class MemberResource extends Resource
             ->color('info')
             ->modalHeading('Form a New Family')
             ->modalWidth('3xl')
-            ->requiresConfirmation()
-            ->form(function (array $data): array {
-                $records = $data['records'] ?? [];
-                $members = Member::whereIn('id', $records)->get();
+            ->form(function ($livewire): array {
+                $selectedIds = $livewire->getSelectedTableRecords()->pluck('id')->all();
+                $members = Member::whereIn('id', $selectedIds)->get();
 
                 $repeaterItems = [];
+                $index = 0;
                 foreach ($members as $member) {
+                    if ($index === 0) {
+                        $role = 'father';
+                    } elseif ($index === 1) {
+                        $role = 'mother';
+                    } else {
+                        $role = 'child';
+                    }
+
                     $repeaterItems[] = [
                         'member_id'   => $member->id,
                         'member_name' => $member->full_name,
-                        'role'        => null,
+                        'role'        => $role,
                     ];
+                    $index++;
                 }
 
                 return [
                     TextInput::make('family_name')
                         ->label('Family Name')
                         ->required()
-                        ->maxLength(255)
-                        ->placeholder('e.g., The Tesfaye Family'),
+                        ->maxLength(255),
                     Repeater::make('family_members')
                         ->label('Family Members')
                         ->schema([
@@ -198,11 +162,19 @@ class MemberResource extends Resource
                         ->hiddenLabel(false),
                 ];
             })
-            ->action(function (array $data): void {
-                $records = $data['records'] ?? [];
+            ->action(function (array $data, $livewire): void {
+                $ids = $livewire->getSelectedTableRecords()->pluck('id')->all();
 
-                // Check if any selected member is already assigned
-                $alreadyAssigned = Member::whereIn('id', $records)
+                if (count($ids) < 5) {
+                    Notification::make()
+                        ->title('Not enough members')
+                        ->body('At least 5 members must be selected to form a family.')
+                        ->danger()
+                        ->send();
+                    return;
+                }
+
+                $alreadyAssigned = Member::whereIn('id', $ids)
                     ->where('is_assigned_to_family', true)
                     ->get();
 
@@ -212,11 +184,9 @@ class MemberResource extends Resource
                         ->body('One or more selected members are already assigned to a family.')
                         ->danger()
                         ->send();
-
                     return;
                 }
 
-                // Build members_data JSON
                 $membersData = [];
                 foreach ($data['family_members'] ?? [] as $entry) {
                     $membersData[] = [
@@ -225,28 +195,22 @@ class MemberResource extends Resource
                     ];
                 }
 
-                // Create family
-                \App\Models\Family::create([
+                Family::create([
                     'family_name'  => $data['family_name'],
                     'members_data' => $membersData,
                 ]);
 
-                // Update members
-                Member::whereIn('id', $records)
+                Member::whereIn('id', $ids)
                     ->update(['is_assigned_to_family' => true]);
 
                 Notification::make()
                     ->title('Family Created')
-                    ->body("Family \"{$data['family_name']}\" has been formed with " . count($records) . ' members.')
+                    ->body("Family \"{$data['family_name']}\" has been formed with " . count($ids) . ' members.')
                     ->success()
                     ->send();
             })
             ->deselectRecordsAfterCompletion();
     }
-
-    /* ------------------------------------------------------------------ */
-    /*  Form (tabbed)                                                      */
-    /* ------------------------------------------------------------------ */
 
     public static function form(Schema $schema): Schema
     {
@@ -300,66 +264,40 @@ class MemberResource extends Resource
                         \Filament\Schemas\Components\Tabs\Tab::make('Campus & Academics')
                             ->icon(Heroicon::OutlinedAcademicCap)
                             ->schema([
-                                TextInput::make('campus')
-                                    ->maxLength(255),
-                                TextInput::make('field_of_study')
-                                    ->maxLength(255),
-                                TextInput::make('batch')
-                                    ->label('Batch (Academic Year)')
-                                    ->placeholder('e.g., 2018, 2019')
-                                    ->maxLength(20),
-                                TextInput::make('dorm')
-                                    ->maxLength(255),
-                            ])->columns(2),
+                                TextInput::make('campus')->maxLength(255),
+                                TextInput::make('field_of_study')->maxLength(255),
+                                TextInput::make('dorm')->maxLength(255),
+                            ])->columns(3),
 
                         \Filament\Schemas\Components\Tabs\Tab::make('Background')
                             ->icon(Heroicon::OutlinedGlobeAlt)
                             ->schema([
-                                TextInput::make('region')
-                                    ->maxLength(255),
-                                TextInput::make('zone')
-                                    ->maxLength(255),
-                                TextInput::make('woreda')
-                                    ->maxLength(255),
-                                TextInput::make('native_language')
-                                    ->maxLength(255),
-                                TextInput::make('extra_languages')
-                                    ->helperText('Comma-separated')
-                                    ->maxLength(255),
-                                TextInput::make('previous_participation')
-                                    ->maxLength(255),
-                                TextInput::make('local_church')
-                                    ->maxLength(255),
+                                TextInput::make('region')->maxLength(255),
+                                TextInput::make('zone')->maxLength(255),
+                                TextInput::make('woreda')->maxLength(255),
+                                TextInput::make('native_language')->maxLength(255),
+                                TextInput::make('extra_languages')->helperText('Comma-separated')->maxLength(255),
+                                TextInput::make('previous_participation')->maxLength(255),
+                                TextInput::make('local_church')->maxLength(255),
                             ])->columns(2),
 
                         \Filament\Schemas\Components\Tabs\Tab::make('Skills & Service')
                             ->icon(Heroicon::OutlinedHandRaised)
                             ->schema([
-                                TextInput::make('ordination')
-                                    ->maxLength(255),
-                                TextInput::make('ordination_year')
-                                    ->maxLength(255),
-                                TextInput::make('diocese')
-                                    ->maxLength(255),
-                                TextInput::make('bishop')
-                                    ->maxLength(255),
-                                \Filament\Forms\Components\Textarea::make('service_departments')
-                                    ->helperText('Comma-separated: ትምህርት,መዝሙር,ልማት')
-                                    ->maxLength(500),
-                                \Filament\Forms\Components\Textarea::make('talents')
-                                    ->helperText('Comma-separated: መዝሙር,ድርሰት')
-                                    ->maxLength(500),
-                                \Filament\Forms\Components\Textarea::make('talent_description')
-                                    ->maxLength(1000),
+                                TextInput::make('ordination')->maxLength(255),
+                                TextInput::make('ordination_year')->maxLength(255),
+                                TextInput::make('diocese')->maxLength(255),
+                                TextInput::make('bishop')->maxLength(255),
+                                \Filament\Forms\Components\Textarea::make('service_departments')->helperText('Comma-separated')->maxLength(500),
+                                \Filament\Forms\Components\Textarea::make('talents')->helperText('Comma-separated')->maxLength(500),
+                                \Filament\Forms\Components\Textarea::make('talent_description')->maxLength(1000),
                             ])->columns(2),
 
                         \Filament\Schemas\Components\Tabs\Tab::make('Contact')
                             ->icon(Heroicon::OutlinedPhone)
                             ->schema([
-                                TextInput::make('mobile')
-                                    ->maxLength(50),
-                                TextInput::make('telegram')
-                                    ->maxLength(255),
+                                TextInput::make('mobile')->maxLength(50),
+                                TextInput::make('telegram')->maxLength(255),
                                 Select::make('section_id')
                                     ->label('Section')
                                     ->relationship('section', 'name_am')

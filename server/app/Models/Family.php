@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class Family extends Model
@@ -26,29 +27,20 @@ class Family extends Model
             ->filter()
             ->all();
 
-        return Member::whereIn('id', $ids)->get();
+        return \App\Models\Member::whereIn('id', $ids)->get();
     }
 
-    /**
-     * Get the father member.
-     */
-    public function father(): ?Member
+    public function getFatherAttribute(): ?\App\Models\Member
     {
         return $this->memberByRole('father');
     }
 
-    /**
-     * Get the mother member.
-     */
-    public function mother(): ?Member
+    public function getMotherAttribute(): ?\App\Models\Member
     {
         return $this->memberByRole('mother');
     }
 
-    /**
-     * Get all children members.
-     */
-    public function children()
+    public function getChildrenAttribute(): Collection
     {
         $childrenData = collect($this->members_data ?? [])
             ->where('role', 'child')
@@ -59,13 +51,13 @@ class Family extends Model
             return collect();
         }
 
-        return Member::whereIn('id', $childrenData)->get();
+        return \App\Models\Member::whereIn('id', $childrenData)->get();
     }
 
     /**
      * Find a member by role in the JSON data.
      */
-    protected function memberByRole(string $role): ?Member
+    protected function memberByRole(string $role): ?\App\Models\Member
     {
         $memberId = collect($this->members_data ?? [])
             ->where('role', $role)
@@ -75,7 +67,7 @@ class Family extends Model
             return null;
         }
 
-        return Member::find($memberId);
+        return \App\Models\Member::find($memberId);
     }
 
     /**
@@ -85,7 +77,7 @@ class Family extends Model
     {
         return collect($this->members_data ?? [])
             ->map(function ($entry) {
-                $member = Member::find($entry['member_id'] ?? null);
+                $member = \App\Models\Member::find($entry['member_id'] ?? null);
                 return [
                     'member'    => $member,
                     'role'      => $entry['role'] ?? 'unknown',
