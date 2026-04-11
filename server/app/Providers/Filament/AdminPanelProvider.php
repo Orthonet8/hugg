@@ -5,13 +5,13 @@ namespace App\Providers\Filament;
 use App\Filament\Auth\Login;
 use App\Filament\Pages\Auth\EditPasswordForm;
 use App\Filament\Pages\Auth\EditProfileForm;
+use App\Filament\Pages\Dashboard;
 use App\Filament\Widgets\BeautifulAccountWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -54,10 +54,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->navigationGroups([
                 'Main',
-                'Members',
-                'Events & Calendar',
-                'Announcements',
-                'Finance',
+                'User Management',
                 'Account',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
