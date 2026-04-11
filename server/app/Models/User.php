@@ -6,6 +6,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Notifications\Notifiable;
@@ -51,5 +52,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         $storage = Storage::disk($disk);
 
         return $this->$col ? $storage->url($this->$col) : null;
+    }
+
+    public function ledSections(): HasMany
+    {
+        return $this->hasMany(\App\Models\Section::class, 'leader_id');
     }
 }

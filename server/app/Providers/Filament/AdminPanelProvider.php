@@ -55,6 +55,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 'Main',
                 'User Management',
+                'Section Management',
                 'Account',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
