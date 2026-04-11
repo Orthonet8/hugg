@@ -1,4 +1,4 @@
-// Centralized slide content from Stitch-generated Amharic registration screens.
+/* Centralized slide content from Amharic registration screens. */
 export const registrationSlides = [
   {
     id: "basic-info",

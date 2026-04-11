@@ -103,10 +103,21 @@ class EditProfileForm extends BaseProfileForm
     public function updateProfile(): void
     {
         try {
+            $plugin = $this->getPlugin();
             $data = $this->form->getState();
             $this->user->update($data);
-            $this->form->fill($this->user->only(['name', 'username', 'fellowship_name', 'logo', 'motto']));
+            $this->user->refresh();
+
+            $fields = ['name', 'username', 'fellowship_name', 'logo', 'motto'];
+
+            if ($plugin->getShouldShowAvatarForm()) {
+                $fields[] = config('filament-edit-profile.avatar_column', 'avatar_url');
+            }
+
+            $this->form->fill($this->user->only($fields));
             $this->dispatch('refresh-topbar');
+            $this->dispatch('refresh-sidebar-header');
+            $this->dispatch('refresh-beautiful-account-widget');
         } catch (Halt $exception) {
             return;
         }

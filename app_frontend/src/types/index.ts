@@ -22,6 +22,7 @@ export interface UserProfile {
   phone: string;
   telegram: string;
   donationAccounts: DonationAccount[];
+  password?: string; // Optional — only used during auth flow, never persisted to UI state
 }
 
 export interface Post {

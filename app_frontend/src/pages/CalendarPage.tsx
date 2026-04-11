@@ -19,10 +19,12 @@ import { events } from "../data";
 import type { EventItem } from "../types";
 import { buildMonthGrid, toIsoDate } from "../utils/calendar";
 import { departmentStyles } from "../utils/theme";
+import { useI18n } from "../i18n/I18nProvider";
 
 const weekDays = ["ሰ", "ማ", "ረ", "ሐ", "አ", "ቅ", "እ"];
 
 export const CalendarPage = () => {
+  const { t } = useI18n();
   const selectedDate = useAppStore((state) => state.selectedDate);
   const setSelectedDate = useAppStore((state) => state.setSelectedDate);
 
@@ -48,7 +50,7 @@ export const CalendarPage = () => {
 
   return (
     <section className="space-y-4">
-      <PageHeader title="ቀን መቁጠሪያ" subtitle="የሳምንት እና ወር ዝግጅቶች" />
+      <PageHeader title={t("calendar.title")} subtitle={t("calendar.subtitle")} />
 
       <Card className="space-y-4 p-4">
         <div className="flex items-center justify-between">
@@ -131,7 +133,7 @@ export const CalendarPage = () => {
 
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-[color:var(--text-muted)]">
-          {new Date(`${selectedDate}T00:00:00`).toLocaleDateString("am-ET")} የሚካሄዱ ዝግጅቶች
+          {new Date(`${selectedDate}T00:00:00`).toLocaleDateString("am-ET")} {t("calendar.events")}
         </h3>
 
         {selectedDateEvents.length > 0 ? (
@@ -141,7 +143,7 @@ export const CalendarPage = () => {
         ) : (
           <Card className="py-8 text-center">
             <p className="text-sm text-[color:var(--text-muted)]">
-              በዚህ ቀን የተመዘገበ ዝግጅት የለም።
+              {t("calendar.noEvents")}
             </p>
           </Card>
         )}

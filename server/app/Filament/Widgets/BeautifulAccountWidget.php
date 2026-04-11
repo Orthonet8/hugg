@@ -2,12 +2,18 @@
 
 namespace App\Filament\Widgets;
 
+use Andegna\DateTimeFactory;
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Widgets\Widget;
 
 class BeautifulAccountWidget extends Widget
 {
+    protected $listeners = [
+        'refresh-beautiful-account-widget' => '$refresh',
+        'refresh-topbar' => '$refresh',
+    ];
+
     protected string $view = 'filament.widgets.beautiful-account-widget';
 
     protected static ?int $sort = -1000;
@@ -16,8 +22,19 @@ class BeautifulAccountWidget extends Widget
 
     protected function getViewData(): array
     {
+        $panel = Filament::getCurrentOrDefaultPanel();
         $user = Filament::auth()->user();
         $avatar = $user instanceof HasAvatar ? $user->getFilamentAvatarUrl() : null;
+        $panelName = $panel?->getId() ? ucfirst((string) $panel->getId()) : __('Dashboard');
+
+        $identity = $user?->username ?? $user?->email ?? __('Account');
+        $subtitle = $user?->fellowship_name ?: $identity;
+        try {
+            $ethiopianNow = DateTimeFactory::now();
+            $ethiopianDateNice = $ethiopianNow->format('F d, Y');
+        } catch (\Throwable $exception) {
+            $ethiopianDateNice = '';
+        }
 
         $hour = (int) now()->format('H');
         $greeting = match (true) {
@@ -27,9 +44,13 @@ class BeautifulAccountWidget extends Widget
         };
 
         return [
-            'user'     => $user,
-            'avatar'   => $avatar,
+            'user' => $user,
+            'avatar' => $avatar,
             'greeting' => $greeting,
+            'panelName' => $panelName,
+            'identity' => $identity,
+            'subtitle' => $subtitle,
+            'ethiopianDateNice' => $ethiopianDateNice,
         ];
     }
 }

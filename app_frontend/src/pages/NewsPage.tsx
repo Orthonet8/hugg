@@ -7,8 +7,10 @@ import { PostCard } from "../components/news/PostCard";
 import { useAppStore } from "../context/useAppStore";
 import { posts } from "../data";
 import { useFilteredPosts } from "../hooks/useFilteredPosts";
+import { useI18n } from "../i18n/I18nProvider";
 
 export const NewsPage = () => {
+  const { t } = useI18n();
   const [activeDepartment, setActiveDepartment] = useState("ሁሉም");
   const [activeTab, setActiveTab] = useState<"all" | "saved">("all");
 
@@ -31,7 +33,7 @@ export const NewsPage = () => {
 
   return (
     <section className="space-y-5">
-      <PageHeader title="ዜና" subtitle="የግቢ ጉባኤ የቅርብ ጊዜ ማስታወቂያዎች" />
+      <PageHeader title={t("news.title")} subtitle={t("news.subtitle")} />
 
       <Card className="space-y-3 p-4">
         <div className="app-subtle-panel flex gap-2 rounded-2xl p-1.5">
@@ -41,7 +43,7 @@ export const NewsPage = () => {
             data-active={activeTab === "all"}
             className="data-[active=true]:app-gradient flex-1 rounded-xl py-2 text-sm font-semibold text-[color:var(--text-muted)] transition data-[active=true]:text-[color:var(--on-primary)]"
           >
-            ሁሉም ዜና
+            {t("news.allNews")}
           </button>
           <button
             type="button"
@@ -49,7 +51,7 @@ export const NewsPage = () => {
             data-active={activeTab === "saved"}
             className="data-[active=true]:app-gradient flex-1 rounded-xl py-2 text-sm font-semibold text-[color:var(--text-muted)] transition data-[active=true]:text-[color:var(--on-primary)]"
           >
-            የተቀመጡ
+            {t("news.saved")}
           </button>
         </div>
 
@@ -78,9 +80,7 @@ export const NewsPage = () => {
       {filteredPosts.length === 0 ? (
         <Card className="py-10 text-center">
           <p className="text-sm text-[color:var(--text-muted)]">
-            {activeTab === "saved"
-              ? "እስካሁን የተቀመጠ ዜና የለም።"
-              : "በዚህ ክፍል የሚታይ ዜና አልተገኘም።"}
+            {activeTab === "saved" ? t("news.noSavedNews") : t("news.noNews")}
           </p>
         </Card>
       ) : null}

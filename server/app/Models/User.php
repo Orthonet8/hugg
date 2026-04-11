@@ -10,18 +10,19 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
         'name',
         'username',
-        'avatar_url',
         'fellowship_name',
         'logo',
         'motto',
+        'avatar_url',
         'password',
     ];
 

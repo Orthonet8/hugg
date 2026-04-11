@@ -4,8 +4,64 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f7f8cc222cc612dca878efe24892d28f",
+    "content-hash": "fae3968195d95d0c2f432d1bf7d13a8f",
     "packages": [
+        {
+            "name": "andegna/calender",
+            "version": "v2.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/andegna/calender.git",
+                "reference": "4041d0bbfae78f8860e3f1b5a59f49d53c227953"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/andegna/calender/zipball/4041d0bbfae78f8860e3f1b5a59f49d53c227953",
+                "reference": "4041d0bbfae78f8860e3f1b5a59f49d53c227953",
+                "shasum": ""
+            },
+            "require": {
+                "geezify/geezify-php": "^1.2",
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "develop": "2.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Andegna\\": "src/",
+                    "Andegna\\PHPUnit\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sam As End",
+                    "email": "4sam21@gmail.com"
+                }
+            ],
+            "description": "If you ever want to convert Ethiopian Calender to any other calender system (like the Gregorian Calender) this is the right package for you. And by the way it also support Amharic date formatting and much much more.",
+            "keywords": [
+                "JDN",
+                "calender",
+                "date",
+                "ethiopian"
+            ],
+            "support": {
+                "issues": "https://github.com/andegna/calender/issues",
+                "source": "https://github.com/andegna/calender"
+            },
+            "time": "2026-02-13T14:14:32+00:00"
+        },
         {
             "name": "awcodes/light-switch",
             "version": "v3.0.0",
@@ -1554,6 +1610,65 @@
                 }
             ],
             "time": "2025-12-03T09:33:47+00:00"
+        },
+        {
+            "name": "geezify/geezify-php",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/geezify/geezify-php.git",
+                "reference": "2901449a22f9e88b58daad0b13770f322495a76d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/geezify/geezify-php/zipball/2901449a22f9e88b58daad0b13770f322495a76d",
+                "reference": "2901449a22f9e88b58daad0b13770f322495a76d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6|7.*"
+            },
+            "provide": {
+                "andegna/geezify": "self.version"
+            },
+            "replace": {
+                "andegna/geezify": "self.version"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Geezify\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sam As End",
+                    "email": "4sam21@gmail.com"
+                }
+            ],
+            "description": "A library to convert ascii number like '3456' to geez number '፴፬፻፶፮' and vise versa.",
+            "keywords": [
+                "ethiopian",
+                "geez",
+                "geezify"
+            ],
+            "support": {
+                "issues": "https://github.com/geezify/geezify-php/issues",
+                "source": "https://github.com/geezify/geezify-php/tree/develop"
+            },
+            "time": "2017-02-24T13:52:50+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -5489,6 +5604,93 @@
                 }
             ],
             "time": "2026-02-21T12:49:54+00:00"
+        },
+        {
+            "name": "spatie/laravel-permission",
+            "version": "7.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-permission.git",
+                "reference": "5272955119759cd217e84e8bbac19443c305ebc3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/5272955119759cd217e84e8bbac19443c305ebc3",
+                "reference": "5272955119759cd217e84e8bbac19443c305ebc3",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/auth": "^12.0|^13.0",
+                "illuminate/container": "^12.0|^13.0",
+                "illuminate/contracts": "^12.0|^13.0",
+                "illuminate/database": "^12.0|^13.0",
+                "php": "^8.3",
+                "spatie/laravel-package-tools": "^1.0"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.9",
+                "laravel/passport": "^13.0",
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^10.0|^11.0",
+                "pestphp/pest": "^3.0|^4.0",
+                "pestphp/pest-plugin-laravel": "^3.0|^4.1",
+                "phpstan/phpstan": "^2.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\Permission\\PermissionServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-main": "7.x-dev",
+                    "dev-master": "7.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Spatie\\Permission\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Permission handling for Laravel 12 and up",
+            "homepage": "https://github.com/spatie/laravel-permission",
+            "keywords": [
+                "acl",
+                "laravel",
+                "permission",
+                "permissions",
+                "rbac",
+                "roles",
+                "security",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-permission/issues",
+                "source": "https://github.com/spatie/laravel-permission/tree/7.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-04-07T15:19:42+00:00"
         },
         {
             "name": "spatie/shiki-php",
