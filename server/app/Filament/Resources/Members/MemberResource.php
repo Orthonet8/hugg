@@ -113,7 +113,11 @@ class MemberResource extends Resource
                     ->label('Contact')
                     ->state(function (Member $record): string {
                         $phone = e($record->mobile ?: '—');
-                        $telegram = e($record->telegram ?: '—');
+                        $telegramRaw = trim((string) ($record->telegram ?? ''));
+                        $telegramDisplay = $telegramRaw === ''
+                            ? '—'
+                            : (str_starts_with($telegramRaw, '@') ? $telegramRaw : '@'.$telegramRaw);
+                        $telegram = e($telegramDisplay);
 
                         return <<<HTML
 <div class="flex flex-col gap-1.5">

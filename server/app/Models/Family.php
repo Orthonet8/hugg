@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Member;
 
 class Family extends Model
 {
@@ -49,15 +48,15 @@ class Family extends Model
             ->filter()
             ->all();
 
-        return \App\Models\Member::whereIn('id', $ids)->get();
+        return Member::whereIn('id', $ids)->get();
     }
 
-    public function getFatherAttribute(): ?\App\Models\Member
+    public function getFatherAttribute(): ?Member
     {
         return $this->memberByRole('father');
     }
 
-    public function getMotherAttribute(): ?\App\Models\Member
+    public function getMotherAttribute(): ?Member
     {
         return $this->memberByRole('mother');
     }
@@ -73,13 +72,13 @@ class Family extends Model
             return collect();
         }
 
-        return \App\Models\Member::whereIn('id', $childrenData)->get();
+        return Member::whereIn('id', $childrenData)->get();
     }
 
     /**
      * Find a member by role in the JSON data.
      */
-    protected function memberByRole(string $role): ?\App\Models\Member
+    protected function memberByRole(string $role): ?Member
     {
         $memberId = collect($this->members_data ?? [])
             ->where('role', $role)
@@ -89,7 +88,7 @@ class Family extends Model
             return null;
         }
 
-        return \App\Models\Member::find($memberId);
+        return Member::find($memberId);
     }
 
     /**
@@ -99,10 +98,11 @@ class Family extends Model
     {
         return collect($this->members_data ?? [])
             ->map(function ($entry) {
-                $member = \App\Models\Member::find($entry['member_id'] ?? null);
+                $member = Member::find($entry['member_id'] ?? null);
+
                 return [
-                    'member'    => $member,
-                    'role'      => $entry['role'] ?? 'unknown',
+                    'member' => $member,
+                    'role' => $entry['role'] ?? 'unknown',
                     'member_id' => $entry['member_id'] ?? null,
                 ];
             })

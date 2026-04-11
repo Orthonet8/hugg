@@ -110,7 +110,7 @@ export const RegistrationPage = () => {
     "campus-academics": () => !!(form.campus && form.fieldOfStudy),
     "background-participation": () => !!(form.region && form.previousParticipation),
     "skills-service": () => form.serviceDepartments.length > 0 || form.talents.length > 0,
-    "contact-social": () => !!(form.mobile && form.emailOrUsername),
+    "contact-social": () => true,
   };
 
   const goToIndex = (targetIndex: number) => {

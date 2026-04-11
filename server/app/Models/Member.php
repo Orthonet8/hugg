@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Family;
+use App\Models\Section;
 
 class Member extends Authenticatable
 {
@@ -86,6 +88,23 @@ class Member extends Authenticatable
     public function getDisplayNameAttribute(): string
     {
         return $this->full_name ?: $this->email_or_username;
+    }
+
+    public function setTelegramAttribute($value): void
+    {
+        if ($value === null) {
+            $this->attributes['telegram'] = null;
+            return;
+        }
+
+        $telegram = trim((string) $value);
+
+        if ($telegram === '') {
+            $this->attributes['telegram'] = null;
+            return;
+        }
+
+        $this->attributes['telegram'] = str_starts_with($telegram, '@') ? $telegram : '@'.$telegram;
     }
 
     /* ------------------------------------------------------------------ */

@@ -271,6 +271,9 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
   const [identifierStatus, setIdentifierStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
   const [mobileStatus, setMobileStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
   const [telegramStatus, setTelegramStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
+  const [identifierError, setIdentifierError] = useState("");
+  const [mobileError, setMobileError] = useState("");
+  const [telegramError, setTelegramError] = useState("");
 
   const checkAvailabilityNow = async (params: {
     identifier?: string;
@@ -329,6 +332,7 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
 
   useEffect(() => {
     const value = emailOrUsername.trim();
+    setIdentifierError("");
 
     if (value.length < 3) {
       setIdentifierStatus("idle");
@@ -372,6 +376,7 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
 
   useEffect(() => {
     const value = mobile.trim();
+    setMobileError("");
 
     if (value.length < 3) {
       setMobileStatus("idle");
@@ -400,6 +405,7 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
 
   useEffect(() => {
     const value = telegram.trim();
+    setTelegramError("");
 
     if (value.length < 3) {
       setTelegramStatus("idle");
@@ -429,6 +435,9 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setIdentifierError("");
+    setMobileError("");
+    setTelegramError("");
 
     if (password !== confirmPassword) {
       setError(t("auth.passwordMismatch"));
@@ -439,32 +448,32 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
       return;
     }
     if (identifierStatus === "taken") {
-      setError(t("auth.alreadyRegistered"));
+      setIdentifierError("Already registered");
       return;
     }
 
     if (identifierStatus === "checking") {
-      setError("Please wait while we check availability.");
+      setIdentifierError("Please wait while we check availability.");
       return;
     }
 
     if (mobileStatus === "taken") {
-      setError(t("auth.alreadyRegistered"));
+      setMobileError("Already registered");
       return;
     }
 
     if (mobileStatus === "checking") {
-      setError("Please wait while we check availability.");
+      setMobileError("Please wait while we check availability.");
       return;
     }
 
     if (telegramStatus === "taken") {
-      setError(t("auth.alreadyRegistered"));
+      setTelegramError("Already registered");
       return;
     }
 
     if (telegramStatus === "checking") {
-      setError("Please wait while we check availability.");
+      setTelegramError("Please wait while we check availability.");
       return;
     }
 
@@ -476,19 +485,19 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
 
     if (checkResult.identifierExists) {
       setIdentifierStatus("taken");
-      setError(t("auth.alreadyRegistered"));
+      setIdentifierError("Already registered");
       return;
     }
 
     if (mobile.trim() !== "" && checkResult.mobileExists) {
       setMobileStatus("taken");
-      setError(t("auth.alreadyRegistered"));
+      setMobileError("Already registered");
       return;
     }
 
     if (telegram.trim() !== "" && checkResult.telegramExists) {
       setTelegramStatus("taken");
-      setError(t("auth.alreadyRegistered"));
+      setTelegramError("Already registered");
       return;
     }
 
@@ -509,7 +518,28 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
         setError(t("auth.alreadyRegistered"));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+      const normalizedMessage = message.toLowerCase();
+
+      if (normalizedMessage.includes("email_or_username") || normalizedMessage.includes("username") || normalizedMessage.includes("email")) {
+        setIdentifierStatus("taken");
+        setIdentifierError("Already registered");
+        return;
+      }
+
+      if (normalizedMessage.includes("mobile") || normalizedMessage.includes("phone")) {
+        setMobileStatus("taken");
+        setMobileError("Already registered");
+        return;
+      }
+
+      if (normalizedMessage.includes("telegram")) {
+        setTelegramStatus("taken");
+        setTelegramError("Already registered");
+        return;
+      }
+
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -558,14 +588,17 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
           <Mail size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
           <input type="text" required placeholder={t("reg.emailOrUsernamePlaceholder")} value={emailOrUsername} onChange={(e) => setEmailOrUsername(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
         </div>
-        {identifierStatus === "checking" && (
+        {!identifierError && identifierStatus === "checking" && (
           <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
         )}
-        {identifierStatus === "available" && (
+        {!identifierError && identifierStatus === "available" && (
           <p className="mt-1 text-xs text-emerald-600">Available</p>
         )}
-        {identifierStatus === "taken" && (
+        {!identifierError && identifierStatus === "taken" && (
           <p className="mt-1 text-xs text-red-600">Already registered</p>
+        )}
+        {identifierError && (
+          <p className="mt-1 text-xs text-red-600">{identifierError}</p>
         )}
       </div>
 
@@ -577,14 +610,17 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
           <Phone size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
           <input type="tel" placeholder={t("reg.mobilePlaceholder")} value={mobile} onChange={(e) => setMobile(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
         </div>
-        {mobileStatus === "checking" && (
+        {!mobileError && mobileStatus === "checking" && (
           <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
         )}
-        {mobileStatus === "available" && (
+        {!mobileError && mobileStatus === "available" && (
           <p className="mt-1 text-xs text-emerald-600">Available</p>
         )}
-        {mobileStatus === "taken" && (
+        {!mobileError && mobileStatus === "taken" && (
           <p className="mt-1 text-xs text-red-600">Already registered</p>
+        )}
+        {mobileError && (
+          <p className="mt-1 text-xs text-red-600">{mobileError}</p>
         )}
       </div>
 
@@ -596,14 +632,17 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
           <Send size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
           <input type="text" placeholder="@username" value={telegram} onChange={(e) => setTelegram(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
         </div>
-        {telegramStatus === "checking" && (
+        {!telegramError && telegramStatus === "checking" && (
           <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
         )}
-        {telegramStatus === "available" && (
+        {!telegramError && telegramStatus === "available" && (
           <p className="mt-1 text-xs text-emerald-600">Available</p>
         )}
-        {telegramStatus === "taken" && (
+        {!telegramError && telegramStatus === "taken" && (
           <p className="mt-1 text-xs text-red-600">Already registered</p>
+        )}
+        {telegramError && (
+          <p className="mt-1 text-xs text-red-600">{telegramError}</p>
         )}
       </div>
 

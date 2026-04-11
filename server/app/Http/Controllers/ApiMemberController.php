@@ -19,7 +19,12 @@ class ApiMemberController extends Controller
 
     public function register(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        $input = $request->all();
+        if (array_key_exists('telegram', $input)) {
+            $input['telegram'] = $this->normalizeTelegram($input['telegram']);
+        }
+
+        $validator = Validator::make($input, [
             'full_name' => 'required|string|max:255',
             'christian_name' => 'nullable|string|max:255',
             'email_or_username' => 'required|string|unique:members,email_or_username|max:255',
@@ -85,7 +90,12 @@ class ApiMemberController extends Controller
 
     public function checkIdentifier(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        $input = $request->all();
+        if (array_key_exists('telegram', $input)) {
+            $input['telegram'] = $this->normalizeTelegram($input['telegram']);
+        }
+
+        $validator = Validator::make($input, [
             'email_or_username' => 'nullable|string|max:255',
             'mobile' => 'nullable|string|max:50',
             'telegram' => 'nullable|string|max:255',
@@ -130,8 +140,9 @@ class ApiMemberController extends Controller
         }
 
         if ($telegram !== '') {
+            $normalizedTelegram = ltrim(mb_strtolower($telegram), '@');
             $telegramExists = Member::query()
-                ->whereRaw('LOWER(telegram) = ?', [mb_strtolower($telegram)])
+                ->whereRaw("LOWER(LTRIM(COALESCE(telegram, ''), '@')) = ?", [$normalizedTelegram])
                 ->exists();
         }
 
@@ -275,7 +286,12 @@ class ApiMemberController extends Controller
             return response()->json(["message" => "Member not found"], 404);
         }
 
-        $validated = $request->validate([
+        $input = $request->all();
+        if (array_key_exists('telegram', $input)) {
+            $input['telegram'] = $this->normalizeTelegram($input['telegram']);
+        }
+
+        $validated = Validator::make($input, [
             "christian_name"       => "nullable|string|max:255",
             "gender"               => "nullable|in:ወንድ,ሴት",
             "age"                  => "nullable|string|max:10",
@@ -298,7 +314,7 @@ class ApiMemberController extends Controller
             "talent_description"   => "nullable|string|max:1000",
             "mobile"               => "nullable|string|max:50|unique:members,mobile,{$id}",
             "telegram"             => "nullable|string|max:255|unique:members,telegram,{$id}",
-        ]);
+        ])->validate();
 
         $member->update($validated);
 
@@ -365,7 +381,12 @@ class ApiMemberController extends Controller
             return response()->json(['message' => 'Member not found'], 404);
         }
 
-        $validated = $request->validate([
+        $input = $request->all();
+        if (array_key_exists('telegram', $input)) {
+            $input['telegram'] = $this->normalizeTelegram($input['telegram']);
+        }
+
+        $validated = Validator::make($input, [
             'full_name' => 'sometimes|string|max:255',
             'christian_name' => 'nullable|string|max:255',
             'username' => 'sometimes|string|unique:members,username,'.$id.'|max:255',
@@ -394,7 +415,7 @@ class ApiMemberController extends Controller
             'telegram' => 'nullable|string|max:255',
             'section_id' => 'nullable|exists:sections,id',
             'is_active' => 'sometimes|boolean',
-        ]);
+        ])->validate();
 
         if (isset($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
@@ -590,5 +611,20 @@ class ApiMemberController extends Controller
         $username = $parts[0];
 
         return Member::active()->where('email_or_username', $username)->first();
+    }
+
+    private function normalizeTelegram(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $telegram = trim((string) $value);
+
+        if ($telegram === '') {
+            return null;
+        }
+
+        return str_starts_with($telegram, '@') ? $telegram : '@'.$telegram;
     }
 }
