@@ -1,0 +1,819 @@
+@import "../../../vendor/filament/filament/resources/css/theme.css";
+
+/* Tailwind v4+ Source Scanning */
+@source '../../../app/Filament/**/*';
+@source '../../../resources/views/filament/**/*';
+@source '../../../resources/views/livewire/**/*';
+@source '../../../resources/views/students/**/*';
+
+.welcome-gradient {
+    background:
+        radial-gradient(circle at top right, rgba(19, 19, 236, 0.15), transparent 45%),
+        radial-gradient(circle at bottom left, rgba(19, 19, 236, 0.08), transparent 45%);
+}
+
+.profile-glow {
+    box-shadow: 0 0 20px rgba(19, 19, 236, 0.3);
+}
+
+main.fi-main.fi-width-7xl {
+    @apply max-w-full px-4 md:px-8 bg-gray-50 dark:bg-gray-950;
+}
+
+:root {
+    /* Width used when the desktop sidebar is "collapsed" (icons-only). */
+    --app-sidebar-collapsed-width: 4rem;
+}
+
+/* --- Topbar Refinement --- */
+.fi-topbar {
+    @apply bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-800 min-h-16;
+}
+
+/* Make topbar sticky and full width */
+.fi-topbar-ctn {
+    position: sticky ;
+    top: 0;
+    z-index: 30;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Remove logo + desktop collapse controls from the topbar */
+@media (min-width: 64rem) {
+    .fi-topbar-start {
+        display: none ;
+    }
+}
+
+/* Sidebar should span full viewport height from the very top (even with topbar) */
+.fi-body-has-topbar aside.fi-sidebar {
+    top: 0 ;
+    height: 100dvh ;
+}
+
+/* Keep sidebar pinned while the page scrolls (Filament uses sticky on desktop in some modes) */
+@media (min-width: 64rem) {
+    aside.fi-sidebar {
+        position: fixed ;
+        top: 0 ;
+        bottom: 0 ;
+        left: 0 ;
+    }
+}
+
+/* Ensure sidebar covers the left area of the sticky topbar (no "hole" on desktop) */
+@media (min-width: 64rem) {
+    aside.fi-sidebar {
+        z-index: 40 ;
+    }
+}
+
+/* Prevent main content from sitting under the fixed sidebar */
+@media (min-width: 64rem) {
+    /* Base transitions for smooth collapsing */
+    .fi-main-ctn,
+    .fi-topbar {
+        transition: margin-inline-start 0.3s ease, width 0.3s ease;
+    }
+
+    /* Not collapsible: sidebar always takes full width */
+    .fi-body.fi-body-has-navigation:not(
+            .fi-body-has-sidebar-collapsible-on-desktop
+        ):not(.fi-body-has-sidebar-fully-collapsible-on-desktop)
+        .fi-main-ctn,
+    .fi-body.fi-body-has-navigation:not(
+            .fi-body-has-sidebar-collapsible-on-desktop
+        ):not(.fi-body-has-sidebar-fully-collapsible-on-desktop)
+        .fi-topbar {
+        margin-inline-start: var(--sidebar-width, 16rem);
+        width: calc(100% - var(--sidebar-width, 16rem));
+    }
+
+    /* Collapsible on desktop: use collapsed width by default, expand when open */
+    .fi-body.fi-body-has-sidebar-collapsible-on-desktop aside.fi-sidebar {
+        width: var(--app-sidebar-collapsed-width) ;
+    }
+
+    .fi-body.fi-body-has-sidebar-collapsible-on-desktop
+        aside.fi-sidebar.fi-sidebar-open {
+        width: var(--sidebar-width, 16rem) ;
+    }
+
+    .fi-body.fi-body-has-sidebar-collapsible-on-desktop .fi-main-ctn,
+    .fi-body.fi-body-has-sidebar-collapsible-on-desktop .fi-topbar {
+        margin-inline-start: var(--app-sidebar-collapsed-width);
+        width: calc(100% - var(--app-sidebar-collapsed-width));
+    }
+
+    .fi-body.fi-body-has-sidebar-collapsible-on-desktop:has(
+            aside.fi-sidebar.fi-sidebar-open
+        )
+        .fi-main-ctn,
+    .fi-body.fi-body-has-sidebar-collapsible-on-desktop:has(
+            aside.fi-sidebar.fi-sidebar-open
+        )
+        .fi-topbar {
+        margin-inline-start: var(--sidebar-width, 16rem);
+        width: calc(100% - var(--sidebar-width, 16rem));
+    }
+
+    /* Fully-collapsible on desktop: no offset when closed, offset when open */
+    .fi-body.fi-body-has-sidebar-fully-collapsible-on-desktop .fi-main-ctn,
+    .fi-body.fi-body-has-sidebar-fully-collapsible-on-desktop .fi-topbar {
+        margin-inline-start: 0;
+        width: 100%;
+    }
+
+    .fi-body.fi-body-has-sidebar-fully-collapsible-on-desktop:has(
+            aside.fi-sidebar.fi-sidebar-open
+        )
+        .fi-main-ctn,
+    .fi-body.fi-body-has-sidebar-fully-collapsible-on-desktop:has(
+            aside.fi-sidebar.fi-sidebar-open
+        )
+        .fi-topbar {
+        margin-inline-start: var(--sidebar-width, 16rem);
+        width: calc(100% - var(--sidebar-width, 16rem));
+    }
+}
+
+/* --- Sidebar Header & Logo (Centered) --- */
+header.fi-sidebar-header {
+    @apply relative flex h-auto min-h-0 w-full items-stretch gap-1.5 border-b border-white/10 px-2.5 py-2 mb-1 lg:px-3 lg:py-2.5;
+
+    & .fi-logo {
+        @apply text-xl font-bold tracking-tight transition-transform duration-200;
+        @apply flex items-center justify-center gap-3;
+
+        & img,
+        & svg {
+            @apply h-9 w-auto;
+        }
+
+        &:hover {
+            @apply scale-[1.02];
+        }
+    }
+}
+
+/* Keep the sidebar logo centered while leaving room for collapse button */
+header.fi-sidebar-header .fi-sidebar-header-logo-ctn {
+    @apply absolute left-1/2 -translate-x-1/2;
+    @apply flex flex-col items-center justify-center;
+    @apply text-center;
+    /* Leave room so the right-side collapse button doesn't overlap text */
+    width: calc(100% - 3.5rem);
+}
+
+header.fi-sidebar-header .app-sidebar-header-brand-ctn {
+    @apply absolute left-1/2 -translate-x-1/2;
+    @apply flex flex-col items-center justify-center;
+    @apply text-center;
+    width: calc(100% - 3.5rem);
+}
+
+header.fi-sidebar-header .app-sidebar-app-name {
+    @apply mt-2 text-sm font-semibold tracking-wider uppercase text-gray-100/80;
+    @apply leading-tight whitespace-normal break-words;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Put collapse/expand control on the right side of the sidebar header */
+header.fi-sidebar-header .fi-sidebar-open-collapse-sidebar-btn,
+header.fi-sidebar-header .fi-sidebar-close-collapse-sidebar-btn {
+    position: absolute ;
+    right: 0.5rem ;
+    top: 50% ;
+    transform: translateY(-50%) ;
+}
+
+/* RTL support */
+:where(:dir(rtl), [dir="rtl"], [dir="rtl"] *)
+    header.fi-sidebar-header
+    .fi-sidebar-open-collapse-sidebar-btn,
+:where(:dir(rtl), [dir="rtl"], [dir="rtl"] *)
+    header.fi-sidebar-header
+    .fi-sidebar-close-collapse-sidebar-btn {
+    right: auto ;
+    left: 0.5rem ;
+}
+
+/* Keep custom sidebar brand content visible in the header logo container. */
+
+/*
+ * Sidebar header hover → blur/dim brand, show centered collapse control.
+ * Plain CSS :hover (not only Tailwind) so Livewire views always work after build.
+ */
+.app-sidebar-head-brand {
+    transition:
+        filter 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.app-sidebar-head-overlay {
+    transition:
+        opacity 0.2s ease,
+        background-color 0.2s ease,
+        backdrop-filter 0.2s ease;
+}
+
+@media (min-width: 1024px) {
+    .app-sidebar-head-overlay {
+        pointer-events: none;
+        opacity: 0;
+        background-color: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+
+    .app-sidebar-head-interact:hover .app-sidebar-head-brand {
+        filter: blur(3px);
+        opacity: 0.28;
+    }
+
+    .app-sidebar-head-interact:hover .app-sidebar-head-overlay {
+        pointer-events: auto;
+        opacity: 1;
+        background-color: rgba(21, 34, 89, 0.4);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .app-sidebar-head-interact:hover .app-sidebar-head-brand {
+            filter: none;
+            opacity: 1;
+        }
+
+        .app-sidebar-head-interact:hover .app-sidebar-head-overlay {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+    }
+}
+
+@media (max-width: 1023px) {
+    .app-sidebar-head-overlay {
+        pointer-events: auto;
+        opacity: 1;
+        background-color: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+}
+
+/* Sidebar header: centered control (revealed on hover on lg+) */
+.fi-sidebar-header-hover-btn {
+    position: relative;
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    color: rgba(255,255,255,0.7);
+    background: transparent;
+    border: none;
+    border-radius: 0.375rem;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.fi-sidebar-header-hover-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+
+.fi-sidebar-header-hover-btn:focus-visible {
+    outline: 2px solid rgba(255,255,255,0.5);
+    outline-offset: 2px;
+}
+
+.fi-sidebar-header-hover-btn .fi-icon {
+    color: inherit;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/*
+ * Desktop collapsible rail: hide name/motto; smaller logo
+ */
+@media (min-width: 1024px) {
+    .fi-body-has-sidebar-collapsible-on-desktop
+        aside.fi-sidebar:not(.fi-sidebar-open)
+        header.fi-sidebar-header {
+        margin-bottom: 0.35rem;
+        min-height: 0;
+        padding-inline: 0.3rem;
+        padding-block: 0.55rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .fi-body-has-sidebar-collapsible-on-desktop
+        aside.fi-sidebar:not(.fi-sidebar-open)
+        .app-sidebar-brand-wrap {
+        gap: 0.25rem;
+    }
+
+    .fi-body-has-sidebar-collapsible-on-desktop
+        aside.fi-sidebar:not(.fi-sidebar-open)
+        .app-sidebar-brand-text {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+
+    .fi-body-has-sidebar-collapsible-on-desktop
+        aside.fi-sidebar:not(.fi-sidebar-open)
+        .app-sidebar-brand-logo-img {
+        max-height: 2.25rem;
+        width: auto;
+        max-width: 100%;
+    }
+
+    .fi-body-has-sidebar-collapsible-on-desktop
+        aside.fi-sidebar:not(.fi-sidebar-open)
+        .app-sidebar-brand-logo:not(:has(img)) {
+        height: 2.25rem;
+        width: 2.25rem;
+    }
+
+    .fi-body-has-sidebar-collapsible-on-desktop
+        aside.fi-sidebar:not(.fi-sidebar-open)
+        .app-sidebar-brand-logo
+        span {
+        font-size: 0.95rem;
+        line-height: 1;
+    }
+
+    .fi-body-has-sidebar-collapsible-on-desktop
+        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar-header-hover-btn {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .fi-body-has-sidebar-collapsible-on-desktop
+        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar-header-hover-btn
+        .fi-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+}
+
+/* Desktop: sidebar brand row has expand/collapse — hide duplicate topbar sidebar controls */
+@media (min-width: 1024px) {
+    .fi-topbar .fi-topbar-collapse-sidebar-btn-ctn,
+    .fi-topbar .fi-topbar-open-sidebar-btn,
+    .fi-topbar .fi-topbar-close-sidebar-btn {
+        display: none !important;
+    }
+}
+
+/* --- Sidebar Container & Scrollbar --- */
+aside.fi-sidebar {
+    @apply bg-[#152259] flex flex-col h-dvh overflow-hidden;
+
+    /* Tighten overall sidebar spacing */
+    & .fi-sidebar-nav {
+        @apply py-4 gap-y-4 flex flex-col;
+    }
+
+    & .fi-sidebar-nav-groups {
+        @apply gap-y-4;
+    }
+
+    & .fi-sidebar-group {
+        @apply gap-y-0.5;
+    }
+
+    & .fi-sidebar-group-items {
+        @apply gap-y-0.5;
+    }
+
+    /* Tighten individual clickable rows */
+    & .fi-sidebar-item-btn,
+    & .fi-sidebar-group-btn,
+    & .fi-sidebar-group-dropdown-trigger-btn {
+        @apply py-1.5;
+    }
+
+    & .fi-sidebar-group-label {
+        @apply text-[0.65rem] tracking-widest;
+    }
+
+    /* Styling the Navigation area to handle the scrolling */
+    & .fi-sidebar-nav {
+        @apply flex-1 overflow-y-auto overflow-x-auto px-4 pt-4;
+        /* Force vertical scrollbar and style it */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+
+        &::-webkit-scrollbar {
+            @apply w-1.5; /* Thin scrollbar */
+        }
+
+        &::-webkit-scrollbar-track {
+            @apply bg-transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            @apply bg-white/10 rounded-full; /* Subtle white thumb */
+            &:hover {
+                @apply bg-white/20;
+            }
+        }
+
+        /* Nav Items Styling */
+        & li.fi-sidebar-item {
+            & .fi-sidebar-item-label,
+            .fi-sidebar-item-icon {
+                @apply text-gray-100;
+            }
+            &.fi-active {
+                @apply bg-blue-900/30 rounded-lg;
+                & .fi-sidebar-item-label,
+                .fi-sidebar-item-icon {
+                    @apply text-blue-400 font-semibold;
+                }
+            }
+        }
+
+        & li.fi-sidebar-item:hover {
+            @apply bg-blue-800 rounded-lg;
+            & .fi-sidebar-item-label,
+            .fi-sidebar-item-icon {
+                @apply text-blue-300;
+            }
+        }
+
+        & .fi-sidebar-group-label {
+            @apply text-blue-300/70 text-xs uppercase tracking-widest font-bold;
+        }
+    }
+}
+
+/* --- Table Styling (Condensed) --- */
+.fi-ta-table thead tr {
+    @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.fi-ta-header-cell {
+    @apply text-gray-900 dark:text-gray-100 font-semibold;
+}
+
+/* Fix sortable header alignment and spacing */
+.fi-ta-header-cell-sort-btn {
+    @apply flex items-center justify-start gap-x-1 py-2 ;
+    width: auto ;
+}
+
+.fi-ta-table tbody tr {
+    @apply hover:bg-gray-50 dark:hover:bg-gray-900/50;
+}
+
+.fi-ta-table td {
+    @apply text-gray-700 dark:text-gray-300;
+}
+
+.fi-ta-cell div.px-3.py-4 {
+    @apply py-3;
+}
+
+/* Attendance Column Tightening */
+.fi-ta-header-cell:has(span[title="P"]),
+.fi-ta-header-cell:has(span[title="A"]),
+.fi-ta-header-cell:has(span[title="L"]),
+.fi-ta-header-cell:has(span[title="E"]) {
+    @apply w-12 px-0 text-center;
+}
+
+/* Add a vertical line to separate Name from Attendance marks */
+.fi-ta-cell:nth-child(2) {
+    @apply border-r border-gray-200 dark:border-gray-800;
+}
+
+/* Smooth Accordion Shadow on Focus */
+.attendance-day-card:hover {
+    @apply ring-1 ring-primary-500/20 dark:ring-primary-500/30 shadow-md transition-all duration-300;
+}
+
+/* Slim the table inside the collapse to avoid double padding */
+.fi-ta-content {
+    @apply border-none;
+}
+
+/* Ensure the date input doesn't look bulky */
+input[type="date"] {
+    @apply text-xs font-bold uppercase tracking-tight;
+}
+
+/* Modern Widget Styling */
+.fi-wi-widget.fi-wi-chart-widget {
+    @apply border border-gray-200 dark:bg-gray-800 bg-white dark:bg-gray-900 shadow-sm rounded-2xl transition-all duration-300;
+}
+
+.fi-wi-widget.fi-wi-chart-widget:hover {
+    @apply shadow-md border-primary-200 dark:border-primary-900;
+}
+
+/* =============================================================================
+   CUSTOM SIDEBAR ENHANCEMENTS
+   ============================================================================= */
+
+/* --- Sidebar Group Enhancements --- */
+.fi-sidebar-group {
+    @apply transition-all duration-200;
+}
+
+.fi-sidebar-group-btn {
+    @apply relative flex items-center gap-2 px-3 py-2.5 rounded-lg text-gray-100/70 transition-all duration-200;
+    @apply hover:bg-white/10 hover:text-gray-100;
+}
+
+.fi-sidebar-group-btn:hover {
+    @apply bg-white/5;
+}
+
+.fi-sidebar-group-btn-active,
+.fi-sidebar-group.fi-active > .fi-sidebar-group-btn {
+    @apply bg-blue-900/40 text-blue-300;
+}
+
+.fi-sidebar-group-icon {
+    @apply flex-shrink-0 w-6 h-6 flex items-center justify-center;
+    @apply text-blue-300/60;
+}
+
+.fi-sidebar-group-label {
+    @apply flex-1 text-xs font-semibold uppercase tracking-wider;
+}
+
+.fi-sidebar-group-badge-count {
+    @apply flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[10px] font-bold;
+    @apply bg-blue-500/80 text-white rounded-full;
+}
+
+.fi-sidebar-group-collapse-btn {
+    @apply opacity-50 transition-opacity duration-200;
+}
+
+.fi-sidebar-group-collapse-btn:hover {
+    @apply opacity-100;
+}
+
+.fi-sidebar-group-collapse-btn.fi-collapsed svg {
+    transform: rotate(-90deg);
+}
+
+.fi-sidebar-group-collapse-btn svg {
+    @apply transition-transform duration-200;
+}
+
+/* Collapsed group indicator */
+.fi-sidebar-group.fi-collapsed > .fi-sidebar-group-btn {
+    @apply bg-white/5;
+}
+
+.fi-sidebar-group.fi-collapsed > .fi-sidebar-group-btn::after {
+    content: '';
+    @apply absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-blue-400 rounded-r-full;
+}
+
+/* --- Sidebar Item Active State Enhancements --- */
+.fi-sidebar-item {
+    @apply transition-all duration-150;
+}
+
+.fi-sidebar-item-btn {
+    @apply relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-100/80 transition-all duration-200;
+    @apply hover:bg-white/10 hover:text-gray-100;
+}
+
+.fi-sidebar-item-btn-active {
+    @apply bg-blue-600/30 text-blue-300 font-medium;
+    @apply border-l-2 border-blue-400;
+}
+
+.fi-sidebar-item-btn-active:hover {
+    @apply bg-blue-600/40;
+}
+
+.fi-sidebar-item-btn-active-child {
+    @apply bg-white/5;
+}
+
+.fi-sidebar-item-icon {
+    @apply flex-shrink-0 w-6 h-6 flex items-center justify-center text-gray-100/60;
+    @apply transition-colors duration-150;
+}
+
+.fi-sidebar-item-icon-active {
+    @apply text-blue-400;
+}
+
+.fi-sidebar-item-btn:hover .fi-sidebar-item-icon {
+    @apply text-gray-100;
+}
+
+.fi-sidebar-item-label {
+    @apply flex-1 text-sm;
+}
+
+.fi-sidebar-item-label-active {
+    @apply font-medium text-blue-300;
+}
+
+.fi-sidebar-item-badge-ctn {
+    @apply flex items-center;
+}
+
+/* Active child items indicator */
+.fi-sidebar-item-has-active-child-items > .fi-sidebar-item-btn {
+    @apply text-gray-100 font-medium;
+}
+
+.fi-sidebar-item-has-active-child-items > .fi-sidebar-item-btn::before {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-0.5 bg-blue-400 rounded-r;
+}
+
+/* Sub-navigation items */
+.fi-sidebar-sub-group-items {
+    @apply ml-4 mt-1 mb-1 border-l border-white/10;
+}
+
+.fi-sidebar-sub-group-items .fi-sidebar-item-btn {
+    @apply py-2 text-sm;
+}
+
+/* --- Sidebar Search Enhancement --- */
+.fi-sidebar-search {
+    @apply px-4 pb-4;
+}
+
+.fi-sidebar-search input {
+    @apply bg-white/10 border-white/20 text-gray-100 placeholder-gray-400;
+    @apply focus:bg-white/15 focus:border-blue-400/50;
+}
+
+/* --- Responsive Mobile Touch Targets --- */
+@media (max-width: 1024px) {
+    .fi-sidebar-item-btn,
+    .fi-sidebar-group-btn {
+        @apply py-3; /* Larger touch target on mobile */
+    }
+
+    .fi-sidebar-group-collapse-btn,
+    .fi-sidebar-item-badge-ctn {
+        @apply touch-manipulation;
+    }
+}
+
+/* Sidebar overlay for mobile */
+.fi-sidebar-overlay {
+    @apply fixed inset-0 bg-black/50 z-30 backdrop-blur-sm;
+    @apply transition-opacity duration-300;
+}
+
+/* Smooth sidebar open/close animation */
+aside.fi-sidebar {
+    @apply transition-transform duration-300 ease-out;
+}
+
+@media (max-width: 1024px) {
+    aside.fi-sidebar:not(.fi-sidebar-open) {
+        @apply -translate-x-full;
+    }
+
+    aside.fi-sidebar.fi-sidebar-open {
+        @apply translate-x-0;
+    }
+}
+
+/* --- Scrollbar Styling (Webkit) --- */
+.fi-sidebar-nav::-webkit-scrollbar {
+    @apply w-1.5;
+}
+
+.fi-sidebar-nav::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+.fi-sidebar-nav::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full;
+}
+
+.fi-sidebar-nav::-webkit-scrollbar-thumb:hover {
+    @apply bg-white/20;
+}
+
+/* --- Global Search in Sidebar --- */
+.fi-sidebar .fi-global-search {
+    @apply bg-white/5 border-white/10;
+}
+
+.fi-sidebar .fi-global-search input {
+    @apply bg-white/10 border-white/20 text-gray-100 placeholder-gray-400;
+    @apply focus:bg-white/15 focus:border-blue-400/50 focus:ring-0;
+}
+
+/* =============================================================================
+   SIDEBAR HEADER
+   ============================================================================= */
+.fi-sidebar-header {
+    @apply relative;
+    margin-top: 0;
+    flex-shrink: 0;
+    background: linear-gradient(to bottom right, rgba(29, 78, 216, 0.5), transparent) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.55rem 0.65rem 0.65rem;
+    margin-bottom: 0.25rem;
+}
+
+.fi-sidebar-nav .fi-sidebar-header {
+    @apply mt-0;
+}
+
+/* =============================================================================
+   SIDEBAR COLOR PICKER
+   ============================================================================= */
+.fi-sidebar-color-picker {
+    @apply px-2 py-3 border-t border-white/10;
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+.fi-sidebar-nav .fi-sidebar-color-picker {
+    @apply mt-auto;
+}
+
+.fi-sidebar-color-picker-btn {
+    @apply flex items-center gap-3 w-full px-3 py-2.5 rounded-lg;
+    @apply text-gray-100/70 hover:text-gray-100 hover:bg-white/10;
+    @apply transition-all duration-200;
+}
+
+.fi-sidebar-color-picker-label {
+    @apply flex-1 text-xs font-medium;
+}
+
+.fi-sidebar-color-picker-dropdown {
+    @apply absolute bottom-full left-0 right-0 mb-2 mx-2;
+    @apply bg-gray-900 border border-white/20 rounded-xl shadow-2xl;
+    @apply overflow-hidden z-50;
+}
+
+.fi-sidebar-color-picker-header {
+    @apply flex items-center justify-between px-4 py-3 border-b border-white/10;
+    @apply text-sm font-semibold text-gray-100;
+}
+
+.fi-sidebar-color-picker-close {
+    @apply p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-gray-200;
+    @apply transition-colors duration-150;
+}
+
+.fi-sidebar-color-picker-grid {
+    @apply grid gap-3 p-3;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.fi-sidebar-color-option {
+    @apply relative flex items-center justify-center p-2 rounded-lg;
+    @apply bg-white/5 hover:bg-white/10 border border-transparent hover:border-white/20;
+    @apply transition-all duration-150 cursor-pointer;
+}
+
+.fi-sidebar-color-option-selected {
+    @apply bg-white/15 border-blue-500/50 ring-2 ring-blue-500/30;
+}
+
+.fi-sidebar-color-swatch {
+    @apply w-8 h-8 rounded-full ring-2 ring-white/40 shadow-lg;
+}
+
+.fi-sidebar-color-name {
+    @apply flex-1 text-xs font-medium text-gray-200;
+}
+
+.fi-sidebar-color-check {
+    @apply w-4 h-4 text-blue-400;
+}
+
+.fi-wi-widget.fi-wi-chart-widget:hover {
+    @apply shadow-md border-primary-200 dark:border-primary-900;
+}
