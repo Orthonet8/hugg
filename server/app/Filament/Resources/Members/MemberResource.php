@@ -115,7 +115,18 @@ class MemberResource extends Resource
                         $phone = e($record->mobile ?: '—');
                         $telegram = e($record->telegram ?: '—');
 
-                        return "Phone: {$phone}<br>Telegram: {$telegram}";
+                        return <<<HTML
+<div class="flex flex-col gap-1.5">
+    <div class="inline-flex items-center gap-1.5">
+        <span class="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700">Phone</span>
+        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">{$phone}</span>
+    </div>
+    <div class="inline-flex items-center gap-1.5">
+        <span class="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-700">Telegram</span>
+        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">{$telegram}</span>
+    </div>
+</div>
+HTML;
                     })
                     ->html()
                     ->wrap()

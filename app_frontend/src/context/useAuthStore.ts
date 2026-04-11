@@ -148,6 +148,7 @@ export const useAuthStore = create<AuthState>()(
           `/api/members/${state.user.id}/profile`,
           payload,
           state.token,
+          "PATCH",
         );
         set({ user: res.member });
         return true;
