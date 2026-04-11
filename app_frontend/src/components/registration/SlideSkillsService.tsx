@@ -1,73 +1,81 @@
 import type { RegistrationForm } from "../../pages/RegistrationPage";
 import { InputField, OptionPills, SelectField } from "./FormControls";
+import { useI18n } from "../../i18n/I18nProvider";
 
 interface SlideProps {
   form: RegistrationForm;
   setForm: React.Dispatch<React.SetStateAction<RegistrationForm>>;
 }
 
-export const SlideSkillsService = ({ form, setForm }: SlideProps) => (
-  <div className="space-y-4">
-    <SelectField
-      label="ቅድስት ሥርዓት / Ordination"
-      value={form.ordination}
-      onChange={(e) => setForm((f) => ({ ...f, ordination: e.target.value }))}
-    >
-      <option value="">Select if applicable</option>
-      <option value="ዲቁና">ዲቁና (Deacon)</option>
-      <option value="ክህነት">ክህነት (Priest)</option>
-      <option value="ሌላ">ሌላ (Other)</option>
-    </SelectField>
+const DEPARTMENTS = ["ትምህርት", "መዝሙር", "ልማት", "አባላት ጉዳይ", "ፋይናንስ"];
+const TALENTS = ["መዝሙር", "ድርሰት", "የሚዲያ ስራ", "ማስተማር", "ጸሎት", "ሌላ"];
 
-    {form.ordination && (
-      <InputField
-        label="የትምህርት ዓመት / Year of Ordination"
-        value={form.ordinationYear}
-        onChange={(e) => setForm((f) => ({ ...f, ordinationYear: e.target.value }))}
-        placeholder="e.g., 2018"
-      />
-    )}
+export const SlideSkillsService = ({ form, setForm }: SlideProps) => {
+  const { t } = useI18n();
 
-    {form.ordination && (
-      <>
+  return (
+    <div className="space-y-4">
+      <SelectField
+        label={t("reg.ordination")}
+        value={form.ordination}
+        onChange={(e) => setForm((f) => ({ ...f, ordination: e.target.value }))}
+      >
+        <option value="">{t("reg.selectOrdination")}</option>
+        <option value="ዲቁና">{t("reg.deacon")}</option>
+        <option value="ክህነት">{t("reg.priest")}</option>
+        <option value="ሌላ">{t("reg.other")}</option>
+      </SelectField>
+
+      {form.ordination && (
         <InputField
-          label="ዲሲፕሊን / Diocese"
-          value={form.diocese}
-          onChange={(e) => setForm((f) => ({ ...f, diocese: e.target.value }))}
-          placeholder="Your diocese"
+          label={t("reg.ordinationYear")}
+          value={form.ordinationYear}
+          onChange={(e) => setForm((f) => ({ ...f, ordinationYear: e.target.value }))}
+          placeholder={t("reg.ordinationYearPlaceholder")}
         />
-        <InputField
-          label="ጳጳስ / Bishop"
-          value={form.bishop}
-          onChange={(e) => setForm((f) => ({ ...f, bishop: e.target.value }))}
-          placeholder="Your bishop's name"
-        />
-      </>
-    )}
+      )}
 
-    <OptionPills
-      label="የአገልግሎት ክፍሎች / Service Departments"
-      value={form.serviceDepartments}
-      options={["ትምህርት", "መዝሙር", "ልማት", "አባላት ጉዳይ", "ፋይናንስ"]}
-      onChange={(v) => setForm((f) => ({ ...f, serviceDepartments: v as string[] }))}
-      multi
-    />
+      {form.ordination && (
+        <>
+          <InputField
+            label={t("reg.diocese")}
+            value={form.diocese}
+            onChange={(e) => setForm((f) => ({ ...f, diocese: e.target.value }))}
+            placeholder={t("reg.diocesePlaceholder")}
+          />
+          <InputField
+            label={t("reg.bishop")}
+            value={form.bishop}
+            onChange={(e) => setForm((f) => ({ ...f, bishop: e.target.value }))}
+            placeholder={t("reg.bishopPlaceholder")}
+          />
+        </>
+      )}
 
-    <OptionPills
-      label="ተሰጥኦዎች / Talents"
-      value={form.talents}
-      options={["መዝሙር", "ድርሰት", "የሚዲያ ስራ", "ማስተማር", "ጸሎት", "ሌላ"]}
-      onChange={(v) => setForm((f) => ({ ...f, talents: v as string[] }))}
-      multi
-    />
-
-    {form.talents.length > 0 && (
-      <InputField
-        label="ተሰጥኦ ማብራሪያ"
-        value={form.talentDescription}
-        onChange={(e) => setForm((f) => ({ ...f, talentDescription: e.target.value }))}
-        placeholder="Describe your talents and how you'd serve..."
+      <OptionPills
+        label={t("reg.serviceDepartments")}
+        value={form.serviceDepartments}
+        options={DEPARTMENTS}
+        onChange={(v) => setForm((f) => ({ ...f, serviceDepartments: v as string[] }))}
+        multi
       />
-    )}
-  </div>
-);
+
+      <OptionPills
+        label={t("reg.talents")}
+        value={form.talents}
+        options={TALENTS}
+        onChange={(v) => setForm((f) => ({ ...f, talents: v as string[] }))}
+        multi
+      />
+
+      {form.talents.length > 0 && (
+        <InputField
+          label={t("reg.talentDescription")}
+          value={form.talentDescription}
+          onChange={(e) => setForm((f) => ({ ...f, talentDescription: e.target.value }))}
+          placeholder={t("reg.describeTalents")}
+        />
+      )}
+    </div>
+  );
+};

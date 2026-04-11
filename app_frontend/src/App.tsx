@@ -4,23 +4,38 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { AuthPage } from "./pages/AuthPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { FamilyPage } from "./pages/FamilyPage";
+import { LanguagePickerPage } from "./pages/LanguagePickerPage";
 import { NewsPage } from "./pages/NewsPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { RegistrationPage } from "./pages/RegistrationPage";
 import { SetPasswordPage } from "./pages/SetPasswordPage";
 import { useAuthStore } from "./context/useAuthStore";
+import { useI18n } from "./i18n/I18nProvider";
 
 function App() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { languageSelected } = useI18n();
 
   return (
     <Routes>
+      {/* Language picker — first visit only */}
+      <Route
+        path="/language"
+        element={
+          languageSelected ? <Navigate to="/login" replace /> : <LanguagePickerPage />
+        }
+      />
+
       {/* Public routes */}
       <Route
         path="/login"
         element={
-          isAuthenticated ? <Navigate to="/news" replace /> : <AuthPage />
+          !languageSelected
+            ? <Navigate to="/language" replace />
+            : isAuthenticated
+              ? <Navigate to="/news" replace />
+              : <AuthPage />
         }
       />
       <Route path="/set-password" element={<SetPasswordPage />} />
@@ -38,15 +53,15 @@ function App() {
         </Route>
       </Route>
 
-      {/* Catch-all — redirect to login or news based on auth */}
+      {/* Catch-all */}
       <Route
         path="*"
         element={
-          isAuthenticated ? (
-            <Navigate to="/news" replace />
-          ) : (
-            <Navigate to="/login" replace />
-          )
+          !languageSelected
+            ? <Navigate to="/language" replace />
+            : isAuthenticated
+              ? <Navigate to="/news" replace />
+              : <Navigate to="/login" replace />
         }
       />
     </Routes>

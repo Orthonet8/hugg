@@ -9,16 +9,23 @@ const getInitialLocale = (): Locale => {
   return "en";
 };
 
+const hasLocaleBeenSet = (): boolean => {
+  return localStorage.getItem(STORAGE_KEY) !== null;
+};
+
 interface I18nContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: (key: string) => string;
+  languageSelected: boolean;
+  markLanguageSelected: () => void;
 }
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
   const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
+  const [languageSelected, setLanguageSelected] = useState(hasLocaleBeenSet);
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -26,6 +33,7 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   }, [locale]);
 
   const setLocale = (locale: Locale) => setLocaleState(locale);
+  const markLanguageSelected = () => setLanguageSelected(true);
 
   const t = useMemo(() => {
     const dict = translations[locale] as Record<string, string>;
@@ -33,7 +41,7 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
   }, [locale]);
 
   return (
-    <I18nContext.Provider value={{ locale, setLocale, t }}>
+    <I18nContext.Provider value={{ locale, setLocale, t, languageSelected, markLanguageSelected }}>
       {children}
     </I18nContext.Provider>
   );

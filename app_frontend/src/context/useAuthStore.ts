@@ -4,145 +4,100 @@ import type { UserProfile } from "../types";
 
 interface AuthState {
   user: UserProfile | null;
+  token: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (data: SignupData) => Promise<boolean>;
-  logout: () => void;
+  login: (emailOrUsername: string, password: string) => Promise<boolean>;
+  signup: (data: SignupPayload) => Promise<boolean>;
+  logout: () => Promise<void>;
 }
 
-export interface SignupData {
-  email: string;
-  password: string;
+export interface SignupPayload {
   fullName: string;
+  emailOrUsername: string;
+  password: string;
+  passwordConfirmation: string;
   christianName?: string;
   mobile?: string;
+  gender?: string;
+  age?: string;
 }
+
+const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+
+const api = async <T>(path: string, body: unknown, token?: string): Promise<T> => {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message ?? "Request failed");
+  return json;
+};
+
+const apiGet = async <T>(path: string, token?: string): Promise<T> => {
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}${path}`, { headers });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message ?? "Request failed");
+  return json;
+};
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
+      token: null,
       isAuthenticated: false,
 
-      login: async (email: string, password: string) => {
+      login: async (emailOrUsername: string, password: string) => {
         try {
-          // TODO: Replace with actual API call
-          // const res = await fetch(`${API_BASE}/api/auth/login`, {
-          //   method: "POST",
-          //   headers: { "Content-Type": "application/json" },
-          //   body: JSON.stringify({ email, password }),
-          // });
-          // const data = await res.json();
-          // if (!res.ok) throw new Error(data.message);
-          // set({ user: data.user, isAuthenticated: true });
-          // return true;
-
-          // Mock login — simulate server delay
-          await new Promise((r) => setTimeout(r, 600));
-
-          // Read users from JSON mock "API"
-          const usersRes = await fetch("/api/users.json");
-          const users: UserProfile[] = await usersRes.json();
-          const found = users.find(
-            (u) => u.email === email || u.phone === email,
-          );
-
-          if (!found) {
-            // Check localStorage for registered users (mock signup storage)
-            const registeredRaw = localStorage.getItem("hugg_registered_users");
-            if (registeredRaw) {
-              const registered: Array<SignupData & { registeredAt: string }> =
-                JSON.parse(registeredRaw);
-              const match = registered.find(
-                (u) =>
-                  (u.email === email || u.mobile === email) &&
-                  u.password === password,
-              );
-              if (match) {
-                const mockUser: UserProfile = {
-                  id: `user-${Date.now()}`,
-                  fullName: match.fullName,
-                  christianName: match.christianName || "",
-                  campus: "",
-                  dorm: "",
-                  languages: [],
-                  talents: [],
-                  services: [],
-                  avatar: "",
-                  email: match.email,
-                  phone: match.mobile || "",
-                  telegram: "",
-                  donationAccounts: [],
-                };
-                set({ user: mockUser, isAuthenticated: true });
-                return true;
-              }
-            }
-            return false;
-          }
-
-          set({ user: found, isAuthenticated: true });
+          const data = await api<{ member: UserProfile; token: string }>("/api/auth/login", {
+            email_or_username: emailOrUsername,
+            password,
+          });
+          set({ user: data.member, token: data.token, isAuthenticated: true });
           return true;
         } catch {
           return false;
         }
       },
 
-      signup: async (data: SignupData) => {
+      signup: async (data: SignupPayload) => {
         try {
-          // TODO: Replace with actual API call
-          // const res = await fetch(`${API_BASE}/api/auth/signup`, {
-          //   method: "POST",
-          //   headers: { "Content-Type": "application/json" },
-          //   body: JSON.stringify(data),
-          // });
-          // const json = await res.json();
-          // if (!res.ok) throw new Error(json.message);
-          // set({ user: json.user, isAuthenticated: true });
-          // return true;
-
-          // Mock signup — store in localStorage for later login
-          await new Promise((r) => setTimeout(r, 500));
-
-          const registeredRaw = localStorage.getItem("hugg_registered_users");
-          const registered: Array<SignupData & { registeredAt: string }> =
-            registeredRaw ? JSON.parse(registeredRaw) : [];
-
-          const alreadyExists = registered.some(
-            (u) => u.email === data.email || u.mobile === data.mobile,
-          );
-          if (alreadyExists) return false;
-
-          registered.push({ ...data, registeredAt: new Date().toISOString() });
-          localStorage.setItem(
-            "hugg_registered_users",
-            JSON.stringify(registered),
-          );
-
-          const mockUser: UserProfile = {
-            id: `user-${Date.now()}`,
-            fullName: data.fullName,
-            christianName: data.christianName || "",
-            campus: "",
-            dorm: "",
-            languages: [],
-            talents: [],
-            services: [],
-            avatar: "",
-            email: data.email,
-            phone: data.mobile || "",
-            telegram: "",
-            donationAccounts: [],
+          const payload = {
+            full_name: data.fullName,
+            email_or_username: data.emailOrUsername,
+            password: data.password,
+            password_confirmation: data.passwordConfirmation,
+            christian_name: data.christianName,
+            mobile: data.mobile,
+            gender: data.gender,
+            age: data.age,
           };
-          set({ user: mockUser, isAuthenticated: true });
+
+          const res = await api<{ member: UserProfile; token: string }>("/api/auth/register", payload);
+          set({ user: res.member, token: res.token, isAuthenticated: true });
           return true;
         } catch {
           return false;
         }
       },
 
-      logout: () => {
-        set({ user: null, isAuthenticated: false });
+      logout: async () => {
+        const token = get().token;
+        try {
+          await apiGet("/api/auth/logout", token ?? undefined);
+        } catch {
+          // ignore logout errors
+        }
+        set({ user: null, token: null, isAuthenticated: false });
       },
     }),
     {
@@ -150,6 +105,7 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,
+        token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
     },

@@ -5,7 +5,18 @@ import type {
   AppNotification,
   UserProfile,
 } from "../types";
-import type { SignupData } from "../context/useAuthStore";
+
+export interface SignupApiPayload {
+  full_name: string;
+  username: string;
+  password: string;
+  password_confirmation: string;
+  christian_name?: string;
+  mobile?: string;
+  email_or_username?: string;
+  gender?: string;
+  age?: string;
+}
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 
@@ -31,7 +42,7 @@ async function api<T>(
 /* ------------------------------------------------------------------ */
 
 export interface LoginPayload {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -52,7 +63,7 @@ export const authApi = {
       body: JSON.stringify(payload),
     }),
 
-  signup: (payload: SignupData & { password: string }) =>
+  signup: (payload: SignupApiPayload) =>
     api<SignupResponse>("/api/auth/signup", {
       method: "POST",
       body: JSON.stringify(payload),

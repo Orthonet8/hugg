@@ -58,9 +58,17 @@ export const ProfilePage = () => {
       {/* Profile Card */}
       <Card className="p-6 text-center">
         <div className="relative mx-auto mb-4 h-24 w-24">
-          <div className="flex h-full w-full items-center justify-center rounded-full border-4 border-[color:var(--primary)] bg-[color:var(--surface-soft)] text-2xl font-bold text-[color:var(--primary)]">
-            {user.fullName ? user.fullName.charAt(0).toUpperCase() : <User size={32} />}
-          </div>
+          {user.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.fullName}
+              className="h-full w-full rounded-full border-4 border-[color:var(--primary)] object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center rounded-full border-4 border-[color:var(--primary)] bg-[color:var(--surface-soft)] text-2xl font-bold text-[color:var(--primary)]">
+              {user.fullName ? user.fullName.charAt(0).toUpperCase() : <User size={32} />}
+            </div>
+          )}
         </div>
         <h2 className="app-heading text-xl font-bold text-[color:var(--text-primary)]">
           {user.fullName || "—"}
@@ -197,7 +205,7 @@ export const ProfilePage = () => {
       )}
 
       {/* App Settings */}
-      <Card className="divide-y divide-[color:var(--border)] overflow-hidden rounded-xl p-0">
+      <Card className="divide-y divide-[color:var(--border)] rounded-xl p-0">
         <div className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-[color:var(--text-muted)]">
           {t("profile.appSettings")}
         </div>
@@ -233,7 +241,7 @@ export const ProfilePage = () => {
           </button>
 
           {showLangPicker && (
-            <div className="absolute right-4 z-50 mt-1 min-w-[180px] overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-xl">
+            <div className="absolute right-4 z-100 mt-1 min-w-[180px] overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] shadow-xl">
               {(["en", "am", "om"] as Locale[]).map((loc) => (
                 <button
                   key={loc}

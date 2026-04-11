@@ -56,6 +56,7 @@ class AdminPanelProvider extends PanelProvider
                 'Main',
                 'User Management',
                 'Section Management',
+                'Member Management',
                 'Account',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')

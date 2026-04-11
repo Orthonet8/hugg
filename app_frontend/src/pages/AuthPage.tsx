@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Mail, Lock, User, Phone, ArrowRight, Loader2 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
+import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
+import { ThemeToggle } from "../components/common/ThemeToggle";
 import { useAuthStore } from "../context/useAuthStore";
 import { useI18n } from "../i18n/I18nProvider";
 
@@ -13,7 +15,13 @@ export const AuthPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-10">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
+      {/* Top-right controls */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+
       <div className="w-full max-w-md">
         {/* Logo / Brand */}
         <div className="mb-6 text-center">
@@ -115,7 +123,7 @@ export const AuthPage = () => {
 function LoginForm({ onLogin, onForgotPassword }: { onLogin: () => void; onForgotPassword: () => void }) {
   const { t } = useI18n();
   const login = useAuthStore((s) => s.login);
-  const [emailOrMobile, setEmailOrMobile] = useState("");
+  const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -125,7 +133,7 @@ function LoginForm({ onLogin, onForgotPassword }: { onLogin: () => void; onForgo
     setError("");
     setLoading(true);
     try {
-      const success = await login(emailOrMobile, password);
+      const success = await login(emailOrUsername, password);
       if (success) {
         onLogin();
       } else {
@@ -155,7 +163,7 @@ function LoginForm({ onLogin, onForgotPassword }: { onLogin: () => void; onForgo
 
       <div>
         <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.emailOrPhone")}
+          {t("reg.emailOrUsername")}
         </label>
         <div className="relative">
           <Mail
@@ -165,9 +173,9 @@ function LoginForm({ onLogin, onForgotPassword }: { onLogin: () => void; onForgo
           <input
             type="text"
             required
-            placeholder="example@gmail.com"
-            value={emailOrMobile}
-            onChange={(e) => setEmailOrMobile(e.target.value)}
+            placeholder="you@example.com or username"
+            value={emailOrUsername}
+            onChange={(e) => setEmailOrUsername(e.target.value)}
             className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm"
           />
         </div>
@@ -250,7 +258,7 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
   const signup = useAuthStore((s) => s.signup);
   const [fullName, setFullName] = useState("");
   const [christianName, setChristianName] = useState("");
-  const [email, setEmail] = useState("");
+  const [emailOrUsername, setEmailOrUsername] = useState("");
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -272,7 +280,14 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
 
     setLoading(true);
     try {
-      const success = await signup({ fullName, christianName, email, mobile, password });
+      const success = await signup({
+        fullName,
+        emailOrUsername,
+        password,
+        passwordConfirmation: confirmPassword,
+        christianName,
+        mobile,
+      });
       if (success) {
         onSignupComplete();
       } else {
@@ -322,11 +337,11 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
 
       <div>
         <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.email")} <span className="text-red-500">*</span>
+          {t("reg.emailOrUsername")} <span className="text-red-500">*</span>
         </label>
         <div className="relative">
           <Mail size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
-          <input type="email" required placeholder={t("reg.emailPlaceholder")} value={email} onChange={(e) => setEmail(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
+          <input type="text" required placeholder={t("reg.emailOrUsernamePlaceholder")} value={emailOrUsername} onChange={(e) => setEmailOrUsername(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
         </div>
       </div>
 

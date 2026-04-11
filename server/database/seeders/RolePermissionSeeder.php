@@ -18,6 +18,7 @@ class RolePermissionSeeder extends Seeder
             'manage users',
             'manage roles',
             'manage sections',
+            'manage members',
         ];
 
         foreach ($permissions as $permissionName) {

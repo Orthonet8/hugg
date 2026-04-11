@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ChevronLeft, X } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
+import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
+import { ThemeToggle } from "../components/common/ThemeToggle";
 import { registrationSlides } from "../data/registrationSlides";
 import { SlideBasicInfo } from "../components/registration/SlideBasicInfo";
 import { SlideCampusAcademics } from "../components/registration/SlideCampusAcademics";
@@ -45,8 +47,7 @@ export interface RegistrationForm {
   talents: string[];
   talentDescription: string;
   mobile: string;
-  email: string;
-  facebook: string;
+  emailOrUsername: string;
   telegram: string;
 }
 
@@ -57,7 +58,7 @@ const initialForm: RegistrationForm = {
   previousParticipation: "", localChurch: "",
   ordination: "", ordinationYear: "", diocese: "", bishop: "",
   serviceDepartments: [], talents: [], talentDescription: "",
-  mobile: "", email: "", facebook: "", telegram: "",
+  mobile: "", emailOrUsername: "", telegram: "",
 };
 
 export const RegistrationPage = () => {
@@ -71,7 +72,7 @@ export const RegistrationPage = () => {
     if (user) {
       base.fullName = user.fullName || "";
       base.christianName = user.christianName || "";
-      base.email = user.email || "";
+      base.emailOrUsername = user.email || "";
       base.mobile = user.phone || "";
     }
     return base;
@@ -110,7 +111,7 @@ export const RegistrationPage = () => {
     "campus-academics": () => !!(form.campus && form.fieldOfStudy),
     "background-participation": () => !!(form.region && form.previousParticipation),
     "skills-service": () => form.serviceDepartments.length > 0 || form.talents.length > 0,
-    "contact-social": () => !!(form.mobile && form.email),
+    "contact-social": () => !!(form.mobile && form.emailOrUsername),
   };
 
   const goToIndex = (targetIndex: number) => {
@@ -163,8 +164,12 @@ export const RegistrationPage = () => {
             <ArrowLeft size={16} />
             {t("common.back")}
           </button>
-          <div className="app-gradient rounded-lg px-3 py-1.5 text-xs font-bold text-[color:var(--on-primary)]">
-            HUGGB
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+            <div className="app-gradient rounded-lg px-3 py-1.5 text-xs font-bold text-[color:var(--on-primary)]">
+              HUGGB
+            </div>
           </div>
         </div>
 

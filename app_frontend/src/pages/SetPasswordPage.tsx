@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Lock, ArrowLeft, Loader2 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
+import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
+import { ThemeToggle } from "../components/common/ThemeToggle";
 import { useI18n } from "../i18n/I18nProvider";
 
 export const SetPasswordPage = () => {
@@ -36,7 +38,13 @@ export const SetPasswordPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-10">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
+      {/* Top-right controls */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+
       <div className="w-full max-w-md">
         <button
           type="button"

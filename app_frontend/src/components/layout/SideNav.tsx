@@ -2,6 +2,8 @@ import clsx from "clsx";
 import { CalendarDays, Newspaper, UserCircle2, UsersRound } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useI18n } from "../../i18n/I18nProvider";
+import { LanguageSwitcher } from "../common/LanguageSwitcher";
+import { ThemeToggle } from "../common/ThemeToggle";
 
 export const SideNav = () => {
   const { t } = useI18n();
@@ -15,6 +17,12 @@ export const SideNav = () => {
 
   return (
     <aside className="hidden lg:flex flex-col gap-2 w-56 shrink-0 sticky top-8 self-start">
+      {/* Language + Theme at top of side nav */}
+      <div className="flex items-center gap-1.5 px-2 pb-2">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+
       {navItems.map((item) => (
         <NavLink
           key={item.to}
