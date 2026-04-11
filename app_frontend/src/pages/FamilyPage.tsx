@@ -1,11 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import { MemberCard } from "../components/family/MemberCard";
-import { MemberModal } from "../components/family/MemberModal";
+import { useEffect, useState } from "react";
 import { Badge } from "../components/common/Badge";
 import { Card } from "../components/common/Card";
 import { PageHeader } from "../components/common/PageHeader";
-import { familyGroup } from "../data";
-import type { FamilyMember } from "../types";
 import { useI18n } from "../i18n/I18nProvider";
 
 interface FamilyApiData {
@@ -27,7 +23,6 @@ interface FamilyApiData {
 
 export const FamilyPage = () => {
   const { t } = useI18n();
-  const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null);
   const [families, setFamilies] = useState<FamilyApiData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,11 +44,6 @@ export const FamilyPage = () => {
     fetchFamilies();
   }, []);
 
-  const leader = useMemo(
-    () => familyGroup.members.find((member) => member.id === familyGroup.leaderId),
-    [],
-  );
-
   if (loading) {
     return (
       <section className="space-y-4">
@@ -68,56 +58,32 @@ export const FamilyPage = () => {
   }
 
   if (families.length === 0) {
-    // Fallback to mock data when no API data
     return (
       <section className="space-y-4">
         <PageHeader title={t("family.title")} subtitle={t("family.subtitle")} />
-
-        <Card className="space-y-3 p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="app-heading text-xl font-bold text-[color:var(--text-primary)]">
-                {familyGroup.groupName}
-              </h2>
-              <p className="text-sm text-[color:var(--text-muted)]">
-                {familyGroup.members.length} {t("family.member")} • 5 {t("reg.serviceDepartments")}
-              </p>
-            </div>
-            <Badge className="border border-[color:var(--accent)] bg-[color:color-mix(in_srgb,var(--accent)_25%,transparent)] text-[color:var(--on-accent)]">
-              {t("family.title")}
-            </Badge>
+        <Card className="py-16 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[color:var(--surface-strong)]">
+            <svg
+              className="h-8 w-8 text-[color:var(--text-muted)]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+              />
+            </svg>
           </div>
-
-          {leader ? (
-            <div className="rounded-2xl border border-[color:var(--accent)] bg-[color:color-mix(in_srgb,var(--accent)_18%,transparent)] p-3">
-              <p className="text-xs font-semibold text-[color:var(--text-muted)]">
-                {t("family.leader")}
-              </p>
-              <p className="mt-1 font-bold text-[color:var(--text-primary)]">
-                {leader.name}
-              </p>
-              <p className="text-sm text-[color:var(--primary)]">
-                {leader.contact}
-              </p>
-            </div>
-          ) : null}
+          <h3 className="text-lg font-bold text-[color:var(--text-primary)]">
+            {t("family.noFamilies")}
+          </h3>
+          <p className="mt-2 text-sm text-[color:var(--text-muted)]">
+            {t("family.noFamiliesSubtitle")}
+          </p>
         </Card>
-
-        <div className="space-y-3">
-          {familyGroup.members.map((member) => (
-            <MemberCard
-              key={member.id}
-              member={member}
-              isLeader={member.id === familyGroup.leaderId}
-              onOpen={setSelectedMember}
-            />
-          ))}
-        </div>
-
-        <MemberModal
-          member={selectedMember}
-          onClose={() => setSelectedMember(null)}
-        />
       </section>
     );
   }

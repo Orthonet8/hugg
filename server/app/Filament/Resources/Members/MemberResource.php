@@ -31,6 +31,7 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
@@ -127,7 +128,22 @@ class MemberResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
-                //
+                SelectFilter::make('batch')
+                    ->label('Batch')
+                    ->options(fn (): array => Member::query()
+                        ->whereNotNull('batch')
+                        ->where('batch', '!=', '')
+                        ->distinct()
+                        ->orderBy('batch')
+                        ->pluck('batch', 'batch')
+                        ->toArray()),
+                SelectFilter::make('section_id')
+                    ->label('Section')
+                    ->options(fn (): array => Section::query()
+                        ->orderBy('name_am')
+                        ->get()
+                        ->mapWithKeys(fn (Section $section): array => [$section->id => $section->display_name])
+                        ->toArray()),
             ])
             ->recordActions([
                 ActionGroup::make([

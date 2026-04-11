@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Member;
 
 class Family extends Model
 {
@@ -16,6 +17,27 @@ class Family extends Model
         'members_data' => 'array',
     ];
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Family $family): void {
+            $memberIds = collect($family->members_data ?? [])
+                ->pluck('member_id')
+                ->filter()
+                ->map(fn ($id): int => (int) $id)
+                ->unique()
+                ->values()
+                ->all();
+
+            if (empty($memberIds)) {
+                return;
+            }
+
+            Member::query()
+                ->whereIn('id', $memberIds)
+                ->update(['is_assigned_to_family' => false]);
+        });
+    }
+
     /**
      * Get all members linked to this family via JSON.
      * members_data format: [{ "member_id": 1, "role": "father" }, ...]
@@ -27,15 +49,15 @@ class Family extends Model
             ->filter()
             ->all();
 
-        return Member::whereIn('id', $ids)->get();
+        return \App\Models\Member::whereIn('id', $ids)->get();
     }
 
-    public function getFatherAttribute(): ?Member
+    public function getFatherAttribute(): ?\App\Models\Member
     {
         return $this->memberByRole('father');
     }
 
-    public function getMotherAttribute(): ?Member
+    public function getMotherAttribute(): ?\App\Models\Member
     {
         return $this->memberByRole('mother');
     }
@@ -51,13 +73,13 @@ class Family extends Model
             return collect();
         }
 
-        return Member::whereIn('id', $childrenData)->get();
+        return \App\Models\Member::whereIn('id', $childrenData)->get();
     }
 
     /**
      * Find a member by role in the JSON data.
      */
-    protected function memberByRole(string $role): ?Member
+    protected function memberByRole(string $role): ?\App\Models\Member
     {
         $memberId = collect($this->members_data ?? [])
             ->where('role', $role)
@@ -67,7 +89,7 @@ class Family extends Model
             return null;
         }
 
-        return Member::find($memberId);
+        return \App\Models\Member::find($memberId);
     }
 
     /**
@@ -77,11 +99,10 @@ class Family extends Model
     {
         return collect($this->members_data ?? [])
             ->map(function ($entry) {
-                $member = Member::find($entry['member_id'] ?? null);
-
+                $member = \App\Models\Member::find($entry['member_id'] ?? null);
                 return [
-                    'member' => $member,
-                    'role' => $entry['role'] ?? 'unknown',
+                    'member'    => $member,
+                    'role'      => $entry['role'] ?? 'unknown',
                     'member_id' => $entry['member_id'] ?? null,
                 ];
             })
