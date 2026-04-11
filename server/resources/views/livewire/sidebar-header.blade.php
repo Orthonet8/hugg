@@ -9,20 +9,29 @@
 <div
     wire:key="sidebar-header-brand-{{ filament()->getId() }}"
     class="app-sidebar-head-interact relative isolate w-full min-w-0 py-0.5"
-    title="{{ e($title) }}{{ $motto ? ' - ' . e($motto) : '' }}"
+    title="{{ e($fellowshipName) }}{{ $motto ? ' — '.e($motto) : '' }}"
 >
+    {{-- Brand: blurs / dims on header hover (lg+) — see theme.css (.app-sidebar-head-*) --}}
     <div class="app-sidebar-head-brand">
         <div class="app-sidebar-brand-wrap flex w-full min-w-0 flex-col items-center gap-1.5 text-center">
-            <div class="app-sidebar-brand-logo flex w-full max-w-full shrink-0 justify-center px-1">
-                <img
-                    src="{{ $logo }}"
-                    alt="{{ $title }}"
-                    class="app-sidebar-brand-logo-img max-h-28 w-auto max-w-full rounded-xl object-contain shadow-md ring-1 ring-white/10"
+            @if ($logo)
+                <div class="app-sidebar-brand-logo flex w-full max-w-full shrink-0 justify-center px-1">
+                    <img
+                        src="{{ $logo }}"
+                        alt="{{ $fellowshipName }}"
+                        class="app-sidebar-brand-logo-img max-h-28 w-auto max-w-full rounded-xl object-contain shadow-md ring-1 ring-white/10"
+                    >
+                </div>
+            @else
+                <div
+                    class="app-sidebar-brand-logo flex h-24 w-24 shrink-0 items-center justify-center rounded-xl bg-primary-600 shadow-md ring-1 ring-white/10"
                 >
-            </div>
+                    <span class="text-3xl font-bold text-white">{{ substr($fellowshipName, 0, 1) }}</span>
+                </div>
+            @endif
 
             <div class="app-sidebar-brand-text w-full min-w-0 px-0.5">
-                <h3 class="line-clamp-2 text-base font-bold leading-snug text-white sm:text-lg">{{ $title }}</h3>
+                <h3 class="line-clamp-2 text-base font-bold leading-snug text-white sm:text-lg">{{ $fellowshipName }}</h3>
                 @if ($motto)
                     <p class="mt-0.5 line-clamp-2 text-xs italic leading-snug text-white/65">{{ $motto }}</p>
                 @endif
@@ -30,6 +39,7 @@
         </div>
     </div>
 
+    {{-- Centered collapse / expand: appears on header hover (desktop); always available on touch / small screens --}}
     <div class="app-sidebar-head-overlay absolute inset-0 z-10 flex items-center justify-center">
         <div wire:ignore class="relative" x-data="{}">
             <button

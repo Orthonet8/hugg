@@ -6,7 +6,7 @@ use Livewire\Component;
 
 class SidebarHeader extends Component
 {
-    public string $title = '';
+    public string $fellowshipName = '';
 
     public string $motto = '';
 
@@ -16,7 +16,7 @@ class SidebarHeader extends Component
     {
         $user = filament()->auth()->user();
 
-        $this->title = (string) ($user?->fellowship_name ?: config('app.name', 'Fellowship'));
+        $this->fellowshipName = (string) ($user?->fellowship_name ?: config('app.name', 'Fellowship'));
         $this->motto = (string) ($user?->motto ?: '');
         $this->logo = $user?->logo ? asset('storage/' . ltrim((string) $user->logo, '/')) : asset('images/logo.png');
     }

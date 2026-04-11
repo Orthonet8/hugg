@@ -166,13 +166,6 @@ header.fi-sidebar-header .fi-sidebar-header-logo-ctn {
     width: calc(100% - 3.5rem);
 }
 
-header.fi-sidebar-header .app-sidebar-header-brand-ctn {
-    @apply absolute left-1/2 -translate-x-1/2;
-    @apply flex flex-col items-center justify-center;
-    @apply text-center;
-    width: calc(100% - 3.5rem);
-}
-
 header.fi-sidebar-header .app-sidebar-app-name {
     @apply mt-2 text-sm font-semibold tracking-wider uppercase text-gray-100/80;
     @apply leading-tight whitespace-normal break-words;
@@ -202,7 +195,10 @@ header.fi-sidebar-header .fi-sidebar-close-collapse-sidebar-btn {
     left: 0.5rem ;
 }
 
-/* Keep custom sidebar brand content visible in the header logo container. */
+/* Custom Livewire sidebar brand replaces the default Filament logo slot */
+aside.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn {
+    display: none !important;
+}
 
 /*
  * Sidebar header hover → blur/dim brand, show centered collapse control.
@@ -676,7 +672,7 @@ input[type="date"] {
     .fi-sidebar-group-btn {
         @apply py-3; /* Larger touch target on mobile */
     }
-
+    
     .fi-sidebar-group-collapse-btn,
     .fi-sidebar-item-badge-ctn {
         @apply touch-manipulation;
@@ -698,7 +694,7 @@ aside.fi-sidebar {
     aside.fi-sidebar:not(.fi-sidebar-open) {
         @apply -translate-x-full;
     }
-
+    
     aside.fi-sidebar.fi-sidebar-open {
         @apply translate-x-0;
     }
