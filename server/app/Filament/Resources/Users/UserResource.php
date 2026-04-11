@@ -9,14 +9,17 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 use Illuminate\Validation\Rules\Password;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends Resource
 {
@@ -29,6 +32,38 @@ class UserResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'User Management';
 
     protected static ?int $navigationSort = 3;
+
+    protected static function canManageUsers(): bool
+    {
+        $user = auth('internal')->user();
+
+        return $user instanceof User && $user->hasPermissionTo('manage users', 'web');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return static::canManageUsers();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::canManageUsers();
+    }
+
+    public static function canEdit($record): bool
+    {
+        return static::canManageUsers();
+    }
+
+    public static function canDelete($record): bool
+    {
+        return static::canManageUsers();
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return static::canManageUsers();
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -47,6 +82,29 @@ class UserResource extends Resource
                     ->rule(Password::default())
                     ->required(fn (string $operation): bool => $operation === 'create')
                     ->dehydrated(fn (?string $state): bool => filled($state)),
+                Select::make('roles')
+                    ->label('Role')
+                    ->relationship(
+                        name: 'roles',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query): Builder => $query->where('name', '!=', 'admin'),
+                    )
+                    ->multiple()
+                    ->maxItems(1)
+                    ->preload()
+                    ->searchable()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Role name')
+                            ->required()
+                            ->maxLength(255)
+                            ->rules(['not_in:admin']),
+                    ])
+                    ->createOptionUsing(function (array $data): string {
+                        $role = Role::findOrCreate($data['name'], 'web');
+
+                        return (string) $role->getKey();
+                    }),
             ]);
     }
 
@@ -80,6 +138,12 @@ class UserResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->whereDoesntHave('roles', fn (Builder $query): Builder => $query->where('name', 'admin'));
     }
 
     public static function getPages(): array

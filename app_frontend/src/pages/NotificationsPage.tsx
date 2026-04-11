@@ -6,17 +6,15 @@ import { Card } from "../components/common/Card";
 import { PageHeader } from "../components/common/PageHeader";
 import { useAppStore } from "../context/useAppStore";
 import { notificationTypeLabel } from "../utils/theme";
+import { useI18n } from "../i18n/I18nProvider";
 
 export const NotificationsPage = () => {
+  const { t } = useI18n();
   const [activeFilter, setActiveFilter] = useState<"all" | "unread">("all");
 
   const notifications = useAppStore((state) => state.notifications);
-  const markNotificationRead = useAppStore(
-    (state) => state.markNotificationRead,
-  );
-  const markAllNotificationsRead = useAppStore(
-    (state) => state.markAllNotificationsRead,
-  );
+  const markNotificationRead = useAppStore((state) => state.markNotificationRead);
+  const markAllNotificationsRead = useAppStore((state) => state.markAllNotificationsRead);
 
   const filteredNotifications = useMemo(() => {
     const byFilter =
@@ -25,16 +23,15 @@ export const NotificationsPage = () => {
         : notifications;
 
     return [...byFilter].sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
   }, [activeFilter, notifications]);
 
   return (
     <section className="space-y-4">
       <PageHeader
-        title="ማስታወቂያ"
-        subtitle="አዲስ ዜና እና ዝግጅት ማሳወቂያዎች"
+        title={t("notifications.title")}
+        subtitle={t("notifications.subtitle")}
         hideNotification
         action={
           <button
@@ -43,7 +40,7 @@ export const NotificationsPage = () => {
             className="app-subtle-panel inline-flex h-10 items-center gap-1 rounded-xl px-3 text-sm font-semibold text-[color:var(--primary)]"
           >
             <CheckCheck size={16} />
-            ሁሉንም አንብብ
+            {t("notifications.markAllRead")}
           </button>
         }
       />
@@ -56,7 +53,7 @@ export const NotificationsPage = () => {
             onClick={() => setActiveFilter("all")}
             className="data-[active=true]:app-gradient flex-1 rounded-xl py-2 text-sm font-semibold text-[color:var(--text-muted)] data-[active=true]:text-[color:var(--on-primary)]"
           >
-            ሁሉም
+            {t("news.allNews")}
           </button>
           <button
             type="button"
@@ -64,7 +61,7 @@ export const NotificationsPage = () => {
             onClick={() => setActiveFilter("unread")}
             className="data-[active=true]:app-gradient flex-1 rounded-xl py-2 text-sm font-semibold text-[color:var(--text-muted)] data-[active=true]:text-[color:var(--on-primary)]"
           >
-            ያልተነበቡ
+            {t("notifications.unread")}
           </button>
         </div>
       </Card>
@@ -78,8 +75,7 @@ export const NotificationsPage = () => {
             whileTap={{ scale: 0.98 }}
             className={clsx(
               "w-full text-left",
-              !notification.read &&
-                "ring-2 ring-[color:color-mix(in_srgb,var(--accent)_35%,transparent)]",
+              !notification.read && "ring-2 ring-[color:color-mix(in_srgb,var(--accent)_35%,transparent)]",
             )}
           >
             <Card className="space-y-2">
@@ -105,7 +101,7 @@ export const NotificationsPage = () => {
         {filteredNotifications.length === 0 ? (
           <Card className="py-8 text-center">
             <p className="text-sm text-[color:var(--text-muted)]">
-              ያልተነበበ ማስታወቂያ የለም።
+              {t("notifications.noNotifications")}
             </p>
           </Card>
         ) : null}

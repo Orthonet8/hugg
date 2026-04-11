@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages\Access;
 
+use App\Models\User;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -46,6 +47,18 @@ class RolesAndPermissions extends Page implements HasForms
     public static function getNavigationSort(): ?int
     {
         return 2;
+    }
+
+    public static function canAccess(): bool
+    {
+        return static::canManageRoles();
+    }
+
+    protected static function canManageRoles(): bool
+    {
+        $user = auth('internal')->user();
+
+        return $user instanceof User && $user->hasPermissionTo('manage roles', 'web');
     }
 
     public function mount(): void

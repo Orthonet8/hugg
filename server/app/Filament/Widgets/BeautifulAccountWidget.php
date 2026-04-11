@@ -2,10 +2,12 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\User;
 use Andegna\DateTimeFactory;
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Widgets\Widget;
+use Illuminate\Support\Str;
 
 class BeautifulAccountWidget extends Widget
 {
@@ -29,6 +31,16 @@ class BeautifulAccountWidget extends Widget
 
         $identity = $user?->username ?? $user?->email ?? __('Account');
         $subtitle = $user?->fellowship_name ?: $identity;
+        $roleLabel = __('User');
+
+        if ($user instanceof User) {
+            $primaryRole = $user->getRoleNames()->first();
+
+            if (filled($primaryRole)) {
+                $roleLabel = Str::headline((string) $primaryRole);
+            }
+        }
+
         try {
             $ethiopianNow = DateTimeFactory::now();
             $ethiopianDateNice = $ethiopianNow->format('F d, Y');
@@ -50,6 +62,7 @@ class BeautifulAccountWidget extends Widget
             'panelName' => $panelName,
             'identity' => $identity,
             'subtitle' => $subtitle,
+            'roleLabel' => $roleLabel,
             'ethiopianDateNice' => $ethiopianDateNice,
         ];
     }

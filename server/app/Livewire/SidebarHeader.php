@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\User;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -27,7 +28,7 @@ class SidebarHeader extends Component
 
     protected function loadSidebarInfo(): void
     {
-        $user = filament()->auth()->user();
+        $user = User::query()->orderBy('id')->first();
 
         $this->fellowshipName = (string) ($user?->fellowship_name ?: config('app.name', 'Fellowship'));
         $this->motto = (string) ($user?->motto ?: '');

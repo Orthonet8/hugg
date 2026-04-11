@@ -8,6 +8,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Exceptions\Halt;
+use Illuminate\Support\Arr;
 use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use Joaopaulolndev\FilamentEditProfile\Concerns\HasUser;
 use Joaopaulolndev\FilamentEditProfile\Livewire\BaseProfileForm;
@@ -31,14 +32,19 @@ class EditProfileForm extends BaseProfileForm
     {
         $this->user = $this->getUser();
         $plugin = $this->getPlugin();
+        $canEditBranding = $this->canEditBranding();
 
-        $fields = ['name', 'username', 'fellowship_name', 'motto'];
+        $fields = ['name', 'username'];
+
+        if ($canEditBranding) {
+            $fields[] = 'fellowship_name';
+            $fields[] = 'motto';
+            $fields[] = 'logo';
+        }
 
         if ($plugin->getShouldShowAvatarForm()) {
             $fields[] = config('filament-edit-profile.avatar_column', 'avatar_url');
         }
-
-        $fields[] = 'logo';
 
         $this->form->fill($this->user->only($fields));
     }
@@ -71,17 +77,20 @@ class EditProfileForm extends BaseProfileForm
                             ->unique(table: 'users', column: 'username', ignorable: fn () => $this->user),
                         TextInput::make('fellowship_name')
                             ->label('Fellowship Name')
-                            ->placeholder('e.g. ግቢ ጉባኤ'),
+                            ->placeholder('e.g. ግቢ ጉባኤ')
+                            ->visible(fn (): bool => $this->canEditBranding()),
                         FileUpload::make('logo')
                             ->label('Fellowship Logo')
                             ->image()
                             ->imageEditor()
                             ->disk(config('filament-edit-profile.disk', 'public'))
                             ->visibility(config('filament-edit-profile.visibility', 'public'))
-                            ->directory('logos'),
+                            ->directory('logos')
+                            ->visible(fn (): bool => $this->canEditBranding()),
                         TextInput::make('motto')
                             ->label('Motto')
-                            ->placeholder('e.g. ዓለምን ሁሉ ወደ ክርስቶስ'),
+                            ->placeholder('e.g. ዓለምን ሁሉ ወደ ክርስቶስ')
+                            ->visible(fn (): bool => $this->canEditBranding()),
                     ]),
             ])
             ->statePath('data');
@@ -105,10 +114,21 @@ class EditProfileForm extends BaseProfileForm
         try {
             $plugin = $this->getPlugin();
             $data = $this->form->getState();
+
+            if (! $this->canEditBranding()) {
+                $data = Arr::except($data, ['fellowship_name', 'logo', 'motto']);
+            }
+
             $this->user->update($data);
             $this->user->refresh();
 
-            $fields = ['name', 'username', 'fellowship_name', 'logo', 'motto'];
+            $fields = ['name', 'username'];
+
+            if ($this->canEditBranding()) {
+                $fields[] = 'fellowship_name';
+                $fields[] = 'logo';
+                $fields[] = 'motto';
+            }
 
             if ($plugin->getShouldShowAvatarForm()) {
                 $fields[] = config('filament-edit-profile.avatar_column', 'avatar_url');
@@ -126,5 +146,10 @@ class EditProfileForm extends BaseProfileForm
             ->success()
             ->title(__('filament-edit-profile::default.saved_successfully'))
             ->send();
+    }
+
+    protected function canEditBranding(): bool
+    {
+        return $this->user?->hasRole('admin', 'web') ?? false;
     }
 }

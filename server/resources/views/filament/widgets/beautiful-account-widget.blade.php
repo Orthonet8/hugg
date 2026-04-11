@@ -34,7 +34,7 @@
                 <div class="min-w-0 text-center lg:text-left">
                     <div class="mb-3 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
                         <span class="inline-flex items-center rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                            {{ __('Role:') }} Admin
+                            {{ __('Role:') }} {{ $roleLabel }}
                         </span>
 
                         <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
