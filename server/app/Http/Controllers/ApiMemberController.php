@@ -6,9 +6,9 @@ use App\Models\Family;
 use App\Models\Member;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 
 class ApiMemberController extends Controller
@@ -19,7 +19,7 @@ class ApiMemberController extends Controller
 
     public function register(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
             'christian_name' => 'nullable|string|max:255',
             'email_or_username' => 'required|string|unique:members,email_or_username|max:255',
@@ -47,6 +47,15 @@ class ApiMemberController extends Controller
             'talent_description' => 'nullable|string|max:1000',
             'telegram' => 'nullable|string|max:255',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         // Handle profile photo upload (file or URL string)
         if ($request->hasFile('profile_photo')) {
@@ -78,10 +87,19 @@ class ApiMemberController extends Controller
 
     public function login(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'email_or_username' => 'required|string',
             'password' => 'required|string',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         $identifier = 'login:' . $validated['email_or_username'];
         $attempts = (int) Cache::get($identifier, 0);

@@ -27,7 +27,11 @@ export interface SignupPayload {
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
 const api = async <T>(path: string, body: unknown, token?: string): Promise<T> => {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    "X-Requested-With": "XMLHttpRequest",
+  };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`${API_BASE}${path}`, {
@@ -45,7 +49,10 @@ const api = async <T>(path: string, body: unknown, token?: string): Promise<T> =
 };
 
 const apiGet = async <T>(path: string, token?: string): Promise<T> => {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    "X-Requested-With": "XMLHttpRequest",
+  };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`${API_BASE}${path}`, { headers });
