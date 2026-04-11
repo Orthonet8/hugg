@@ -21,6 +21,7 @@ class Member extends Authenticatable
         'profile_photo',
         'campus',
         'field_of_study',
+        'batch',
         'dorm',
         'region',
         'zone',
@@ -37,9 +38,9 @@ class Member extends Authenticatable
         'talents',
         'talent_description',
         'mobile',
-        'email_or_username',
         'telegram',
         'section_id',
+        'is_assigned_to_family',
         'is_active',
         'email_verified_at',
     ];
@@ -52,11 +53,12 @@ class Member extends Authenticatable
     protected function casts(): array
     {
         return [
-            'password'            => 'hashed',
-            'is_active'           => 'boolean',
-            'service_departments' => 'array',
-            'talents'             => 'array',
-            'email_verified_at'   => 'datetime',
+            'password'              => 'hashed',
+            'is_active'             => 'boolean',
+            'is_assigned_to_family' => 'boolean',
+            'service_departments'   => 'array',
+            'talents'               => 'array',
+            'email_verified_at'     => 'datetime',
         ];
     }
 
@@ -66,7 +68,15 @@ class Member extends Authenticatable
 
     public function section(): BelongsTo
     {
-        return $this->belongsTo(Section::class);
+        return $this->belongsTo(\App\Models\Section::class);
+    }
+
+    /**
+     * Find the family this member belongs to (via JSON scan).
+     */
+    public function family(): ?\App\Models\Family
+    {
+        return \App\Models\Family::whereJsonContains('members_data', [['member_id' => $this->id]])->first();
     }
 
     /* ------------------------------------------------------------------ */
@@ -75,7 +85,7 @@ class Member extends Authenticatable
 
     public function getDisplayNameAttribute(): string
     {
-        return $this->full_name ?: $this->username;
+        return $this->full_name ?: $this->email_or_username;
     }
 
     /* ------------------------------------------------------------------ */
@@ -87,6 +97,11 @@ class Member extends Authenticatable
         return $query->where('is_active', true);
     }
 
+    public function scopeUnassigned($query)
+    {
+        return $query->where('is_assigned_to_family', false);
+    }
+
     public function scopeSearch($query, ?string $search)
     {
         if (blank($search)) {
@@ -95,9 +110,8 @@ class Member extends Authenticatable
 
         return $query->where(function ($q) use ($search) {
             $q->where('full_name', 'ilike', "%{$search}%")
-              ->orWhere('username', 'ilike', "%{$search}%")
-              ->orWhere('mobile', 'ilike', "%{$search}%")
-              ->orWhere('email_or_username', 'ilike', "%{$search}%");
+              ->orWhere('email_or_username', 'ilike', "%{$search}%")
+              ->orWhere('mobile', 'ilike', "%{$search}%");
         });
     }
 }

@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 
 class ApiMemberController extends Controller
@@ -46,6 +45,15 @@ class ApiMemberController extends Controller
             'talent_description' => 'nullable|string|max:1000',
             'telegram'       => 'nullable|string|max:255',
         ]);
+
+        // Handle profile photo upload (file or URL string)
+        if ($request->hasFile('profile_photo')) {
+            $path = $request->file('profile_photo')->store('avatars/members', 'public');
+            $validated['profile_photo'] = $path;
+        } elseif (isset($validated['profile_photo']) && filter_var($validated['profile_photo'], FILTER_VALIDATE_URL)) {
+            // If a URL is passed, store it as-is (external avatar)
+            $validated['profile_photo'] = $validated['profile_photo'];
+        }
 
         $member = Member::create([
             ...$validated,
@@ -255,7 +263,13 @@ class ApiMemberController extends Controller
     {
         $photoUrl = null;
         if ($member->profile_photo) {
-            $photoUrl = Storage::disk('public')->url($member->profile_photo);
+            // If it's an absolute URL (external), use as-is
+            if (filter_var($member->profile_photo, FILTER_VALIDATE_URL)) {
+                $photoUrl = $member->profile_photo;
+            } else {
+                // Local file — generate public URL via storage symlink
+                $photoUrl = asset('storage/' . $member->profile_photo);
+            }
         }
 
         return [
