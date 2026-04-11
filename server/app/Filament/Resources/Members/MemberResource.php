@@ -109,8 +109,21 @@ class MemberResource extends Resource
                 BadgeColumn::make('batch')
                     ->color('info')
                     ->searchable(),
-                TextColumn::make('mobile')
-                    ->searchable(),
+                TextColumn::make('contact')
+                    ->label('Contact')
+                    ->state(function (Member $record): string {
+                        $phone = e($record->mobile ?: '—');
+                        $telegram = e($record->telegram ?: '—');
+
+                        return "Phone: {$phone}<br>Telegram: {$telegram}";
+                    })
+                    ->html()
+                    ->wrap()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query
+                            ->where('mobile', 'ilike', "%{$search}%")
+                            ->orWhere('telegram', 'ilike', "%{$search}%");
+                    }),
                 TextColumn::make('section.display_name')
                     ->label('Section')
                     ->placeholder('—')

@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mail, Lock, User, Phone, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Phone, Send, ArrowRight, Loader2 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
 import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
@@ -263,21 +263,44 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
   const [christianName, setChristianName] = useState("");
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [mobile, setMobile] = useState("");
+  const [telegram, setTelegram] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [identifierStatus, setIdentifierStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
+  const [mobileStatus, setMobileStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
+  const [telegramStatus, setTelegramStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
 
-  const checkIdentifierNow = async (value: string): Promise<boolean> => {
-    const trimmed = value.trim();
+  const checkAvailabilityNow = async (params: {
+    identifier?: string;
+    mobile?: string;
+    telegram?: string;
+  }): Promise<{ identifierExists: boolean; mobileExists: boolean; telegramExists: boolean }> => {
+    const identifier = (params.identifier ?? "").trim();
+    const mobileValue = (params.mobile ?? "").trim();
+    const telegramValue = (params.telegram ?? "").trim();
 
-    if (trimmed.length < 3) {
-      return false;
+    const search = new URLSearchParams();
+
+    if (identifier !== "") {
+      search.set("email_or_username", identifier);
+    }
+
+    if (mobileValue !== "") {
+      search.set("mobile", mobileValue);
+    }
+
+    if (telegramValue !== "") {
+      search.set("telegram", telegramValue);
+    }
+
+    if (![...search.keys()].length) {
+      return { identifierExists: false, mobileExists: false, telegramExists: false };
     }
 
     const res = await fetch(
-      `${API_BASE}/api/auth/check-identifier?email_or_username=${encodeURIComponent(trimmed)}`,
+      `${API_BASE}/api/auth/check-identifier?${search.toString()}`,
       {
         headers: {
           Accept: "application/json",
@@ -287,11 +310,21 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
     );
 
     if (!res.ok) {
-      return false;
+      return { identifierExists: false, mobileExists: false, telegramExists: false };
     }
 
-    const data = (await res.json()) as { exists?: boolean };
-    return Boolean(data.exists);
+    const data = (await res.json()) as {
+      identifier_exists?: boolean;
+      mobile_exists?: boolean;
+      telegram_exists?: boolean;
+      exists?: boolean;
+    };
+
+    return {
+      identifierExists: Boolean(data.identifier_exists ?? data.exists),
+      mobileExists: Boolean(data.mobile_exists),
+      telegramExists: Boolean(data.telegram_exists),
+    };
   };
 
   useEffect(() => {
@@ -337,6 +370,62 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
     };
   }, [emailOrUsername]);
 
+  useEffect(() => {
+    const value = mobile.trim();
+
+    if (value.length < 3) {
+      setMobileStatus("idle");
+      return;
+    }
+
+    let cancelled = false;
+    setMobileStatus("checking");
+
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const result = await checkAvailabilityNow({ mobile: value });
+        if (!cancelled) {
+          setMobileStatus(result.mobileExists ? "taken" : "available");
+        }
+      } catch {
+        if (!cancelled) setMobileStatus("idle");
+      }
+    }, 450);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [mobile]);
+
+  useEffect(() => {
+    const value = telegram.trim();
+
+    if (value.length < 3) {
+      setTelegramStatus("idle");
+      return;
+    }
+
+    let cancelled = false;
+    setTelegramStatus("checking");
+
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const result = await checkAvailabilityNow({ telegram: value });
+        if (!cancelled) {
+          setTelegramStatus(result.telegramExists ? "taken" : "available");
+        }
+      } catch {
+        if (!cancelled) setTelegramStatus("idle");
+      }
+    }, 450);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [telegram]);
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
@@ -359,9 +448,46 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
       return;
     }
 
-    const exists = await checkIdentifierNow(emailOrUsername);
-    if (exists) {
+    if (mobileStatus === "taken") {
+      setError(t("auth.alreadyRegistered"));
+      return;
+    }
+
+    if (mobileStatus === "checking") {
+      setError("Please wait while we check availability.");
+      return;
+    }
+
+    if (telegramStatus === "taken") {
+      setError(t("auth.alreadyRegistered"));
+      return;
+    }
+
+    if (telegramStatus === "checking") {
+      setError("Please wait while we check availability.");
+      return;
+    }
+
+    const checkResult = await checkAvailabilityNow({
+      identifier: emailOrUsername,
+      mobile,
+      telegram,
+    });
+
+    if (checkResult.identifierExists) {
       setIdentifierStatus("taken");
+      setError(t("auth.alreadyRegistered"));
+      return;
+    }
+
+    if (mobile.trim() !== "" && checkResult.mobileExists) {
+      setMobileStatus("taken");
+      setError(t("auth.alreadyRegistered"));
+      return;
+    }
+
+    if (telegram.trim() !== "" && checkResult.telegramExists) {
+      setTelegramStatus("taken");
       setError(t("auth.alreadyRegistered"));
       return;
     }
@@ -375,6 +501,7 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
         passwordConfirmation: confirmPassword,
         christianName,
         mobile,
+        telegram,
       });
       if (success) {
         onSignupComplete();
@@ -450,6 +577,34 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
           <Phone size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
           <input type="tel" placeholder={t("reg.mobilePlaceholder")} value={mobile} onChange={(e) => setMobile(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
         </div>
+        {mobileStatus === "checking" && (
+          <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
+        )}
+        {mobileStatus === "available" && (
+          <p className="mt-1 text-xs text-emerald-600">Available</p>
+        )}
+        {mobileStatus === "taken" && (
+          <p className="mt-1 text-xs text-red-600">Already registered</p>
+        )}
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
+          Telegram Username
+        </label>
+        <div className="relative">
+          <Send size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
+          <input type="text" placeholder="@username" value={telegram} onChange={(e) => setTelegram(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
+        </div>
+        {telegramStatus === "checking" && (
+          <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
+        )}
+        {telegramStatus === "available" && (
+          <p className="mt-1 text-xs text-emerald-600">Available</p>
+        )}
+        {telegramStatus === "taken" && (
+          <p className="mt-1 text-xs text-red-600">Already registered</p>
+        )}
       </div>
 
       <div>

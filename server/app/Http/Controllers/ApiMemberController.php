@@ -24,7 +24,7 @@ class ApiMemberController extends Controller
             'christian_name' => 'nullable|string|max:255',
             'email_or_username' => 'required|string|unique:members,email_or_username|max:255',
             'password' => ['required', 'string', 'min:6', 'confirmed'],
-            'mobile' => 'nullable|string|max:50',
+            'mobile' => 'nullable|string|max:50|unique:members,mobile',
             'batch' => 'nullable|string|max:50',
             'gender' => 'nullable|in:ወንድ,ሴት',
             'age' => 'nullable|string|max:10',
@@ -46,7 +46,7 @@ class ApiMemberController extends Controller
             'service_departments' => 'nullable|array',
             'talents' => 'nullable|array',
             'talent_description' => 'nullable|string|max:1000',
-            'telegram' => 'nullable|string|max:255',
+            'telegram' => 'nullable|string|max:255|unique:members,telegram',
         ]);
 
         if ($validator->fails()) {
@@ -86,7 +86,9 @@ class ApiMemberController extends Controller
     public function checkIdentifier(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'email_or_username' => 'required|string|max:255',
+            'email_or_username' => 'nullable|string|max:255',
+            'mobile' => 'nullable|string|max:50',
+            'telegram' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -96,15 +98,57 @@ class ApiMemberController extends Controller
             ], 422);
         }
 
-        $identifier = mb_strtolower(trim((string) $validator->validated()['email_or_username']));
+        $validated = $validator->validated();
 
-        $exists = Member::query()
-            ->whereRaw('LOWER(email_or_username) = ?', [$identifier])
-            ->exists();
+        $identifier = trim((string) ($validated['email_or_username'] ?? ''));
+        $mobile = trim((string) ($validated['mobile'] ?? ''));
+        $telegram = trim((string) ($validated['telegram'] ?? ''));
+
+        if ($identifier === '' && $mobile === '' && $telegram === '') {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => [
+                    'email_or_username' => ['At least one of email_or_username, mobile, or telegram is required.'],
+                ],
+            ], 422);
+        }
+
+        $identifierExists = false;
+        $mobileExists = false;
+        $telegramExists = false;
+
+        if ($identifier !== '') {
+            $identifierExists = Member::query()
+                ->whereRaw('LOWER(email_or_username) = ?', [mb_strtolower($identifier)])
+                ->exists();
+        }
+
+        if ($mobile !== '') {
+            $mobileExists = Member::query()
+                ->where('mobile', $mobile)
+                ->exists();
+        }
+
+        if ($telegram !== '') {
+            $telegramExists = Member::query()
+                ->whereRaw('LOWER(telegram) = ?', [mb_strtolower($telegram)])
+                ->exists();
+        }
 
         return response()->json([
-            'exists' => $exists,
-            'available' => ! $exists,
+            // Backward compatibility for existing frontend logic.
+            'exists' => $identifier !== ''
+                ? $identifierExists
+                : ($mobile !== '' ? $mobileExists : $telegramExists),
+            'available' => $identifier !== ''
+                ? ! $identifierExists
+                : ($mobile !== '' ? ! $mobileExists : ! $telegramExists),
+            'identifier_exists' => $identifierExists,
+            'identifier_available' => ! $identifierExists,
+            'mobile_exists' => $mobileExists,
+            'mobile_available' => ! $mobileExists,
+            'telegram_exists' => $telegramExists,
+            'telegram_available' => ! $telegramExists,
         ]);
     }
 
@@ -252,8 +296,8 @@ class ApiMemberController extends Controller
             "service_departments"  => "nullable|array",
             "talents"              => "nullable|array",
             "talent_description"   => "nullable|string|max:1000",
-            "mobile"               => "nullable|string|max:50",
-            "telegram"             => "nullable|string|max:255",
+            "mobile"               => "nullable|string|max:50|unique:members,mobile,{$id}",
+            "telegram"             => "nullable|string|max:255|unique:members,telegram,{$id}",
         ]);
 
         $member->update($validated);

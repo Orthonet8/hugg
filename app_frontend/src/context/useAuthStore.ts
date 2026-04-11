@@ -20,13 +20,14 @@ export interface SignupPayload {
   passwordConfirmation: string;
   christianName?: string;
   mobile?: string;
+  telegram?: string;
   gender?: string;
   age?: string;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
-const api = async <T>(path: string, body: unknown, token?: string): Promise<T> => {
+const api = async <T>(path: string, body: unknown, token?: string, method = "POST"): Promise<T> => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -35,9 +36,9 @@ const api = async <T>(path: string, body: unknown, token?: string): Promise<T> =
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`${API_BASE}${path}`, {
-    method: "POST",
+    method,
     headers,
-    body: JSON.stringify(body),
+    body: method !== "GET" ? JSON.stringify(body) : undefined,
   });
 
   const json = await res.json();
@@ -104,6 +105,7 @@ export const useAuthStore = create<AuthState>()(
           password_confirmation: data.passwordConfirmation,
           christian_name: data.christianName,
           mobile: data.mobile,
+          telegram: data.telegram,
           gender: data.gender,
           age: data.age,
         };
