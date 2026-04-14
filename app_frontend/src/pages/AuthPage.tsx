@@ -11,6 +11,7 @@ import { SignupFlow } from "../components/auth/SignupFlow";
 
 const TRANSITION = { duration: 0.38, ease: [0.25, 0.1, 0.25, 1] as const };
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+const BACKEND_BASE = API_BASE.replace(/\/+$/, "").replace(/\/api$/, "");
 
 export const AuthPage = () => {
   const { t } = useI18n();
@@ -19,52 +20,46 @@ export const AuthPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* ── Hero Panel (desktop left / mobile top strip) ── */}
+      {/* ── Desktop: left hero panel ── */}
       <div className="auth-hero hidden lg:flex lg:w-[42%] flex-col justify-between p-10 text-white">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-white/20 flex items-center justify-center text-lg font-bold backdrop-blur-sm">
-            ሀ
-          </div>
+          <div className="h-10 w-10 rounded-2xl bg-white/20 flex items-center justify-center text-lg font-bold backdrop-blur-sm">ሀ</div>
           <span className="text-sm font-semibold opacity-90">HUGGB</span>
         </div>
-
         <div>
-          <h1 className="app-heading text-4xl font-bold leading-tight mb-4">
-            ሐረማያ ዩኒቨርሲቲ<br />ግቢ ጉባኤ
-          </h1>
-          <p className="text-white/70 text-base leading-relaxed mb-8">
-            Haramaya University Gebi Gubae — connecting students in faith, service, and community.
-          </p>
+          <h1 className="app-heading text-4xl font-bold leading-tight mb-4">ሐረማያ ዩኒቨርሲቲ<br />ግቢ ጉባኤ</h1>
+          <p className="text-white/70 text-base leading-relaxed mb-8">Haramaya University Gebi Gubae — connecting students in faith, service, and community.</p>
           <div className="flex flex-col gap-3">
             {["Community & Fellowship", "Spiritual Growth", "Service Opportunities"].map((item) => (
               <div key={item} className="flex items-center gap-2.5 text-sm text-white/80">
-                <span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shrink-0" />
-                {item}
+                <span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shrink-0" />{item}
               </div>
             ))}
           </div>
         </div>
-
         <p className="text-white/40 text-xs">© 2026 HUGGB Management System</p>
       </div>
 
       {/* ── Form Panel ── */}
       <div className="flex-1 flex flex-col">
-        {/* Mobile top bar */}
-        <div className="flex items-center justify-between px-5 py-4 lg:px-8 lg:py-5">
-          <div className="flex items-center gap-2 lg:hidden">
-            <div className="app-gradient h-8 w-8 rounded-xl flex items-center justify-center text-sm font-bold text-white">ሀ</div>
-            <span className="text-xs font-semibold text-[color:var(--text-muted)]">HUGGB</span>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
+        {/* Mobile: crimson hero banner (matches Stitch design) */}
+        <div className="auth-hero lg:hidden px-6 pt-10 pb-16 text-white text-center">
+          <div className="mx-auto mb-3 h-16 w-16 rounded-[1.25rem] bg-[color:var(--accent)] flex items-center justify-center text-2xl font-bold text-[color:var(--on-accent)] shadow-lg">ሀ</div>
+          <h1 className="app-heading text-xl font-bold">ሐረማያ ዩኒቨርሲቲ ግቢ ጉባኤ</h1>
+          <p className="mt-1 text-sm text-white/70">Haramaya University Gebi Gubae</p>
+        </div>
+
+        {/* Controls row */}
+        <div className="flex items-center justify-end px-5 py-3 lg:px-8 lg:py-5">
+          <div className="flex items-center gap-2">
             <LanguageSwitcher />
             <ThemeToggle />
           </div>
         </div>
 
-        {/* Centered form */}
-        <div className="flex-1 flex items-center justify-center px-5 py-6 lg:px-12">
-          <div className="w-full max-w-[420px]">
+        {/* Form — overlaps hero on mobile (negative margin) */}
+        <div className="flex-1 flex items-start lg:items-center justify-center px-5 lg:px-12 -mt-10 lg:mt-0">
+          <div className="w-full max-w-[420px] bg-[color:var(--surface)] rounded-3xl shadow-2xl p-7 lg:bg-transparent lg:shadow-none lg:rounded-none lg:p-0">
             <AnimatePresence mode="wait" initial={false}>
               {!showSignup ? (
                 <motion.div
@@ -133,7 +128,12 @@ function LoginForm({ onLogin, onForgotPassword, onSwitchToSignup }: {
     setLoading(true);
     try {
       const success = await login(emailOrUsername, password);
-      if (success) onLogin();
+      if (success) {
+        const user = useAuthStore.getState().user;
+        const needsRegistration = !user?.christianName || !user?.campus;
+        if (needsRegistration) navigate("/register/basic-info");
+        else onLogin();
+      }
       else setError(t("auth.loginError"));
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred.");
@@ -199,7 +199,7 @@ function LoginForm({ onLogin, onForgotPassword, onSwitchToSignup }: {
 
       <button type="button"
         className="w-full rounded-2xl border border-[color:var(--border-strong)] bg-[color:var(--surface)] py-3 text-sm font-semibold text-[color:var(--text-primary)] hover:bg-[color:var(--soft-hover)] flex items-center justify-center gap-2.5 transition"
-        onClick={() => { window.location.href = `${API_BASE}/api/auth/google/redirect`; }}>
+        onClick={() => { window.location.href = `${BACKEND_BASE}/auth/google/redirect`; }}>
         <GoogleIcon />
         {t("auth.continueWithGoogle")}
       </button>

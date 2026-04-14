@@ -1,111 +1,86 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Mail, Lock, User, CheckCircle2, Loader2, ArrowRight } from "lucide-react";
+import { ArrowLeft, Mail, Lock, User, CheckCircle2, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "../common/Button";
 import { useAuthStore } from "../../context/useAuthStore";
 import { useI18n } from "../../i18n/I18nProvider";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+const buildApiUrl = (path: string): string => {
+  const base = API_BASE.replace(/\/+$/, "");
 
-const TRANSITION = { duration: 0.45, ease: [0.25, 0.1, 0.25, 1] as const };
+  if (base.endsWith("/api") && path.startsWith("/api/")) {
+    return `${base}${path.slice(4)}`;
+  }
 
-/* ------------------------------------------------------------------ */
-/*  Types                                                              */
-/* ------------------------------------------------------------------ */
-
+  return `${base}${path}`;
+};
+const TRANSITION = { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] as const };
 type SignupStep = "credentials" | "personal" | "confirmation";
+const STEPS: SignupStep[] = ["credentials", "personal", "confirmation"];
+const STEP_LABELS = ["Account", "Name", "Confirm"];
 
-interface SignupFormData {
-  emailOrUsername: string;
-  password: string;
-  fullName: string;
-}
+interface SignupFormData { emailOrUsername: string; password: string; fullName: string; }
 
-/* ------------------------------------------------------------------ */
-/*  Main SignupFlow                                                    */
-/* ------------------------------------------------------------------ */
-
-export const SignupFlow = ({
-  onSignupComplete,
-  onBackToLogin,
-}: {
+export const SignupFlow = ({ onSignupComplete, onBackToLogin }: {
   onSignupComplete: () => void;
   onBackToLogin: () => void;
 }) => {
   const [step, setStep] = useState<SignupStep>("credentials");
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
-  const [form, setForm] = useState<SignupFormData>({
-    emailOrUsername: "",
-    password: "",
-    fullName: "",
-  });
+  const [form, setForm] = useState<SignupFormData>({ emailOrUsername: "", password: "", fullName: "" });
   const [error, setError] = useState("");
 
   const goToStep = (target: SignupStep) => {
-    const order: SignupStep[] = ["credentials", "personal", "confirmation"];
-    const currentIdx = order.indexOf(step);
-    const targetIdx = order.indexOf(target);
-    setDirection(targetIdx > currentIdx ? "forward" : "backward");
+    setDirection(STEPS.indexOf(target) > STEPS.indexOf(step) ? "forward" : "backward");
     setError("");
     setStep(target);
   };
 
+  const currentIdx = STEPS.indexOf(step);
+
   return (
-    <div className="relative">
-      {/* Back button */}
-      <div className="px-7 pt-5 pb-2">
-        <button
-          type="button"
-          onClick={onBackToLogin}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-[color:var(--text-muted)] transition hover:text-[color:var(--primary)]"
-        >
-          <ArrowLeft size={15} />
-          {useI18n().t("common.back")}
+    <div>
+      {/* Header */}
+      <div className="mb-6">
+        <button type="button" onClick={onBackToLogin}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[color:var(--text-muted)] hover:text-[color:var(--primary)] transition mb-5">
+          <ArrowLeft size={15} /> Back to login
         </button>
+        <h2 className="app-heading text-2xl font-bold text-[color:var(--text-primary)]">Create account</h2>
+        <p className="mt-1 text-sm text-[color:var(--text-muted)]">Join the HUGGB community</p>
       </div>
 
       {/* Step indicator */}
-      <StepIndicator currentStep={step} />
+      <div className="flex items-center mb-7">
+        {STEPS.map((s, i) => (
+          <div key={s} className="flex items-center flex-1">
+            <div className="flex flex-col items-center gap-1">
+              <div className={`step-pill ${i < currentIdx ? "done" : i === currentIdx ? "active" : "pending"}`}>
+                {i < currentIdx ? <CheckCircle2 size={14} /> : i + 1}
+              </div>
+              <span className={`text-[10px] font-medium ${i === currentIdx ? "text-[color:var(--primary)]" : "text-[color:var(--text-muted)]"}`}>
+                {STEP_LABELS[i]}
+              </span>
+            </div>
+            {i < STEPS.length - 1 && (
+              <div className={`flex-1 h-0.5 mx-2 mb-4 rounded-full transition-colors duration-300 ${i < currentIdx ? "bg-[color:var(--primary)]" : "bg-[color:var(--border)]"}`} />
+            )}
+          </div>
+        ))}
+      </div>
 
       {/* Slide content */}
-      <div className="min-h-[340px] px-7 pb-7">
+      <div className="min-h-[280px]">
         <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={step}
-            custom={direction}
-            initial={direction === "forward" ? { x: 60, opacity: 0 } : { x: -60, opacity: 0 }}
+          <motion.div key={step} custom={direction}
+            initial={{ x: direction === "forward" ? 40 : -40, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={direction === "forward" ? { x: -60, opacity: 0 } : { x: 60, opacity: 0 }}
-            transition={TRANSITION}
-          >
-            {step === "credentials" && (
-              <StepCredentials
-                form={form}
-                setForm={setForm}
-                onNext={() => goToStep("personal")}
-                error={error}
-                setError={setError}
-              />
-            )}
-            {step === "personal" && (
-              <StepPersonal
-                form={form}
-                setForm={setForm}
-                onNext={() => goToStep("confirmation")}
-                onBack={() => goToStep("credentials")}
-                error={error}
-                setError={setError}
-              />
-            )}
-            {step === "confirmation" && (
-              <StepConfirmation
-                form={form}
-                onConfirm={() => onSignupComplete()}
-                onBack={() => goToStep("personal")}
-                error={error}
-                setError={setError}
-              />
-            )}
+            exit={{ x: direction === "forward" ? -40 : 40, opacity: 0 }}
+            transition={TRANSITION}>
+            {step === "credentials" && <StepCredentials form={form} setForm={setForm} onNext={() => goToStep("personal")} error={error} setError={setError} />}
+            {step === "personal" && <StepPersonal form={form} setForm={setForm} onNext={() => goToStep("confirmation")} onBack={() => goToStep("credentials")} error={error} setError={setError} />}
+            {step === "confirmation" && <StepConfirmation form={form} onConfirm={onSignupComplete} onBack={() => goToStep("personal")} error={error} setError={setError} />}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -113,437 +88,163 @@ export const SignupFlow = ({
   );
 };
 
-/* ------------------------------------------------------------------ */
-/*  Step Indicator                                                     */
-/* ------------------------------------------------------------------ */
-
-function StepIndicator({ currentStep }: { currentStep: SignupStep }) {
-  const steps: SignupStep[] = ["credentials", "personal", "confirmation"];
-  const currentIdx = steps.indexOf(currentStep);
-
-  return (
-    <div className="px-7 pb-4">
-      <div className="flex items-center gap-2">
-        {steps.map((s, idx) => (
-          <div key={s} className="flex items-center flex-1">
-            <motion.div
-              animate={{
-                scale: idx === currentIdx ? 1.1 : 1,
-                backgroundColor: idx <= currentIdx ? "var(--primary)" : "var(--border)",
-              }}
-              transition={{ duration: 0.3 }}
-              className="h-2.5 flex-1 rounded-full"
-            />
-            {idx < steps.length - 1 && (
-              <div className="w-2" />
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Step 1: Credentials (Email & Password)                             */
-/* ------------------------------------------------------------------ */
-
-function StepCredentials({
-  form,
-  setForm,
-  onNext,
-  error,
-  setError,
-}: {
-  form: SignupFormData;
-  setForm: React.Dispatch<React.SetStateAction<SignupFormData>>;
-  onNext: () => void;
-  error: string;
-  setError: (e: string) => void;
+/* ── Step 1: Credentials ── */
+function StepCredentials({ form, setForm, onNext, error, setError }: {
+  form: SignupFormData; setForm: React.Dispatch<React.SetStateAction<SignupFormData>>;
+  onNext: () => void; error: string; setError: (e: string) => void;
 }) {
   const { t } = useI18n();
-  const [identifierStatus, setIdentifierStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
-  const [identifierError, setIdentifierError] = useState("");
+  const [status, setStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
+  const [showPw, setShowPw] = useState(false);
 
   useEffect(() => {
-    const value = form.emailOrUsername.trim();
-    setIdentifierError("");
-
-    if (value.length < 3) {
-      setIdentifierStatus("idle");
-      return;
-    }
-
+    const val = form.emailOrUsername.trim();
+    if (val.length < 3) { setStatus("idle"); return; }
     let cancelled = false;
-    setIdentifierStatus("checking");
-
-    const timeoutId = window.setTimeout(async () => {
+    setStatus("checking");
+    const id = window.setTimeout(async () => {
       try {
-        const res = await fetch(
-          `${API_BASE}/api/auth/check-identifier?email_or_username=${encodeURIComponent(value)}`,
-          {
-            headers: {
-              Accept: "application/json",
-              "X-Requested-With": "XMLHttpRequest",
-            },
-          },
-        );
-
-        if (!res.ok) {
-          if (!cancelled) setIdentifierStatus("idle");
-          return;
-        }
-
-        const data = (await res.json()) as { exists?: boolean };
-        if (!cancelled) {
-          setIdentifierStatus(data.exists ? "taken" : "available");
-        }
-      } catch {
-        if (!cancelled) setIdentifierStatus("idle");
-      }
+        const res = await fetch(`${buildApiUrl("/api/auth/check-identifier")}?email_or_username=${encodeURIComponent(val)}`, { headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" } });
+        if (!res.ok) { if (!cancelled) setStatus("idle"); return; }
+        const data = await res.json() as { exists?: boolean };
+        if (!cancelled) setStatus(data.exists ? "taken" : "available");
+      } catch { if (!cancelled) setStatus("idle"); }
     }, 450);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
-    };
+    return () => { cancelled = true; window.clearTimeout(id); };
   }, [form.emailOrUsername]);
 
   const handleNext = () => {
     setError("");
-    setIdentifierError("");
-
-    if (!form.emailOrUsername.trim()) {
-      setError("Email or username is required");
-      return;
-    }
-    if (form.password.length < 6) {
-      setError(t("auth.passwordMinLength"));
-      return;
-    }
-    if (identifierStatus === "taken") {
-      setIdentifierError("Already registered");
-      return;
-    }
-    if (identifierStatus === "checking") {
-      setError("Please wait while we check availability.");
-      return;
-    }
-
+    if (!form.emailOrUsername.trim()) { setError("Email or username is required"); return; }
+    if (form.password.length < 6) { setError(t("auth.passwordMinLength")); return; }
+    if (status === "taken") { setError("Already registered"); return; }
+    if (status === "checking") { setError("Please wait…"); return; }
     onNext();
   };
 
   return (
-    <div className="space-y-5">
-      <div className="text-center">
-        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--surface-soft)]">
-          <Mail size={22} className="text-[color:var(--primary)]" />
-        </div>
-        <h2 className="app-heading text-lg font-bold text-[color:var(--text-primary)]">
-          {t("auth.createAccount")}
-        </h2>
-        <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-          {t("auth.createAccountSubtitle")}
-        </p>
-      </div>
-
-      {error && (
-        <motion.p
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-700"
-        >
-          {error}
-        </motion.p>
-      )}
-
+    <div className="space-y-4">
+      {error && <ErrorBanner msg={error} />}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("reg.emailOrUsername")} <span className="text-red-500">*</span>
-        </label>
-        <div className="relative group">
-          <Mail size={18} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-[color:var(--text-muted)] transition group-focus-within:text-[color:var(--primary)]" />
-          <input
-            type="text"
-            required
-            placeholder={t("reg.emailOrUsernamePlaceholder")}
-            value={form.emailOrUsername}
-            onChange={(e) => setForm((f) => ({ ...f, emailOrUsername: e.target.value }))}
-            className="app-input w-full rounded-xl py-3.5 pl-11 pr-4 text-sm transition-all duration-200 focus:ring-2 focus:ring-[color:var(--ring)] focus:ring-offset-2 focus:ring-offset-[color:var(--surface)]"
-          />
+        <label className="mb-1.5 block text-sm font-medium text-[color:var(--text-secondary)]">{t("reg.emailOrUsername")} <span className="text-red-500">*</span></label>
+        <div className="auth-input-wrap">
+          <Mail size={17} className="input-icon" />
+          <input type="text" required placeholder={t("reg.emailOrUsernamePlaceholder")} value={form.emailOrUsername}
+            onChange={(e) => setForm((f) => ({ ...f, emailOrUsername: e.target.value }))} />
         </div>
-        {!identifierError && identifierStatus === "checking" && (
-          <p className="mt-1.5 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
-        )}
-        {!identifierError && identifierStatus === "available" && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-1.5 flex items-center gap-1 text-xs text-emerald-600">
-            <CheckCircle2 size={12} /> Available
-          </motion.p>
-        )}
-        {identifierError && (
-          <p className="mt-1.5 text-xs text-red-600">{identifierError}</p>
-        )}
+        {status === "checking" && <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking…</p>}
+        {status === "available" && <p className="mt-1 text-xs text-emerald-600 flex items-center gap-1"><CheckCircle2 size={11} /> Available</p>}
+        {status === "taken" && <p className="mt-1 text-xs text-red-600">Already registered</p>}
       </div>
-
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.password")} <span className="text-red-500">*</span>
-        </label>
-        <div className="relative group">
-          <Lock size={18} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-[color:var(--text-muted)] transition group-focus-within:text-[color:var(--primary)]" />
-          <input
-            type="password"
-            required
-            placeholder="Min 6 characters"
-            value={form.password}
-            onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-            className="app-input w-full rounded-xl py-3.5 pl-11 pr-4 text-sm transition-all duration-200 focus:ring-2 focus:ring-[color:var(--ring)] focus:ring-offset-2 focus:ring-offset-[color:var(--surface)]"
-          />
+        <label className="mb-1.5 block text-sm font-medium text-[color:var(--text-secondary)]">{t("auth.password")} <span className="text-red-500">*</span></label>
+        <div className="auth-input-wrap">
+          <Lock size={17} className="input-icon" />
+          <input type={showPw ? "text" : "password"} required placeholder="Min 6 characters" value={form.password}
+            onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} style={{ paddingRight: "2.75rem" }} />
+          <button type="button" onClick={() => setShowPw(!showPw)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--text-muted)] hover:text-[color:var(--primary)]">
+            {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+          </button>
         </div>
       </div>
-
-      <Button type="button" className="w-full" variant="primary" size="lg" onClick={handleNext}>
-        Next <ArrowRight size={16} />
+      <Button type="button" className="w-full mt-2" variant="primary" size="lg" onClick={handleNext}>
+        Continue <ArrowRight size={16} />
       </Button>
     </div>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Step 2: Personal Info (Full Name)                                  */
-/* ------------------------------------------------------------------ */
-
-function StepPersonal({
-  form,
-  setForm,
-  onNext,
-  onBack,
-  error,
-  setError,
-}: {
-  form: SignupFormData;
-  setForm: React.Dispatch<React.SetStateAction<SignupFormData>>;
-  onNext: () => void;
-  onBack: () => void;
-  error: string;
-  setError: (e: string) => void;
+/* ── Step 2: Personal ── */
+function StepPersonal({ form, setForm, onNext, onBack, error, setError }: {
+  form: SignupFormData; setForm: React.Dispatch<React.SetStateAction<SignupFormData>>;
+  onNext: () => void; onBack: () => void; error: string; setError: (e: string) => void;
 }) {
   const { t } = useI18n();
-
   const handleNext = () => {
     setError("");
-    if (!form.fullName.trim()) {
-      setError("Full name is required");
-      return;
-    }
+    if (!form.fullName.trim()) { setError("Full name is required"); return; }
     onNext();
   };
-
   return (
-    <div className="space-y-5">
-      <div className="text-center">
-        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--surface-soft)]">
-          <User size={22} className="text-[color:var(--primary)]" />
-        </div>
-        <h2 className="app-heading text-lg font-bold text-[color:var(--text-primary)]">
-          {t("auth.fullName")}
-        </h2>
-        <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-          Enter your full name as you'd like it to appear
-        </p>
-      </div>
-
-      {error && (
-        <motion.p
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-700"
-        >
-          {error}
-        </motion.p>
-      )}
-
+    <div className="space-y-4">
+      {error && <ErrorBanner msg={error} />}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.fullName")} <span className="text-red-500">*</span>
-        </label>
-        <div className="relative group">
-          <User size={18} className="absolute top-1/2 left-3.5 -translate-y-1/2 text-[color:var(--text-muted)] transition group-focus-within:text-[color:var(--primary)]" />
-          <input
-            type="text"
-            required
-            placeholder={t("reg.fullNamePlaceholder")}
-            value={form.fullName}
-            onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
-            className="app-input w-full rounded-xl py-3.5 pl-11 pr-4 text-sm transition-all duration-200 focus:ring-2 focus:ring-[color:var(--ring)] focus:ring-offset-2 focus:ring-offset-[color:var(--surface)]"
-          />
+        <label className="mb-1.5 block text-sm font-medium text-[color:var(--text-secondary)]">{t("auth.fullName")} <span className="text-red-500">*</span></label>
+        <div className="auth-input-wrap">
+          <User size={17} className="input-icon" />
+          <input type="text" required placeholder={t("reg.fullNamePlaceholder")} value={form.fullName}
+            onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))} />
         </div>
       </div>
-
-      <div className="flex items-center gap-3 pt-2">
-        <Button variant="outline" size="lg" onClick={onBack} className="flex-1">
-          Back
-        </Button>
-        <Button variant="primary" size="lg" onClick={handleNext} className="flex-1">
-          Next <ArrowRight size={16} />
-        </Button>
+      <div className="flex gap-3 mt-2">
+        <Button variant="outline" size="lg" onClick={onBack} className="flex-1">Back</Button>
+        <Button variant="primary" size="lg" onClick={handleNext} className="flex-1">Continue <ArrowRight size={16} /></Button>
       </div>
     </div>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Step 3: Confirmation & Submit                                     */
-/* ------------------------------------------------------------------ */
-
-function StepConfirmation({
-  form,
-  onConfirm,
-  onBack,
-  error,
-  setError,
-}: {
-  form: SignupFormData;
-  onConfirm: () => void;
-  onBack: () => void;
-  error: string;
-  setError: (e: string) => void;
+/* ── Step 3: Confirmation ── */
+function StepConfirmation({ form, onConfirm, onBack, error, setError }: {
+  form: SignupFormData; onConfirm: () => void; onBack: () => void; error: string; setError: (e: string) => void;
 }) {
   const { t } = useI18n();
   const signup = useAuthStore((s) => s.signup);
   const [loading, setLoading] = useState(false);
 
-  const checkAvailabilityNow = async (params: {
-    identifier?: string;
-  }): Promise<{ identifierExists: boolean }> => {
-    const identifier = (params.identifier ?? "").trim();
-    const search = new URLSearchParams();
-    if (identifier !== "") {
-      search.set("email_or_username", identifier);
-    }
-    if (![...search.keys()].length) {
-      return { identifierExists: false };
-    }
-    const res = await fetch(
-      `${API_BASE}/api/auth/check-identifier?${search.toString()}`,
-      {
-        headers: {
-          Accept: "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-      },
-    );
-    if (!res.ok) {
-      return { identifierExists: false };
-    }
-    const data = (await res.json()) as {
-      identifier_exists?: boolean;
-      mobile_exists?: boolean;
-      telegram_exists?: boolean;
-      exists?: boolean;
-    };
-    return {
-      identifierExists: Boolean(data.identifier_exists ?? data.exists),
-    };
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
-      const checkResult = await checkAvailabilityNow({
-        identifier: form.emailOrUsername,
-      });
-
-      if (checkResult.identifierExists) {
-        setError("Already registered");
-        setLoading(false);
-        return;
+      const res = await fetch(`${buildApiUrl("/api/auth/check-identifier")}?email_or_username=${encodeURIComponent(form.emailOrUsername)}`, { headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" } });
+      if (res.ok) {
+        const data = await res.json() as { exists?: boolean };
+        if (data.exists) { setError("Already registered"); setLoading(false); return; }
       }
-
-      const success = await signup({
-        fullName: form.fullName,
-        emailOrUsername: form.emailOrUsername,
-        password: form.password,
-        passwordConfirmation: form.password,
-      });
-
-      if (success) {
-        onConfirm();
-      } else {
-        setError(t("auth.alreadyRegistered"));
-      }
+      const success = await signup({ fullName: form.fullName, emailOrUsername: form.emailOrUsername, password: form.password, passwordConfirmation: form.password });
+      if (success) onConfirm();
+      else setError(t("auth.alreadyRegistered"));
     } catch (err) {
-      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
-      setError(message);
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="text-center">
-        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--surface-soft)]">
-          <CheckCircle2 size={22} className="text-[color:var(--primary)]" />
-        </div>
-        <h2 className="app-heading text-lg font-bold text-[color:var(--text-primary)]">
-          Review & Create Account
-        </h2>
-        <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-          Please review your information before continuing
-        </p>
-      </div>
-
-      {error && (
-        <motion.p
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-700"
-        >
-          {error}
-        </motion.p>
-      )}
-
-      {/* Summary Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-soft)] p-5 space-y-3"
-      >
-        <div>
-          <p className="text-xs font-medium text-[color:var(--text-muted)] uppercase tracking-wide">Email / Username</p>
-          <p className="mt-0.5 text-sm font-semibold text-[color:var(--text-primary)]">{form.emailOrUsername}</p>
-        </div>
-        <div className="h-px bg-[color:var(--border)]" />
-        <div>
-          <p className="text-xs font-medium text-[color:var(--text-muted)] uppercase tracking-wide">Full Name</p>
-          <p className="mt-0.5 text-sm font-semibold text-[color:var(--text-primary)]">{form.fullName}</p>
-        </div>
-        <div className="h-px bg-[color:var(--border)]" />
-        <div>
-          <p className="text-xs font-medium text-[color:var(--text-muted)] uppercase tracking-wide">Password</p>
-          <p className="mt-0.5 text-sm font-semibold text-[color:var(--text-primary)]">{"•".repeat(Math.min(form.password.length, 12))}</p>
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && <ErrorBanner msg={error} />}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-soft)] p-4 space-y-3">
+        {[
+          { label: "Email / Username", value: form.emailOrUsername },
+          { label: "Full Name", value: form.fullName },
+          { label: "Password", value: "•".repeat(Math.min(form.password.length, 10)) },
+        ].map(({ label, value }, i, arr) => (
+          <div key={label}>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[color:var(--text-muted)]">{label}</p>
+            <p className="mt-0.5 text-sm font-semibold text-[color:var(--text-primary)]">{value}</p>
+            {i < arr.length - 1 && <div className="mt-3 h-px bg-[color:var(--border)]" />}
+          </div>
+        ))}
       </motion.div>
-
-      <div className="flex items-center gap-3 pt-2">
-        <Button variant="outline" size="lg" onClick={onBack} className="flex-1">
-          Back
-        </Button>
+      <div className="flex gap-3">
+        <Button variant="outline" size="lg" onClick={onBack} className="flex-1" type="button">Back</Button>
         <Button type="submit" variant="primary" size="lg" className="flex-1" disabled={loading}>
-          {loading ? (
-            <Loader2 size={18} className="animate-spin" />
-          ) : (
-            <>
-              {t("auth.createAccount")} <ArrowRight size={16} />
-            </>
-          )}
+          {loading ? <Loader2 size={18} className="animate-spin" /> : <>{t("auth.createAccount")} <ArrowRight size={16} /></>}
         </Button>
       </div>
     </form>
+  );
+}
+
+function ErrorBanner({ msg }: { msg: string }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+      className="rounded-xl bg-red-50 border border-red-200 px-4 py-2.5 text-sm text-red-700 flex items-start gap-2">
+      <span className="shrink-0 mt-0.5">⚠</span> {msg}
+    </motion.div>
   );
 }

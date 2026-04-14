@@ -7,9 +7,19 @@ import { ThemeProvider } from "./context/ThemeProvider";
 import { I18nProvider } from "./i18n/I18nProvider";
 
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => null);
-  });
+  if (import.meta.env.PROD) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => null);
+    });
+  } else {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister().catch(() => null);
+        });
+      }).catch(() => null);
+    });
+  }
 }
 
 createRoot(document.getElementById("root")!).render(

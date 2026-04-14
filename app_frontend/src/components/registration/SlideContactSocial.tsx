@@ -2,7 +2,6 @@ import type { RegistrationForm } from "../../pages/RegistrationPage";
 import { useI18n } from "../../i18n/I18nProvider";
 import { InputField } from "./FormControls";
 import { motion } from "framer-motion";
-import { CheckCircle2 } from "lucide-react";
 
 interface SlideProps {
   form: RegistrationForm;
@@ -37,20 +36,13 @@ export const SlideContactSocial = ({ form, setForm }: SlideProps) => {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="rounded-2xl border border-[color:var(--border)] bg-gradient-to-r from-[color:var(--surface-soft)] to-[color:var(--surface)] p-4"
+        className="rounded-2xl p-4 flex items-center gap-3"
+        style={{ background: "linear-gradient(135deg, #f3c913 0%, #f9df6a 100%)" }}
       >
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--primary)]">
-            <CheckCircle2 size={16} className="text-[color:var(--on-primary)]" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-[color:var(--text-primary)]">
-              Almost done!
-            </p>
-            <p className="mt-0.5 text-sm text-[color:var(--text-muted)]">
-              Click Submit to complete your registration
-            </p>
-          </div>
+        <span className="text-2xl">🎉</span>
+        <div>
+          <p className="text-sm font-bold text-[color:var(--on-accent)]">You're almost done!</p>
+          <p className="text-xs text-[color:var(--on-accent)] opacity-80">Click Submit to complete your registration</p>
         </div>
       </motion.div>
     </div>

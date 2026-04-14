@@ -28,6 +28,16 @@ export interface SignupPayload {
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
+const buildApiUrl = (path: string): string => {
+  const base = API_BASE.replace(/\/+$/, "");
+
+  if (base.endsWith("/api") && path.startsWith("/api/")) {
+    return `${base}${path.slice(4)}`;
+  }
+
+  return `${base}${path}`;
+};
+
 const api = async <T>(path: string, body: unknown, token?: string, method = "POST"): Promise<T> => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -36,7 +46,7 @@ const api = async <T>(path: string, body: unknown, token?: string, method = "POS
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(buildApiUrl(path), {
     method,
     headers,
     body: method !== "GET" ? JSON.stringify(body) : undefined,
@@ -66,7 +76,7 @@ const apiGet = async <T>(path: string, token?: string): Promise<T> => {
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE}${path}`, { headers });
+  const res = await fetch(buildApiUrl(path), { headers });
   const json = await res.json();
   if (!res.ok) {
     const payload = json as {

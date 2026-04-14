@@ -1,16 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuthStore } from "../context/useAuthStore";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+const BACKEND_BASE = API_BASE.replace(/\/+$/, "").replace(/\/api$/, "");
 
 export const GoogleAuthCallbackPage = () => {
   const navigate = useNavigate();
   const loginWithToken = useAuthStore((s) => s.loginWithToken);
   const [error, setError] = useState("");
+  const hasHandledCallback = useRef(false);
 
   useEffect(() => {
+    if (hasHandledCallback.current) return;
+    hasHandledCallback.current = true;
+
     let cancelled = false;
 
     const finishAuth = async () => {
@@ -18,6 +23,10 @@ export const GoogleAuthCallbackPage = () => {
       const token = params.get("token") ?? "";
       const callbackError = params.get("error") ?? "";
       const hasCodeFlowParams = params.has("code") || params.has("state") || params.has("scope");
+
+      if (!hasCodeFlowParams && window.location.search !== "") {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
 
       if (callbackError !== "") {
         if (!cancelled) setError(callbackError);
@@ -28,7 +37,7 @@ export const GoogleAuthCallbackPage = () => {
       // so backend can exchange the code and return here with a token.
       if (token === "" && hasCodeFlowParams) {
         const query = params.toString();
-        window.location.href = `${API_BASE}/auth/google/callback${query ? `?${query}` : ""}`;
+        window.location.href = `${BACKEND_BASE}/auth/google/callback${query ? `?${query}` : ""}`;
         return;
       }
 
@@ -40,7 +49,9 @@ export const GoogleAuthCallbackPage = () => {
       try {
         await loginWithToken(token);
         if (!cancelled) {
-          navigate("/news", { replace: true });
+          const user = useAuthStore.getState().user;
+          const needsRegistration = !user?.christianName || !user?.campus;
+          navigate(needsRegistration ? "/register/basic-info" : "/news", { replace: true });
         }
       } catch (e) {
         if (!cancelled) {
