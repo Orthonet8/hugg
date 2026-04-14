@@ -120,6 +120,7 @@ export const useAuthStore = create<AuthState>()(
         if (!state.user || !state.token) return false;
 
         const payload = {
+          full_name: data.fullName,
           christian_name: data.christianName,
           gender: data.gender,
           age: data.age,

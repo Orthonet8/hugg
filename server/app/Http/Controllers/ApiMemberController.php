@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Family;
 use App\Models\Member;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Socialite\Facades\Socialite;
 
 class ApiMemberController extends Controller
 {
@@ -161,6 +164,61 @@ class ApiMemberController extends Controller
             'telegram_exists' => $telegramExists,
             'telegram_available' => ! $telegramExists,
         ]);
+    }
+
+    public function googleRedirect()
+    {
+        return Socialite::driver('google')
+            ->stateless()
+            ->redirect();
+    }
+
+    public function googleCallback(): RedirectResponse
+    {
+        $frontendRedirect = (string) config('services.google.frontend_redirect');
+
+        if ($frontendRedirect === '') {
+            $frontendRedirect = 'http://localhost:5173/auth/google/callback';
+        }
+
+        try {
+            $googleUser = Socialite::driver('google')
+                ->stateless()
+                ->user();
+
+            $email = trim((string) $googleUser->getEmail());
+
+            if ($email === '') {
+                return redirect()->away($frontendRedirect.'?error='.urlencode('Google account did not provide an email.'));
+            }
+
+            $member = Member::query()
+                ->whereRaw('LOWER(email_or_username) = ?', [mb_strtolower($email)])
+                ->first();
+
+            if (! $member) {
+                $displayName = trim((string) $googleUser->getName());
+
+                $member = Member::create([
+                    'email_or_username' => $email,
+                    'password' => Hash::make(Str::random(40)),
+                    'full_name' => $displayName !== '' ? $displayName : $email,
+                    'batch' => '2018',
+                    'email_verified_at' => now(),
+                    'profile_photo' => $googleUser->getAvatar(),
+                ]);
+            }
+
+            if (! $member->is_active) {
+                return redirect()->away($frontendRedirect.'?error='.urlencode('Your account is deactivated.'));
+            }
+
+            $token = $member->email_or_username.':'.bin2hex(random_bytes(16));
+
+            return redirect()->away($frontendRedirect.'?token='.urlencode($token));
+        } catch (\Throwable $e) {
+            return redirect()->away($frontendRedirect.'?error='.urlencode('Google sign in failed. Please try again.'));
+        }
     }
 
     /* ------------------------------------------------------------------ */

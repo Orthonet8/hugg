@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mail, Lock, User, Phone, Send, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
 import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
@@ -259,30 +259,17 @@ function LoginForm({ onLogin, onForgotPassword }: { onLogin: () => void; onForgo
 function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void }) {
   const { t } = useI18n();
   const signup = useAuthStore((s) => s.signup);
-  const [fullName, setFullName] = useState("");
-  const [christianName, setChristianName] = useState("");
   const [emailOrUsername, setEmailOrUsername] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [telegram, setTelegram] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [identifierStatus, setIdentifierStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
-  const [mobileStatus, setMobileStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
-  const [telegramStatus, setTelegramStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
   const [identifierError, setIdentifierError] = useState("");
-  const [mobileError, setMobileError] = useState("");
-  const [telegramError, setTelegramError] = useState("");
 
   const checkAvailabilityNow = async (params: {
     identifier?: string;
-    mobile?: string;
-    telegram?: string;
-  }): Promise<{ identifierExists: boolean; mobileExists: boolean; telegramExists: boolean }> => {
+  }): Promise<{ identifierExists: boolean }> => {
     const identifier = (params.identifier ?? "").trim();
-    const mobileValue = (params.mobile ?? "").trim();
-    const telegramValue = (params.telegram ?? "").trim();
 
     const search = new URLSearchParams();
 
@@ -290,16 +277,8 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
       search.set("email_or_username", identifier);
     }
 
-    if (mobileValue !== "") {
-      search.set("mobile", mobileValue);
-    }
-
-    if (telegramValue !== "") {
-      search.set("telegram", telegramValue);
-    }
-
     if (![...search.keys()].length) {
-      return { identifierExists: false, mobileExists: false, telegramExists: false };
+      return { identifierExists: false };
     }
 
     const res = await fetch(
@@ -313,7 +292,7 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
     );
 
     if (!res.ok) {
-      return { identifierExists: false, mobileExists: false, telegramExists: false };
+      return { identifierExists: false };
     }
 
     const data = (await res.json()) as {
@@ -325,8 +304,6 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
 
     return {
       identifierExists: Boolean(data.identifier_exists ?? data.exists),
-      mobileExists: Boolean(data.mobile_exists),
-      telegramExists: Boolean(data.telegram_exists),
     };
   };
 
@@ -374,75 +351,11 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
     };
   }, [emailOrUsername]);
 
-  useEffect(() => {
-    const value = mobile.trim();
-    setMobileError("");
-
-    if (value.length < 3) {
-      setMobileStatus("idle");
-      return;
-    }
-
-    let cancelled = false;
-    setMobileStatus("checking");
-
-    const timeoutId = window.setTimeout(async () => {
-      try {
-        const result = await checkAvailabilityNow({ mobile: value });
-        if (!cancelled) {
-          setMobileStatus(result.mobileExists ? "taken" : "available");
-        }
-      } catch {
-        if (!cancelled) setMobileStatus("idle");
-      }
-    }, 450);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
-    };
-  }, [mobile]);
-
-  useEffect(() => {
-    const value = telegram.trim();
-    setTelegramError("");
-
-    if (value.length < 3) {
-      setTelegramStatus("idle");
-      return;
-    }
-
-    let cancelled = false;
-    setTelegramStatus("checking");
-
-    const timeoutId = window.setTimeout(async () => {
-      try {
-        const result = await checkAvailabilityNow({ telegram: value });
-        if (!cancelled) {
-          setTelegramStatus(result.telegramExists ? "taken" : "available");
-        }
-      } catch {
-        if (!cancelled) setTelegramStatus("idle");
-      }
-    }, 450);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
-    };
-  }, [telegram]);
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setIdentifierError("");
-    setMobileError("");
-    setTelegramError("");
 
-    if (password !== confirmPassword) {
-      setError(t("auth.passwordMismatch"));
-      return;
-    }
     if (password.length < 6) {
       setError(t("auth.passwordMinLength"));
       return;
@@ -457,30 +370,8 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
       return;
     }
 
-    if (mobileStatus === "taken") {
-      setMobileError("Already registered");
-      return;
-    }
-
-    if (mobileStatus === "checking") {
-      setMobileError("Please wait while we check availability.");
-      return;
-    }
-
-    if (telegramStatus === "taken") {
-      setTelegramError("Already registered");
-      return;
-    }
-
-    if (telegramStatus === "checking") {
-      setTelegramError("Please wait while we check availability.");
-      return;
-    }
-
     const checkResult = await checkAvailabilityNow({
       identifier: emailOrUsername,
-      mobile,
-      telegram,
     });
 
     if (checkResult.identifierExists) {
@@ -489,28 +380,13 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
       return;
     }
 
-    if (mobile.trim() !== "" && checkResult.mobileExists) {
-      setMobileStatus("taken");
-      setMobileError("Already registered");
-      return;
-    }
-
-    if (telegram.trim() !== "" && checkResult.telegramExists) {
-      setTelegramStatus("taken");
-      setTelegramError("Already registered");
-      return;
-    }
-
     setLoading(true);
     try {
       const success = await signup({
-        fullName,
+        fullName: emailOrUsername,
         emailOrUsername,
         password,
-        passwordConfirmation: confirmPassword,
-        christianName,
-        mobile,
-        telegram,
+        passwordConfirmation: password,
       });
       if (success) {
         onSignupComplete();
@@ -524,18 +400,6 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
       if (normalizedMessage.includes("email_or_username") || normalizedMessage.includes("username") || normalizedMessage.includes("email")) {
         setIdentifierStatus("taken");
         setIdentifierError("Already registered");
-        return;
-      }
-
-      if (normalizedMessage.includes("mobile") || normalizedMessage.includes("phone")) {
-        setMobileStatus("taken");
-        setMobileError("Already registered");
-        return;
-      }
-
-      if (normalizedMessage.includes("telegram")) {
-        setTelegramStatus("taken");
-        setTelegramError("Already registered");
         return;
       }
 
@@ -562,26 +426,6 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
 
       <div>
         <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.fullName")} <span className="text-red-500">*</span>
-        </label>
-        <div className="relative">
-          <User size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
-          <input type="text" required placeholder={t("reg.fullNamePlaceholder")} value={fullName} onChange={(e) => setFullName(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
-        </div>
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.christianName")}
-        </label>
-        <div className="relative">
-          <User size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
-          <input type="text" placeholder={t("reg.christianNamePlaceholder")} value={christianName} onChange={(e) => setChristianName(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
-        </div>
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
           {t("reg.emailOrUsername")} <span className="text-red-500">*</span>
         </label>
         <div className="relative">
@@ -604,65 +448,11 @@ function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void })
 
       <div>
         <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.phone")}
-        </label>
-        <div className="relative">
-          <Phone size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
-          <input type="tel" placeholder={t("reg.mobilePlaceholder")} value={mobile} onChange={(e) => setMobile(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
-        </div>
-        {!mobileError && mobileStatus === "checking" && (
-          <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
-        )}
-        {!mobileError && mobileStatus === "available" && (
-          <p className="mt-1 text-xs text-emerald-600">Available</p>
-        )}
-        {!mobileError && mobileStatus === "taken" && (
-          <p className="mt-1 text-xs text-red-600">Already registered</p>
-        )}
-        {mobileError && (
-          <p className="mt-1 text-xs text-red-600">{mobileError}</p>
-        )}
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          Telegram Username
-        </label>
-        <div className="relative">
-          <Send size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
-          <input type="text" placeholder="@username" value={telegram} onChange={(e) => setTelegram(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
-        </div>
-        {!telegramError && telegramStatus === "checking" && (
-          <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
-        )}
-        {!telegramError && telegramStatus === "available" && (
-          <p className="mt-1 text-xs text-emerald-600">Available</p>
-        )}
-        {!telegramError && telegramStatus === "taken" && (
-          <p className="mt-1 text-xs text-red-600">Already registered</p>
-        )}
-        {telegramError && (
-          <p className="mt-1 text-xs text-red-600">{telegramError}</p>
-        )}
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
           {t("auth.password")} <span className="text-red-500">*</span>
         </label>
         <div className="relative">
           <Lock size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
           <input type="password" required placeholder={t("auth.passwordMinLength")} value={password} onChange={(e) => setPassword(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
-        </div>
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.confirmPassword")} <span className="text-red-500">*</span>
-        </label>
-        <div className="relative">
-          <Lock size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
-          <input type="password" required placeholder={t("auth.confirmPassword")} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
         </div>
       </div>
 
