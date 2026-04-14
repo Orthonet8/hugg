@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/register', [ApiMemberController::class, 'register']);
 Route::post('/auth/login', [ApiMemberController::class, 'login']);
 Route::get('/auth/check-identifier', [ApiMemberController::class, 'checkIdentifier']);
+Route::get('/auth/google/redirect', [ApiMemberController::class, 'googleRedirect']);
+Route::get('/auth/google/callback', [ApiMemberController::class, 'googleCallback']);
 
 /* ------------------------------------------------------------------ */
 /*  Public family routes */

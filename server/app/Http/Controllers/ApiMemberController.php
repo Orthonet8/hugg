@@ -168,9 +168,13 @@ class ApiMemberController extends Controller
 
     public function googleRedirect()
     {
-        return Socialite::driver('google')
-            ->stateless()
-            ->redirect();
+        $provider = Socialite::driver('google');
+
+        if (method_exists($provider, 'stateless')) {
+            $provider = call_user_func([$provider, 'stateless']);
+        }
+
+        return $provider->redirect();
     }
 
     public function googleCallback(): RedirectResponse
@@ -182,9 +186,13 @@ class ApiMemberController extends Controller
         }
 
         try {
-            $googleUser = Socialite::driver('google')
-                ->stateless()
-                ->user();
+            $provider = Socialite::driver('google');
+
+            if (method_exists($provider, 'stateless')) {
+                $provider = call_user_func([$provider, 'stateless']);
+            }
+
+            $googleUser = $provider->user();
 
             $email = trim((string) $googleUser->getEmail());
 

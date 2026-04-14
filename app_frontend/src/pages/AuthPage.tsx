@@ -1,132 +1,129 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
-import { Card } from "../components/common/Card";
+import { Mail, Lock, ArrowRight, Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
 import { Button } from "../components/common/Button";
 import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
 import { ThemeToggle } from "../components/common/ThemeToggle";
 import { useAuthStore } from "../context/useAuthStore";
 import { useI18n } from "../i18n/I18nProvider";
+import { SignupFlow } from "../components/auth/SignupFlow";
 
+const TRANSITION = { duration: 0.38, ease: [0.25, 0.1, 0.25, 1] as const };
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 
 export const AuthPage = () => {
   const { t } = useI18n();
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const navigate = useNavigate();
+  const [showSignup, setShowSignup] = useState(false);
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
-      {/* Top-right controls */}
-      <div className="absolute top-4 right-4 flex items-center gap-2">
-        <LanguageSwitcher />
-        <ThemeToggle />
-      </div>
-
-      <div className="w-full max-w-md">
-        {/* Logo / Brand */}
-        <div className="mb-6 text-center">
-          <div className="app-gradient mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-3xl shadow-lg">
-            <span className="text-2xl font-bold text-[color:var(--on-primary)]">
-              ሀ
-            </span>
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* ── Hero Panel (desktop left / mobile top strip) ── */}
+      <div className="auth-hero hidden lg:flex lg:w-[42%] flex-col justify-between p-10 text-white">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-white/20 flex items-center justify-center text-lg font-bold backdrop-blur-sm">
+            ሀ
           </div>
-          <h1 className="app-heading text-2xl font-bold text-[color:var(--text-primary)]">
-            ሐረማያ ዩኒቨርሲቲ ግቢ ጉባኤ
-          </h1>
-          <p className="mt-1 text-sm text-[color:var(--text-muted)]">
-            Haramaya University Gebi Gubae
-          </p>
+          <span className="text-sm font-semibold opacity-90">HUGGB</span>
         </div>
 
-        <Card className="overflow-hidden border-0 p-0 shadow-2xl">
-          {/* Tab Switcher */}
-          <div className="flex border-b border-[color:var(--border)]">
-            <button
-              type="button"
-              onClick={() => setMode("login")}
-              data-active={mode === "login"}
-              className="flex-1 py-4 text-sm font-semibold transition data-[active=true]:border-b-2 data-[active=true]:border-[color:var(--primary)] data-[active=true]:text-[color:var(--primary)] text-[color:var(--text-muted)]"
-            >
-              {t("auth.signIn")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("signup")}
-              data-active={mode === "signup"}
-              className="flex-1 py-4 text-sm font-semibold transition data-[active=true]:border-b-2 data-[active=true]:border-[color:var(--primary)] data-[active=true]:text-[color:var(--primary)] text-[color:var(--text-muted)]"
-            >
-              {t("auth.signUp")}
-            </button>
+        <div>
+          <h1 className="app-heading text-4xl font-bold leading-tight mb-4">
+            ሐረማያ ዩኒቨርሲቲ<br />ግቢ ጉባኤ
+          </h1>
+          <p className="text-white/70 text-base leading-relaxed mb-8">
+            Haramaya University Gebi Gubae — connecting students in faith, service, and community.
+          </p>
+          <div className="flex flex-col gap-3">
+            {["Community & Fellowship", "Spiritual Growth", "Service Opportunities"].map((item) => (
+              <div key={item} className="flex items-center gap-2.5 text-sm text-white/80">
+                <span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shrink-0" />
+                {item}
+              </div>
+            ))}
           </div>
+        </div>
 
-          {/* Forms */}
-          <div className="relative p-6">
-            <AnimatePresence mode="wait">
-              {mode === "login" ? (
+        <p className="text-white/40 text-xs">© 2026 HUGGB Management System</p>
+      </div>
+
+      {/* ── Form Panel ── */}
+      <div className="flex-1 flex flex-col">
+        {/* Mobile top bar */}
+        <div className="flex items-center justify-between px-5 py-4 lg:px-8 lg:py-5">
+          <div className="flex items-center gap-2 lg:hidden">
+            <div className="app-gradient h-8 w-8 rounded-xl flex items-center justify-center text-sm font-bold text-white">ሀ</div>
+            <span className="text-xs font-semibold text-[color:var(--text-muted)]">HUGGB</span>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle />
+          </div>
+        </div>
+
+        {/* Centered form */}
+        <div className="flex-1 flex items-center justify-center px-5 py-6 lg:px-12">
+          <div className="w-full max-w-[420px]">
+            <AnimatePresence mode="wait" initial={false}>
+              {!showSignup ? (
                 <motion.div
                   key="login"
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 12 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -16 }}
+                  transition={TRANSITION}
                 >
                   <LoginForm
                     onLogin={() => navigate("/news")}
                     onForgotPassword={() => navigate("/set-password")}
+                    onSwitchToSignup={() => setShowSignup(true)}
                   />
                 </motion.div>
               ) : (
                 <motion.div
                   key="signup"
-                  initial={{ opacity: 0, x: 12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -12 }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -16 }}
+                  transition={TRANSITION}
                 >
-                  <SignupQuickForm
+                  <SignupFlow
                     onSignupComplete={() => navigate("/register/basic-info")}
+                    onBackToLogin={() => setShowSignup(false)}
                   />
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-        </Card>
 
-        <p className="mt-6 text-center text-xs text-[color:var(--text-muted)]">
-          {t("auth.termsAgree")}{" "}
-          <button
-            type="button"
-            className="text-[color:var(--primary)] underline hover:text-[color:var(--primary-hover)]"
-            onClick={() => alert("Terms of Service — coming soon")}
-          >
-            {t("auth.termsOfService")}
-          </button>{" "}
-          {t("common.or")}{" "}
-          <button
-            type="button"
-            className="text-[color:var(--primary)] underline hover:text-[color:var(--primary-hover)]"
-            onClick={() => alert("Privacy Policy — coming soon")}
-          >
-            {t("auth.privacyPolicy")}
-          </button>
-          .
-        </p>
+            <p className="mt-6 text-center text-xs text-[color:var(--text-muted)]">
+              {t("auth.termsAgree")}{" "}
+              <button type="button" className="text-[color:var(--primary)] underline" onClick={() => alert("Terms — coming soon")}>
+                {t("auth.termsOfService")}
+              </button>{" "}
+              {t("common.or")}{" "}
+              <button type="button" className="text-[color:var(--primary)] underline" onClick={() => alert("Privacy — coming soon")}>
+                {t("auth.privacyPolicy")}
+              </button>.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-/* ------------------------------------------------------------------ */
-/*  Login Form                                                        */
-/* ------------------------------------------------------------------ */
-
-function LoginForm({ onLogin, onForgotPassword }: { onLogin: () => void; onForgotPassword: () => void }) {
+/* ── Login Form ── */
+function LoginForm({ onLogin, onForgotPassword, onSwitchToSignup }: {
+  onLogin: () => void;
+  onForgotPassword: () => void;
+  onSwitchToSignup: () => void;
+}) {
   const { t } = useI18n();
   const login = useAuthStore((s) => s.login);
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -136,329 +133,93 @@ function LoginForm({ onLogin, onForgotPassword }: { onLogin: () => void; onForgo
     setLoading(true);
     try {
       const success = await login(emailOrUsername, password);
-      if (success) {
-        onLogin();
-      } else {
-        setError(t("auth.loginError"));
-      }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
-      setError(message);
+      if (success) onLogin();
+      else setError(t("auth.loginError"));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="app-heading text-xl font-bold text-[color:var(--text-primary)]">
-        {t("auth.welcome")}
-      </h2>
-      <p className="text-sm text-[color:var(--text-muted)]">
-        {t("auth.loginSubtitle")}
-      </p>
+    <div>
+      <div className="mb-7">
+        <h2 className="app-heading text-2xl font-bold text-[color:var(--text-primary)]">{t("auth.welcome")}</h2>
+        <p className="mt-1.5 text-sm text-[color:var(--text-muted)]">{t("auth.loginSubtitle")}</p>
+      </div>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
+        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+          className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 flex items-start gap-2">
+          <span className="mt-0.5 shrink-0">⚠</span> {error}
+        </motion.div>
       )}
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("reg.emailOrUsername")}
-        </label>
-        <div className="relative">
-          <Mail
-            size={18}
-            className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]"
-          />
-          <input
-            type="text"
-            required
-            placeholder="you@example.com or username"
-            value={emailOrUsername}
-            onChange={(e) => setEmailOrUsername(e.target.value)}
-            className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm"
-          />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-[color:var(--text-secondary)]">{t("reg.emailOrUsername")}</label>
+          <div className="auth-input-wrap">
+            <Mail size={17} className="input-icon" />
+            <input type="text" required placeholder="you@example.com or username"
+              value={emailOrUsername} onChange={(e) => setEmailOrUsername(e.target.value)} />
+          </div>
         </div>
-      </div>
 
-      <div>
-        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.password")}
-        </label>
-        <div className="relative">
-          <Lock
-            size={18}
-            className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]"
-          />
-          <input
-            type="password"
-            required
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm"
-          />
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-sm font-medium text-[color:var(--text-secondary)]">{t("auth.password")}</label>
+            <button type="button" onClick={onForgotPassword}
+              className="text-xs font-medium text-[color:var(--primary)] hover:underline">
+              {t("auth.forgotPassword")}
+            </button>
+          </div>
+          <div className="auth-input-wrap">
+            <Lock size={17} className="input-icon" />
+            <input type={showPw ? "text" : "password"} required placeholder="••••••••"
+              value={password} onChange={(e) => setPassword(e.target.value)}
+              style={{ paddingRight: "2.75rem" }} />
+            <button type="button" onClick={() => setShowPw(!showPw)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[color:var(--text-muted)] hover:text-[color:var(--primary)]">
+              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center justify-end">
-        <button
-          type="button"
-          onClick={() => onForgotPassword()}
-          className="text-sm font-medium text-[color:var(--primary)] hover:underline"
-        >
-          {t("auth.forgotPassword")}
-        </button>
-      </div>
+        <Button type="submit" className="w-full mt-2" variant="primary" size="lg" disabled={loading}>
+          {loading ? <Loader2 size={18} className="animate-spin" /> : <>{t("auth.signIn")} <ArrowRight size={16} /></>}
+        </Button>
+      </form>
 
-      <Button type="submit" className="w-full" variant="primary" size="lg" disabled={loading}>
-        {loading ? (
-          <Loader2 size={18} className="animate-spin" />
-        ) : (
-          <>
-            {t("auth.signIn")} <ArrowRight size={16} />
-          </>
-        )}
-      </Button>
-
-      <div className="flex items-center gap-3 text-sm text-[color:var(--text-muted)]">
+      <div className="my-5 flex items-center gap-3 text-xs text-[color:var(--text-muted)]">
         <span className="h-px flex-1 bg-[color:var(--border)]" />
         <span>{t("common.or")}</span>
         <span className="h-px flex-1 bg-[color:var(--border)]" />
       </div>
 
-      <button
-        type="button"
-        className="w-full rounded-xl border border-[color:var(--border-strong)] bg-[color:var(--surface)] py-3 text-sm font-semibold text-[color:var(--text-primary)] transition hover:bg-[color:var(--soft-hover)] flex items-center justify-center gap-2"
-        onClick={() => alert("Google Login — coming soon")}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          viewBox="0 0 48 48"
-          fill="none"
-        >
-          <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.111C34.945 32.67 30.123 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.14 0 5.996 1.198 8.15 3.15l5.657-5.657C34.99 6.161 29.795 4 24 4 12.954 4 4 12.954 4 24s8.954 20 20 20c11.046 0 20-8.954 20-20 0-1.341-.132-2.644-.389-3.917z" />
-          <path fill="#FF3D00" d="M6.306 14.691l6.57 4.819C14.242 16.51 18.845 14 24 14c3.14 0 5.996 1.198 8.15 3.15l5.657-5.657C34.99 6.161 29.795 4 24 4 16.665 4 10.112 8.696 6.306 14.691z" />
-          <path fill="#4CAF50" d="M24 44c5.421 0 10.216-1.796 13.876-4.866l-6.43-5.328C29.99 34.91 27.201 36 24 36c-6.054 0-11.19-4.344-12.296-10.078l-6.44 4.96C8.193 39.61 15.625 44 24 44z" />
-          <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.111c-1.115 3.46-4.152 6-7.9 6-3.201 0-5.99-1.09-7.814-2.859l-6.432 5.326C15.95 38.728 19.819 40 24 40c9.389 0 17-7.611 17-17 0-1.34-.132-2.644-.389-3.917z" />
-        </svg>
+      <button type="button"
+        className="w-full rounded-2xl border border-[color:var(--border-strong)] bg-[color:var(--surface)] py-3 text-sm font-semibold text-[color:var(--text-primary)] hover:bg-[color:var(--soft-hover)] flex items-center justify-center gap-2.5 transition"
+        onClick={() => { window.location.href = `${API_BASE}/api/auth/google/redirect`; }}>
+        <GoogleIcon />
         {t("auth.continueWithGoogle")}
       </button>
-    </form>
+
+      <button type="button" onClick={onSwitchToSignup}
+        className="mt-3 w-full rounded-2xl border-2 border-dashed border-[color:var(--border-strong)] bg-[color:var(--surface-soft)] py-3 text-sm font-semibold text-[color:var(--primary)] hover:border-[color:var(--primary)] hover:bg-[color:var(--soft-hover)] flex items-center justify-center gap-2 transition">
+        <UserPlus size={16} />
+        {t("auth.signUp")}
+      </button>
+    </div>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Quick Signup Form                                                  */
-/* ------------------------------------------------------------------ */
-
-function SignupQuickForm({ onSignupComplete }: { onSignupComplete: () => void }) {
-  const { t } = useI18n();
-  const signup = useAuthStore((s) => s.signup);
-  const [emailOrUsername, setEmailOrUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [identifierStatus, setIdentifierStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
-  const [identifierError, setIdentifierError] = useState("");
-
-  const checkAvailabilityNow = async (params: {
-    identifier?: string;
-  }): Promise<{ identifierExists: boolean }> => {
-    const identifier = (params.identifier ?? "").trim();
-
-    const search = new URLSearchParams();
-
-    if (identifier !== "") {
-      search.set("email_or_username", identifier);
-    }
-
-    if (![...search.keys()].length) {
-      return { identifierExists: false };
-    }
-
-    const res = await fetch(
-      `${API_BASE}/api/auth/check-identifier?${search.toString()}`,
-      {
-        headers: {
-          Accept: "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-      },
-    );
-
-    if (!res.ok) {
-      return { identifierExists: false };
-    }
-
-    const data = (await res.json()) as {
-      identifier_exists?: boolean;
-      mobile_exists?: boolean;
-      telegram_exists?: boolean;
-      exists?: boolean;
-    };
-
-    return {
-      identifierExists: Boolean(data.identifier_exists ?? data.exists),
-    };
-  };
-
-  useEffect(() => {
-    const value = emailOrUsername.trim();
-    setIdentifierError("");
-
-    if (value.length < 3) {
-      setIdentifierStatus("idle");
-      return;
-    }
-
-    let cancelled = false;
-    setIdentifierStatus("checking");
-
-    const timeoutId = window.setTimeout(async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE}/api/auth/check-identifier?email_or_username=${encodeURIComponent(value)}`,
-          {
-            headers: {
-              Accept: "application/json",
-              "X-Requested-With": "XMLHttpRequest",
-            },
-          },
-        );
-
-        if (!res.ok) {
-          if (!cancelled) setIdentifierStatus("idle");
-          return;
-        }
-
-        const data = (await res.json()) as { exists?: boolean };
-        if (!cancelled) {
-          setIdentifierStatus(data.exists ? "taken" : "available");
-        }
-      } catch {
-        if (!cancelled) setIdentifierStatus("idle");
-      }
-    }, 450);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
-    };
-  }, [emailOrUsername]);
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIdentifierError("");
-
-    if (password.length < 6) {
-      setError(t("auth.passwordMinLength"));
-      return;
-    }
-    if (identifierStatus === "taken") {
-      setIdentifierError("Already registered");
-      return;
-    }
-
-    if (identifierStatus === "checking") {
-      setIdentifierError("Please wait while we check availability.");
-      return;
-    }
-
-    const checkResult = await checkAvailabilityNow({
-      identifier: emailOrUsername,
-    });
-
-    if (checkResult.identifierExists) {
-      setIdentifierStatus("taken");
-      setIdentifierError("Already registered");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const success = await signup({
-        fullName: emailOrUsername,
-        emailOrUsername,
-        password,
-        passwordConfirmation: password,
-      });
-      if (success) {
-        onSignupComplete();
-      } else {
-        setError(t("auth.alreadyRegistered"));
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
-      const normalizedMessage = message.toLowerCase();
-
-      if (normalizedMessage.includes("email_or_username") || normalizedMessage.includes("username") || normalizedMessage.includes("email")) {
-        setIdentifierStatus("taken");
-        setIdentifierError("Already registered");
-        return;
-      }
-
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+function GoogleIcon() {
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <h2 className="app-heading text-xl font-bold text-[color:var(--text-primary)]">
-        {t("auth.createAccount")}
-      </h2>
-      <p className="text-sm text-[color:var(--text-muted)]">
-        {t("auth.createAccountSubtitle")}
-      </p>
-
-      {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
-      )}
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("reg.emailOrUsername")} <span className="text-red-500">*</span>
-        </label>
-        <div className="relative">
-          <Mail size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
-          <input type="text" required placeholder={t("reg.emailOrUsernamePlaceholder")} value={emailOrUsername} onChange={(e) => setEmailOrUsername(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
-        </div>
-        {!identifierError && identifierStatus === "checking" && (
-          <p className="mt-1 text-xs text-[color:var(--text-muted)]">Checking availability...</p>
-        )}
-        {!identifierError && identifierStatus === "available" && (
-          <p className="mt-1 text-xs text-emerald-600">Available</p>
-        )}
-        {!identifierError && identifierStatus === "taken" && (
-          <p className="mt-1 text-xs text-red-600">Already registered</p>
-        )}
-        {identifierError && (
-          <p className="mt-1 text-xs text-red-600">{identifierError}</p>
-        )}
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-[color:var(--text-secondary)]">
-          {t("auth.password")} <span className="text-red-500">*</span>
-        </label>
-        <div className="relative">
-          <Lock size={18} className="absolute top-1/2 left-3 -translate-y-1/2 text-[color:var(--text-muted)]" />
-          <input type="password" required placeholder={t("auth.passwordMinLength")} value={password} onChange={(e) => setPassword(e.target.value)} className="app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm" />
-        </div>
-      </div>
-
-      <Button type="submit" className="w-full" variant="primary" size="lg" disabled={loading}>
-        {loading ? <Loader2 size={18} className="animate-spin" /> : <>{t("common.next")} <ArrowRight size={16} /></>}
-      </Button>
-    </form>
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 48 48">
+      <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.111C34.945 32.67 30.123 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.14 0 5.996 1.198 8.15 3.15l5.657-5.657C34.99 6.161 29.795 4 24 4 12.954 4 4 12.954 4 24s8.954 20 20 20c11.046 0 20-8.954 20-20 0-1.341-.132-2.644-.389-3.917z" />
+      <path fill="#FF3D00" d="M6.306 14.691l6.57 4.819C14.242 16.51 18.845 14 24 14c3.14 0 5.996 1.198 8.15 3.15l5.657-5.657C34.99 6.161 29.795 4 24 4 16.665 4 10.112 8.696 6.306 14.691z" />
+      <path fill="#4CAF50" d="M24 44c5.421 0 10.216-1.796 13.876-4.866l-6.43-5.328C29.99 34.91 27.201 36 24 36c-6.054 0-11.19-4.344-12.296-10.078l-6.44 4.96C8.193 39.61 15.625 44 24 44z" />
+      <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.111c-1.115 3.46-4.152 6-7.9 6-3.201 0-5.99-1.09-7.814-2.859l-6.432 5.326C15.95 38.728 19.819 40 24 40c9.389 0 17-7.611 17-17 0-1.34-.132-2.644-.389-3.917z" />
+    </svg>
   );
 }

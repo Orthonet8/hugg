@@ -59,23 +59,36 @@ const initialForm: RegistrationForm = {
   mobile: "", emailOrUsername: "", telegram: "",
 };
 
+/* Premium slide variants with spring-like easing */
+const slideVariants = {
+  enter: (dir: "forward" | "backward") => ({
+    x: dir === "forward" ? 80 : -80,
+    opacity: 0,
+    scale: 0.97,
+    filter: "blur(4px)",
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+    filter: "blur(0px)",
+  },
+  exit: (dir: "forward" | "backward") => ({
+    x: dir === "forward" ? -80 : 80,
+    opacity: 0,
+    scale: 0.97,
+    filter: "blur(4px)",
+  }),
+};
+
 export const RegistrationPage = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { stepId } = useParams<{ stepId: string }>();
-  const { user } = useAuthStore();
   const updateProfile = useAuthStore((s) => s.updateProfile);
 
-  const [form, setForm] = useState<RegistrationForm>(() => {
-    const base = { ...initialForm };
-    if (user) {
-      base.fullName = user.fullName || "";
-      base.christianName = user.christianName || "";
-      base.emailOrUsername = user.email || "";
-      base.mobile = user.phone || "";
-    }
-    return base;
-  });
+  /* All fields start empty - no prefill from signup */
+  const [form, setForm] = useState<RegistrationForm>({ ...initialForm });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
@@ -151,18 +164,12 @@ export const RegistrationPage = () => {
   const handleExit = () => navigate("/news");
   const handleTopBack = currentIndex === 0 ? handleExit : handleBack;
 
-  const variants = {
-    enter: (dir: "forward" | "backward") => ({ x: dir === "forward" ? 60 : -60, opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (dir: "forward" | "backward") => ({ x: dir === "forward" ? -60 : 60, opacity: 0 }),
-  };
-
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
+    <div className="mx-auto max-w-2xl px-4 py-8">
       <Card className="overflow-hidden border-0 p-0 shadow-2xl">
         {/* Top Bar */}
-        <div className="flex items-center justify-between border-b border-[color:var(--border)] px-5 py-4">
-          <button type="button" onClick={handleTopBack} className="inline-flex items-center gap-1 text-sm font-medium text-[color:var(--text-muted)] transition hover:text-[color:var(--primary)]">
+        <div className="flex items-center justify-between border-b border-[color:var(--border)] px-6 py-4">
+          <button type="button" onClick={handleTopBack} className="inline-flex items-center gap-1.5 text-sm font-medium text-[color:var(--text-muted)] transition hover:text-[color:var(--primary)]">
             <ArrowLeft size={16} />
             {t("common.back")}
           </button>
@@ -174,36 +181,83 @@ export const RegistrationPage = () => {
         </div>
 
         {/* Header */}
-        <div className="px-5 pt-5 pb-3">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[color:var(--text-muted)]">
+        <div className="px-6 pt-6 pb-4">
+          <div className="mb-4 flex items-center justify-between">
+            <motion.span
+              key={currentIndex}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--surface-soft)] px-3 py-1 text-xs font-semibold text-[color:var(--text-muted)]"
+            >
               Step {currentSlide.step} / {registrationSlides.length}
-            </span>
-            <span className="text-sm font-bold text-[color:var(--primary)]">
+            </motion.span>
+            <motion.span
+              key={currentSlide.progress}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-sm font-bold text-[color:var(--primary)]"
+            >
               {currentSlide.progress}%
-            </span>
+            </motion.span>
           </div>
 
-          <div className="mb-4 h-2 overflow-hidden rounded-full bg-[color:var(--surface-soft)]">
-            <motion.div className="h-full rounded-full bg-[color:var(--accent)]" initial={{ width: 0 }} animate={{ width: `${currentSlide.progress}%` }} transition={{ duration: 0.4, ease: "easeOut" }} />
+          {/* Progress bar */}
+          <div className="mb-5 h-2 overflow-hidden rounded-full bg-[color:var(--surface-soft)]">
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-[color:var(--primary)] to-[color:var(--accent)]"
+              initial={{ width: 0 }}
+              animate={{ width: `${currentSlide.progress}%` }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            />
           </div>
 
-          <h2 className="app-heading text-xl font-bold text-[color:var(--text-primary)] sm:text-2xl">
+          <motion.h2
+            key={`title-${currentSlide.id}`}
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="app-heading text-xl font-bold text-[color:var(--text-primary)] sm:text-2xl"
+          >
             {t(slideTitleKeys[currentSlide.id] ?? currentSlide.title)}
-          </h2>
-          <p className="mt-1 text-sm text-[color:var(--text-muted)]">
+          </motion.h2>
+          <motion.p
+            key={`subtitle-${currentSlide.id}`}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mt-1.5 text-sm text-[color:var(--text-muted)]"
+          >
             {t(slideSubtitleKeys[currentSlide.id] ?? currentSlide.subtitle)}
-          </p>
+          </motion.p>
         </div>
 
         {/* Slide Content */}
-        <div className="relative min-h-[280px] px-5 pb-5">
+        <div className="relative min-h-[280px] px-6 pb-6">
           {error && (
-            <div className="mb-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-700">{error}</div>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-700"
+            >
+              {error}
+            </motion.div>
           )}
 
           <AnimatePresence mode="wait" custom={direction}>
-            <motion.div key={currentSlide.id} custom={direction} variants={variants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25, ease: "easeInOut" }}>
+            <motion.div
+              key={currentSlide.id}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+                mass: 0.8,
+              }}
+            >
               {SlideComponent ? (
                 <SlideComponent form={form} setForm={setForm} />
               ) : (
@@ -214,9 +268,9 @@ export const RegistrationPage = () => {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-[color:var(--border)] bg-[color:var(--surface-soft)] px-5 py-4">
-          <button type="button" onClick={handleExit} className="text-sm text-[color:var(--text-muted)] transition hover:text-red-600">
-            <X size={14} className="inline mr-1" />
+        <div className="flex items-center justify-between border-t border-[color:var(--border)] bg-[color:var(--surface-soft)] px-6 py-5">
+          <button type="button" onClick={handleExit} className="inline-flex items-center gap-1 text-sm text-[color:var(--text-muted)] transition hover:text-red-600">
+            <X size={14} />
             {t("common.exit")}
           </button>
 
@@ -227,22 +281,26 @@ export const RegistrationPage = () => {
                 {t("common.back")}
               </Button>
             )}
-            <Button variant="primary" size="md" onClick={handleNext} disabled={submitting}>
+            <Button variant="primary" size="lg" onClick={handleNext} disabled={submitting}>
               {submitting ? t("common.submitting") : currentIndex === registrationSlides.length - 1 ? t("common.submit") : t("common.next")}
             </Button>
           </div>
         </div>
       </Card>
 
-      {/* Slide Dots */}
-      <div className="mt-4 flex items-center justify-center gap-2">
+      {/* Slide Dots - Interactive */}
+      <div className="mt-5 flex items-center justify-center gap-2.5">
         {registrationSlides.map((slide, idx) => (
           <button
             key={slide.id}
             type="button"
             onClick={() => { setDirection(idx > currentIndex ? "forward" : "backward"); goToIndex(idx); }}
-            className={`h-2.5 rounded-full transition-all duration-200 ${
-              idx === currentIndex ? "w-8 bg-[color:var(--primary)]" : idx < currentIndex ? "w-2.5 bg-[color:var(--primary)] opacity-40" : "w-2.5 bg-[color:var(--border-strong)]"
+            className={`rounded-full transition-all duration-300 ${
+              idx === currentIndex
+                ? "w-9 h-2.5 bg-[color:var(--primary)]"
+                : idx < currentIndex
+                  ? "w-2.5 h-2.5 bg-[color:var(--primary)] opacity-50 hover:opacity-70"
+                  : "w-2.5 h-2.5 bg-[color:var(--border-strong)] hover:bg-[color:var(--primary)] hover:opacity-50"
             }`}
             aria-label={`Go to step ${idx + 1}`}
           />

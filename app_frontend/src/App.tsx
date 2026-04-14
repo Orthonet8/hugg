@@ -4,6 +4,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import { AuthPage } from "./pages/AuthPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { FamilyPage } from "./pages/FamilyPage";
+import { GoogleAuthCallbackPage } from "./pages/GoogleAuthCallbackPage";
 import { LanguagePickerPage } from "./pages/LanguagePickerPage";
 import { NewsPage } from "./pages/NewsPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
@@ -31,14 +32,13 @@ function App() {
       <Route
         path="/login"
         element={
-          !languageSelected
-            ? <Navigate to="/language" replace />
-            : isAuthenticated
+           isAuthenticated
               ? <Navigate to="/news" replace />
               : <AuthPage />
         }
       />
       <Route path="/set-password" element={<SetPasswordPage />} />
+      <Route path="/auth/google/callback" element={<GoogleAuthCallbackPage />} />
       <Route path="/register/:stepId" element={<RegistrationPage />} />
 
       {/* Protected routes — require authentication */}

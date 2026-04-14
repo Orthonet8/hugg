@@ -8,6 +8,7 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   login: (emailOrUsername: string, password: string) => Promise<boolean>;
+  loginWithToken: (token: string) => Promise<boolean>;
   signup: (data: SignupPayload) => Promise<boolean>;
   updateProfile: (data: RegistrationForm) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -94,6 +95,12 @@ export const useAuthStore = create<AuthState>()(
           password,
         });
         set({ user: data.member, token: data.token, isAuthenticated: true });
+        return true;
+      },
+
+      loginWithToken: async (token: string) => {
+        const data = await apiGet<{ member: UserProfile }>("/api/auth/me", token);
+        set({ user: data.member, token, isAuthenticated: true });
         return true;
       },
 
