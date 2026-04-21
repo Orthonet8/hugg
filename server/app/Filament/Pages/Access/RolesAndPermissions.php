@@ -265,54 +265,23 @@ class RolesAndPermissions extends Page implements HasForms
             ->pluck('name')
             ->all();
 
-        $actionOrder = [
-            'view' => 10,
-            'create' => 20,
-            'update' => 30,
-            'edit' => 30,
-            'delete' => 40,
-        ];
+        $actionOrder = ['view' => 1, 'create' => 2, 'edit' => 3, 'delete' => 4, 'manage' => 5];
 
-        $rows = collect($names)
-            ->map(function (string $name) use ($actionOrder): array {
-                $module = $name;
-                $action = '';
+        $rows = collect($names)->map(function (string $name) use ($actionOrder): array {
+            $parts = explode(' ', $name, 2);
+            $action = count($parts) === 2 ? $parts[0] : '';
+            $module = count($parts) === 2 ? $parts[1] : $name;
 
-                if (str_contains($name, '.')) {
-                    [$module, $action] = explode('.', $name, 2);
-                }
+            return [
+                'name'   => $name,
+                'module' => Str::title($module),
+                'label'  => Str::title($action ?: $name),
+                'rank'   => $actionOrder[strtolower($action)] ?? 99,
+            ];
+        })->sortBy([['module', 'asc'], ['rank', 'asc']])->values();
 
-                $moduleLabel = Str::headline(str_replace(['-', '_'], ' ', $module));
-                $actionLabel = $action !== ''
-                    ? Str::headline(str_replace(['-', '_'], ' ', $action))
-                    : '';
-
-                $actionKey = $action !== '' ? strtolower($action) : '';
-                $rank = $actionKey !== '' ? ($actionOrder[$actionKey] ?? 999) : 999;
-
-                return [
-                    'name' => $name,
-                    'module' => $moduleLabel,
-                    'action' => $actionLabel,
-                    'rank' => $rank,
-                ];
-            })
-            ->sortBy([
-                ['module', 'asc'],
-                ['rank', 'asc'],
-                ['action', 'asc'],
-            ])
-            ->values();
-
-        return $rows
-            ->groupBy('module')
-            ->map(function ($items): array {
-                return $items
-                    ->mapWithKeys(fn (array $row): array => [
-                        $row['name'] => $row['action'] !== '' ? $row['action'] : $row['name'],
-                    ])
-                    ->all();
-            })
+        return $rows->groupBy('module')
+            ->map(fn ($items) => $items->mapWithKeys(fn ($r) => [$r['name'] => $r['label']])->all())
             ->all();
     }
 

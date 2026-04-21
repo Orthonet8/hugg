@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Check, LogOut } from "lucide-react";
@@ -19,31 +19,16 @@ const slideMap: Record<string, React.ComponentType<{ form: RegistrationForm; set
   "contact-social": SlideContactSocial,
 };
 
-/* Each slide gets its own gradient — matches Stitch color identity */
-const GRADIENTS = [
-  ["#5f0113", "#9b1a2f"],  // 1 crimson
-  ["#1e3a8a", "#2563eb"],  // 2 blue
-  ["#064e3b", "#059669"],  // 3 green
-  ["#4c1d95", "#7c3aed"],  // 4 purple
-  ["#92400e", "#d97706"],  // 5 amber/gold
-];
+/* Keep one brand gradient across all steps for a consistent experience. */
+const REGISTRATION_GRADIENT: [string, string] = ["#5f0113", "#9b1a2f"];
 
 /* Stitch slide subtitles */
 const SUBTITLES: Record<string, string> = {
-  "basic-info": "Tell us about yourself",
-  "campus-academics": "Tell us about your university life.",
-  "background-participation": "Please provide details about your local origins and church history.",
-  "skills-service": "Help us understand how you'd like to contribute to our community.",
-  "contact-social": "Almost done!",
-};
-
-/* Stitch slide motivational quotes */
-const QUOTES: Record<string, string> = {
-  "basic-info": "Welcome to the HUGGB family 🙏",
-  "campus-academics": "Academic & Spiritual Excellence",
-  "background-participation": '"Grow in the grace and knowledge of our Lord."',
-  "skills-service": "Serve with heart, lead with faith.",
-  "contact-social": "Welcome to the family. We're glad you're here.",
+  "basic-info": "Start with your identity and personal details.",
+  "campus-academics": "Add your academic and campus information.",
+  "background-participation": "Share your background and church participation.",
+  "skills-service": "Select your ministry interests and talents.",
+  "contact-social": "Finalize your contact information.",
 };
 
 export interface RegistrationForm {
@@ -54,6 +39,8 @@ export interface RegistrationForm {
   ordination: string; ordinationYear: string; diocese: string; bishop: string;
   serviceDepartments: string[]; talents: string[]; talentDescription: string;
   mobile: string; emailOrUsername: string; telegram: string;
+  profilePhotoFile: File | null;
+  profilePhotoPreview: string;
 }
 
 const initialForm: RegistrationForm = {
@@ -64,10 +51,12 @@ const initialForm: RegistrationForm = {
   ordination: "", ordinationYear: "", diocese: "", bishop: "",
   serviceDepartments: [], talents: [], talentDescription: "",
   mobile: "", emailOrUsername: "", telegram: "",
+  profilePhotoFile: null,
+  profilePhotoPreview: "",
 };
 
 const validators: Record<string, (f: RegistrationForm) => boolean> = {
-  "basic-info": (f) => !!(f.fullName && f.christianName && f.gender && f.age),
+  "basic-info": (f) => !!(f.fullName && f.gender && f.age),
   "campus-academics": (f) => !!(f.campus && f.fieldOfStudy),
   "background-participation": (f) => !!(f.region && f.previousParticipation),
   "skills-service": (f) => f.serviceDepartments.length > 0 || f.talents.length > 0,
@@ -79,11 +68,32 @@ export const RegistrationPage = () => {
   const navigate = useNavigate();
   const { stepId } = useParams<{ stepId: string }>();
   const updateProfile = useAuthStore((s) => s.updateProfile);
+  const user = useAuthStore((s) => s.user);
 
   const [form, setForm] = useState<RegistrationForm>({ ...initialForm });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [dir, setDir] = useState<1 | -1>(1);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      fullName: prev.fullName || ((user as { fullName?: string }).fullName ?? ""),
+      christianName: prev.christianName || ((user as { christianName?: string }).christianName ?? ""),
+      mobile: prev.mobile || ((user as { phone?: string }).phone ?? ""),
+      telegram: prev.telegram || ((user as { telegram?: string }).telegram ?? ""),
+      profilePhotoPreview: prev.profilePhotoPreview || ((user as { avatar?: string }).avatar ?? ""),
+      emailOrUsername:
+        prev.emailOrUsername ||
+        ((user as { emailOrUsername?: string; email?: string }).emailOrUsername ??
+          (user as { emailOrUsername?: string; email?: string }).email ??
+          ""),
+    }));
+  }, [user]);
 
   const currentIndex = useMemo(() => {
     const idx = registrationSlides.findIndex((s) => s.id === stepId);
@@ -92,7 +102,7 @@ export const RegistrationPage = () => {
 
   const slide = registrationSlides[currentIndex];
   const SlideComponent = slideMap[slide?.id];
-  const [gradFrom, gradTo] = GRADIENTS[currentIndex] ?? GRADIENTS[0];
+  const [gradFrom, gradTo] = REGISTRATION_GRADIENT;
   const isLast = currentIndex === registrationSlides.length - 1;
 
   const goTo = (idx: number) => {
@@ -134,7 +144,7 @@ export const RegistrationPage = () => {
             <motion.div key={i}
               animate={{ width: i === currentIndex ? 22 : 7, opacity: i <= currentIndex ? 1 : 0.35 }}
               transition={{ duration: 0.3 }}
-              className="h-[7px] rounded-full bg-white" />
+              className="h-1.75 rounded-full bg-white" />
           ))}
         </div>
 
@@ -162,10 +172,10 @@ export const RegistrationPage = () => {
       </div>
 
       {/* ── White sheet ── */}
-      <div className="flex-1 flex flex-col bg-[color:var(--surface)] rounded-t-[2rem] overflow-hidden min-h-0">
+      <div className="flex-1 flex flex-col bg-(--surface) rounded-t-4xl overflow-hidden min-h-0">
 
         {/* Thin progress bar */}
-        <div className="h-[3px] bg-[color:var(--surface-soft)] shrink-0">
+        <div className="h-0.75 bg-(--surface-soft) shrink-0">
           <motion.div className="h-full rounded-full"
             style={{ background: `linear-gradient(90deg, ${gradFrom}, ${gradTo})` }}
             animate={{ width: `${slide.progress}%` }}
@@ -191,21 +201,28 @@ export const RegistrationPage = () => {
 
               {SlideComponent && <SlideComponent form={form} setForm={setForm} />}
 
-              {/* Stitch motivational quote */}
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-                className="mt-6 rounded-2xl px-4 py-3 text-center text-xs font-medium italic"
-                style={{ background: `linear-gradient(135deg, ${gradFrom}18, ${gradTo}18)`, color: gradFrom }}>
-                {QUOTES[slide.id]}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="mt-6 rounded-2xl border border-(--border) bg-(--surface-soft) px-4 py-3"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-(--text-muted)">
+                  Progress Note
+                </p>
+                <p className="mt-1 text-sm text-(--text-secondary)">
+                  Complete this step to continue. Your information is saved when you finish registration.
+                </p>
               </motion.div>
             </motion.div>
           </AnimatePresence>
         </div>
 
         {/* ── Bottom CTA ── */}
-        <div className="shrink-0 px-6 py-5 border-t border-[color:var(--border)] bg-[color:var(--surface)] flex items-center gap-3">
+        <div className="shrink-0 px-6 py-5 border-t border-(--border) bg-(--surface) flex items-center gap-3">
           {currentIndex > 0 && (
             <button type="button" onClick={handleBack}
-              className="h-14 px-5 rounded-2xl border-2 flex items-center gap-1.5 text-sm font-bold transition hover:bg-[color:var(--soft-hover)]"
+              className="h-14 px-5 rounded-2xl border-2 flex items-center gap-1.5 text-sm font-bold transition hover:bg-(--soft-hover)"
               style={{ borderColor: gradFrom, color: gradFrom }}>
               <ChevronLeft size={18} /> Back
             </button>

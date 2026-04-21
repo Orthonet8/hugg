@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "../components/common/Badge";
 import { Card } from "../components/common/Card";
 import { PageHeader } from "../components/common/PageHeader";
+import { useAuthStore } from "../context/useAuthStore";
 import { useI18n } from "../i18n/I18nProvider";
 
 interface FamilyApiData {
@@ -23,6 +24,7 @@ interface FamilyApiData {
 
 export const FamilyPage = () => {
   const { t } = useI18n();
+  const user = useAuthStore((s) => s.user);
   const [families, setFamilies] = useState<FamilyApiData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,7 +32,20 @@ export const FamilyPage = () => {
     const fetchFamilies = async () => {
       try {
         const API_BASE = import.meta.env.VITE_API_BASE || "";
-        const res = await fetch(`${API_BASE}/api/families`);
+        const memberId = (user as { id?: number | string } | null)?.id;
+        const sectionId =
+          (user as { sectionId?: number; section_id?: number } | null)
+            ?.sectionId ??
+          (user as { sectionId?: number; section_id?: number } | null)
+            ?.section_id;
+
+        const url = memberId
+          ? `${API_BASE}/api/families?member_id=${memberId}`
+          : sectionId
+          ? `${API_BASE}/api/families?section_id=${sectionId}`
+          : `${API_BASE}/api/families`;
+
+        const res = await fetch(url);
         const json = await res.json();
         if (res.ok) setFamilies(json.data);
       } catch {
@@ -42,7 +57,7 @@ export const FamilyPage = () => {
     };
 
     fetchFamilies();
-  }, []);
+  }, [user]);
 
   if (loading) {
     return (

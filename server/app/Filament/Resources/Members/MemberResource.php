@@ -48,13 +48,17 @@ class MemberResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    protected static function canManageMembers(): bool
+    protected static function authUser(): ?User
     {
-        $user = auth('internal')->user();
-
-        return $user instanceof User && $user->hasPermissionTo('manage members', 'web');
+        $u = auth('internal')->user();
+        return $u instanceof User ? $u : null;
     }
 
+    public static function canViewAny(): bool   { return static::authUser()?->hasPermissionTo('view members', 'web') ?? false; }
+    public static function canCreate(): bool    { return static::authUser()?->hasPermissionTo('create members', 'web') ?? false; }
+    public static function canEdit($record): bool   { return static::authUser()?->hasPermissionTo('edit members', 'web') ?? false; }
+    public static function canDelete($record): bool { return static::authUser()?->hasPermissionTo('delete members', 'web') ?? false; }
+    public static function canDeleteAny(): bool { return static::authUser()?->hasPermissionTo('delete members', 'web') ?? false; }
     protected static function leaderSectionIds(): array
     {
         $user = auth('internal')->user();
@@ -64,31 +68,6 @@ class MemberResource extends Resource
         }
 
         return $user->ledSections()->pluck('id')->map(fn ($id): int => (int) $id)->all();
-    }
-
-    public static function canViewAny(): bool
-    {
-        return static::canManageMembers();
-    }
-
-    public static function canCreate(): bool
-    {
-        return static::canManageMembers();
-    }
-
-    public static function canEdit($record): bool
-    {
-        return static::canManageMembers();
-    }
-
-    public static function canDelete($record): bool
-    {
-        return static::canManageMembers();
-    }
-
-    public static function canDeleteAny(): bool
-    {
-        return static::canManageMembers();
     }
 
     public static function table(Table $table): Table

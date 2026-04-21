@@ -37,18 +37,17 @@ class PostResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static function canManagePosts(): bool
+    private static function authUser(): ?User
     {
-        $user = auth('internal')->user();
-
-        return $user instanceof User && $user->hasPermissionTo('manage posts', 'web');
+        $u = auth('internal')->user();
+        return $u instanceof User ? $u : null;
     }
 
-    public static function canViewAny(): bool { return static::canManagePosts(); }
-    public static function canCreate(): bool { return static::canManagePosts(); }
-    public static function canEdit($record): bool { return static::canManagePosts(); }
-    public static function canDelete($record): bool { return static::canManagePosts(); }
-    public static function canDeleteAny(): bool { return static::canManagePosts(); }
+    public static function canViewAny(): bool   { return static::authUser()?->hasPermissionTo('view posts', 'web') ?? false; }
+    public static function canCreate(): bool    { return static::authUser()?->hasPermissionTo('create posts', 'web') ?? false; }
+    public static function canEdit($record): bool   { return static::authUser()?->hasPermissionTo('edit posts', 'web') ?? false; }
+    public static function canDelete($record): bool { return static::authUser()?->hasPermissionTo('delete posts', 'web') ?? false; }
+    public static function canDeleteAny(): bool { return static::authUser()?->hasPermissionTo('delete posts', 'web') ?? false; }
 
     public static function form(Schema $schema): Schema
     {

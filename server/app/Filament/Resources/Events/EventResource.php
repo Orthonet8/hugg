@@ -36,18 +36,17 @@ class EventResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
-    protected static function canManageEvents(): bool
+    private static function authUser(): ?User
     {
-        $user = auth('internal')->user();
-
-        return $user instanceof User && $user->hasPermissionTo('manage events', 'web');
+        $u = auth('internal')->user();
+        return $u instanceof User ? $u : null;
     }
 
-    public static function canViewAny(): bool { return static::canManageEvents(); }
-    public static function canCreate(): bool { return static::canManageEvents(); }
-    public static function canEdit($record): bool { return static::canManageEvents(); }
-    public static function canDelete($record): bool { return static::canManageEvents(); }
-    public static function canDeleteAny(): bool { return static::canManageEvents(); }
+    public static function canViewAny(): bool   { return static::authUser()?->hasPermissionTo('view events', 'web') ?? false; }
+    public static function canCreate(): bool    { return static::authUser()?->hasPermissionTo('create events', 'web') ?? false; }
+    public static function canEdit($record): bool   { return static::authUser()?->hasPermissionTo('edit events', 'web') ?? false; }
+    public static function canDelete($record): bool { return static::authUser()?->hasPermissionTo('delete events', 'web') ?? false; }
+    public static function canDeleteAny(): bool { return static::authUser()?->hasPermissionTo('delete events', 'web') ?? false; }
 
     public static function form(Schema $schema): Schema
     {

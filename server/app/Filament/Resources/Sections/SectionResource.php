@@ -39,37 +39,17 @@ class SectionResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static function canManageSections(): bool
+    private static function authUser(): ?User
     {
-        $user = auth('internal')->user();
-
-        return $user instanceof User && $user->hasPermissionTo('manage sections', 'web');
+        $u = auth('internal')->user();
+        return $u instanceof User ? $u : null;
     }
 
-    public static function canViewAny(): bool
-    {
-        return static::canManageSections();
-    }
-
-    public static function canCreate(): bool
-    {
-        return static::canManageSections();
-    }
-
-    public static function canEdit($record): bool
-    {
-        return static::canManageSections();
-    }
-
-    public static function canDelete($record): bool
-    {
-        return static::canManageSections();
-    }
-
-    public static function canDeleteAny(): bool
-    {
-        return static::canManageSections();
-    }
+    public static function canViewAny(): bool   { return static::authUser()?->hasPermissionTo('view sections', 'web') ?? false; }
+    public static function canCreate(): bool    { return static::authUser()?->hasPermissionTo('create sections', 'web') ?? false; }
+    public static function canEdit($record): bool   { return static::authUser()?->hasPermissionTo('edit sections', 'web') ?? false; }
+    public static function canDelete($record): bool { return static::authUser()?->hasPermissionTo('delete sections', 'web') ?? false; }
+    public static function canDeleteAny(): bool { return static::authUser()?->hasPermissionTo('delete sections', 'web') ?? false; }
 
     protected static function localizedOptions(string $column, array $enumOptions): array
     {

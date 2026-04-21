@@ -28,12 +28,17 @@ class FamilyResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static function canManageFamilies(): bool
+    private static function authUser(): ?User
     {
-        $user = auth('internal')->user();
-
-        return $user instanceof User && $user->hasPermissionTo('manage families', 'web');
+        $u = auth('internal')->user();
+        return $u instanceof User ? $u : null;
     }
+
+    public static function canViewAny(): bool   { return static::authUser()?->hasPermissionTo('view families', 'web') ?? false; }
+    public static function canCreate(): bool    { return static::authUser()?->hasPermissionTo('create families', 'web') ?? false; }
+    public static function canEdit($record): bool   { return static::authUser()?->hasPermissionTo('edit families', 'web') ?? false; }
+    public static function canDelete($record): bool { return static::authUser()?->hasPermissionTo('delete families', 'web') ?? false; }
+    public static function canDeleteAny(): bool { return static::authUser()?->hasPermissionTo('delete families', 'web') ?? false; }
 
     protected static function leaderSectionIds(): array
     {
@@ -44,31 +49,6 @@ class FamilyResource extends Resource
         }
 
         return $user->ledSections()->pluck('id')->map(fn ($id): int => (int) $id)->all();
-    }
-
-    public static function canViewAny(): bool
-    {
-        return static::canManageFamilies();
-    }
-
-    public static function canCreate(): bool
-    {
-        return static::canManageFamilies();
-    }
-
-    public static function canEdit($record): bool
-    {
-        return static::canManageFamilies();
-    }
-
-    public static function canDelete($record): bool
-    {
-        return static::canManageFamilies();
-    }
-
-    public static function canDeleteAny(): bool
-    {
-        return static::canManageFamilies();
     }
 
     /* ------------------------------------------------------------------ */

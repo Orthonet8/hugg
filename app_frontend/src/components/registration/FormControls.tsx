@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { useState } from "react";
 import type { InputHTMLAttributes, SelectHTMLAttributes } from "react";
+import type { ReactNode } from "react";
 
 /* ------------------------------------------------------------------ */
 /*  InputField                                                         */
@@ -8,9 +9,10 @@ import type { InputHTMLAttributes, SelectHTMLAttributes } from "react";
 
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  helperText?: string;
 }
 
-export const InputField = ({ label, className, id, ...props }: InputFieldProps) => {
+export const InputField = ({ label, helperText, className, id, ...props }: InputFieldProps) => {
   const [focused, setFocused] = useState(false);
   const inputId = id || `input-${label.replace(/\s+/g, "-").toLowerCase()}`;
 
@@ -20,7 +22,7 @@ export const InputField = ({ label, className, id, ...props }: InputFieldProps) 
         htmlFor={inputId}
         className={clsx(
           "block text-sm font-medium transition-colors duration-200",
-          focused ? "text-[color:var(--primary)]" : "text-[color:var(--text-secondary)]"
+          focused ? "text-(--primary)" : "text-(--text-secondary)"
         )}
       >
         {label}
@@ -31,11 +33,14 @@ export const InputField = ({ label, className, id, ...props }: InputFieldProps) 
         onBlur={() => setFocused(false)}
         className={clsx(
           "app-input w-full rounded-xl px-4 py-3 text-sm transition-all duration-200",
-          "focus:ring-2 focus:ring-[color:var(--ring)] focus:ring-offset-2 focus:ring-offset-[color:var(--surface)]",
-          "focus:border-[color:var(--primary)]"
+          "focus:ring-2 focus:ring-(--ring) focus:ring-offset-2 focus:ring-offset-(--surface)",
+          "focus:border-(--primary)"
         )}
         {...props}
       />
+      {helperText ? (
+        <p className="text-xs text-(--text-muted)">{helperText}</p>
+      ) : null}
     </div>
   );
 };
@@ -46,10 +51,11 @@ export const InputField = ({ label, className, id, ...props }: InputFieldProps) 
 
 interface SelectFieldProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label: string;
+  helperText?: string;
   children: React.ReactNode;
 }
 
-export const SelectField = ({ label, className, id, children, ...props }: SelectFieldProps) => {
+export const SelectField = ({ label, helperText, className, id, children, ...props }: SelectFieldProps) => {
   const [focused, setFocused] = useState(false);
   const selectId = id || `select-${label.replace(/\s+/g, "-").toLowerCase()}`;
 
@@ -59,7 +65,7 @@ export const SelectField = ({ label, className, id, children, ...props }: Select
         htmlFor={selectId}
         className={clsx(
           "block text-sm font-medium transition-colors duration-200",
-          focused ? "text-[color:var(--primary)]" : "text-[color:var(--text-secondary)]"
+          focused ? "text-(--primary)" : "text-(--text-secondary)"
         )}
       >
         {label}
@@ -70,13 +76,37 @@ export const SelectField = ({ label, className, id, children, ...props }: Select
         onBlur={() => setFocused(false)}
         className={clsx(
           "app-input w-full rounded-xl px-4 py-3 text-sm transition-all duration-200",
-          "focus:ring-2 focus:ring-[color:var(--ring)] focus:ring-offset-2 focus:ring-offset-[color:var(--surface)]",
-          "focus:border-[color:var(--primary)]"
+          "focus:ring-2 focus:ring-(--ring) focus:ring-offset-2 focus:ring-offset-(--surface)",
+          "focus:border-(--primary)"
         )}
         {...props}
       >
         {children}
       </select>
+      {helperText ? (
+        <p className="text-xs text-(--text-muted)">{helperText}</p>
+      ) : null}
+    </div>
+  );
+};
+
+interface SectionCardProps {
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  className?: string;
+}
+
+export const SectionCard = ({ title, subtitle, children, className }: SectionCardProps) => {
+  return (
+    <div className={clsx("rounded-2xl border border-(--border) bg-(--surface-soft) p-4 space-y-4", className)}>
+      <div>
+        <h3 className="text-sm font-semibold text-(--text-primary)">{title}</h3>
+        {subtitle ? (
+          <p className="mt-1 text-xs text-(--text-muted)">{subtitle}</p>
+        ) : null}
+      </div>
+      {children}
     </div>
   );
 };
@@ -113,7 +143,7 @@ export const OptionPills = ({ label, value, options, onChange, multi = false, cl
   return (
     <div className={clsx("space-y-2.5", className)}>
       {label && (
-        <label className="block text-sm font-medium text-[color:var(--text-secondary)]">
+        <label className="block text-sm font-medium text-(--text-secondary)">
           {label}
         </label>
       )}
@@ -126,8 +156,8 @@ export const OptionPills = ({ label, value, options, onChange, multi = false, cl
             data-active={isSelected(option)}
             className={clsx(
               "rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200",
-              "data-[active=true]:bg-[color:var(--primary)] data-[active=true]:text-[color:var(--on-primary)] data-[active=true]:border-[color:var(--primary)] data-[active=true]:shadow-md data-[active=true]:scale-105",
-              "data-[active=false]:border-[color:var(--border-strong)] data-[active=false]:text-[color:var(--text-muted)] data-[active=false]:hover:bg-[color:var(--soft-hover)] data-[active=false]:hover:scale-102",
+              "data-[active=true]:bg-(--primary) data-[active=true]:text-(--on-primary) data-[active=true]:border-(--primary) data-[active=true]:shadow-md data-[active=true]:scale-105",
+              "data-[active=false]:border-(--border-strong) data-[active=false]:text-(--text-muted) data-[active=false]:hover:bg-(--soft-hover) data-[active=false]:hover:scale-102",
             )}
           >
             {option}

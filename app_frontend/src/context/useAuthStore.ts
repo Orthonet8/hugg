@@ -136,46 +136,73 @@ export const useAuthStore = create<AuthState>()(
         const state = get();
         if (!state.user || !state.token) return false;
 
-        const payload = {
-          full_name: data.fullName,
-          christian_name: data.christianName,
-          gender: data.gender,
-          age: data.age,
-          campus: data.campus,
-          field_of_study: data.fieldOfStudy,
-          dorm: data.dorm,
-          region: data.region,
-          zone: data.zone,
-          woreda: data.woreda,
-          native_language: data.nativeLanguage,
-          extra_languages: data.extraLanguages,
-          previous_participation: data.previousParticipation,
-          local_church: data.localChurch,
-          ordination: data.ordination,
-          ordination_year: data.ordinationYear,
-          diocese: data.diocese,
-          bishop: data.bishop,
-          service_departments: data.serviceDepartments,
-          talents: data.talents,
-          talent_description: data.talentDescription,
-          mobile: data.mobile,
-          telegram: data.telegram,
+        const formData = new FormData();
+        const appendIfPresent = (key: string, value: string | null | undefined) => {
+          if (value !== undefined && value !== null && value !== "") {
+            formData.append(key, value);
+          }
         };
 
-        const res = await api<{ member: UserProfile }>(
-          `/api/members/${state.user.id}/profile`,
-          payload,
-          state.token,
-          "PATCH",
-        );
-        set({ user: res.member });
+        appendIfPresent("full_name", data.fullName);
+        appendIfPresent("christian_name", data.christianName);
+        appendIfPresent("gender", data.gender);
+        appendIfPresent("age", data.age);
+        appendIfPresent("campus", data.campus);
+        appendIfPresent("field_of_study", data.fieldOfStudy);
+        appendIfPresent("dorm", data.dorm);
+        appendIfPresent("region", data.region);
+        appendIfPresent("zone", data.zone);
+        appendIfPresent("woreda", data.woreda);
+        appendIfPresent("native_language", data.nativeLanguage);
+        appendIfPresent("extra_languages", data.extraLanguages);
+        appendIfPresent("previous_participation", data.previousParticipation);
+        appendIfPresent("local_church", data.localChurch);
+        appendIfPresent("ordination", data.ordination);
+        appendIfPresent("ordination_year", data.ordinationYear);
+        appendIfPresent("diocese", data.diocese);
+        appendIfPresent("bishop", data.bishop);
+        appendIfPresent("talent_description", data.talentDescription);
+        appendIfPresent("mobile", data.mobile);
+        appendIfPresent("telegram", data.telegram);
+
+        data.serviceDepartments.forEach((item) => formData.append("service_departments[]", item));
+        data.talents.forEach((item) => formData.append("talents[]", item));
+
+        if (data.profilePhotoFile) {
+          formData.append("profile_photo", data.profilePhotoFile);
+        }
+
+        const res = await fetch(buildApiUrl(`/api/members/${state.user.id}/profile`), {
+          method: "PATCH",
+          headers: {
+            Accept: "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            Authorization: `Bearer ${state.token}`,
+          },
+          body: formData,
+        });
+
+        const json = await res.json();
+        if (!res.ok) {
+          const payload = json as {
+            message?: string;
+            errors?: Record<string, string[] | undefined>;
+          };
+          const firstFieldErrors = payload.errors
+            ? Object.values(payload.errors).find((messages) => Array.isArray(messages) && messages.length > 0)
+            : undefined;
+          throw new Error(firstFieldErrors?.[0] ?? payload.message ?? "Request failed");
+        }
+
+        const response = json as { member: UserProfile };
+        set({ user: response.member });
         return true;
       },
 
       logout: async () => {
         const token = get().token;
         try {
-          await apiGet("/api/auth/logout", token ?? undefined);
+          await api("/api/auth/logout", {}, token ?? undefined, "POST");
         } catch {
           // ignore logout errors
         }

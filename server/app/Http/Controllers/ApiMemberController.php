@@ -70,9 +70,6 @@ class ApiMemberController extends Controller
         if ($request->hasFile('profile_photo')) {
             $path = $request->file('profile_photo')->store('avatars/members', 'public');
             $validated['profile_photo'] = $path;
-        } elseif (isset($validated['profile_photo']) && filter_var($validated['profile_photo'], FILTER_VALIDATE_URL)) {
-            // If a URL is passed, store it as-is (external avatar)
-            $validated['profile_photo'] = $validated['profile_photo'];
         }
 
         $member = Member::create([
@@ -358,6 +355,7 @@ class ApiMemberController extends Controller
         }
 
         $validated = Validator::make($input, [
+            "full_name"           => "nullable|string|max:255",
             "christian_name"       => "nullable|string|max:255",
             "gender"               => "nullable|in:ወንድ,ሴት",
             "age"                  => "nullable|string|max:10",
@@ -380,7 +378,12 @@ class ApiMemberController extends Controller
             "talent_description"   => "nullable|string|max:1000",
             "mobile"               => "nullable|string|max:50|unique:members,mobile,{$id}",
             "telegram"             => "nullable|string|max:255|unique:members,telegram,{$id}",
+            "profile_photo"        => "nullable|image|max:2048",
         ])->validate();
+
+        if ($request->hasFile('profile_photo')) {
+            $validated['profile_photo'] = $request->file('profile_photo')->store('avatars/members', 'public');
+        }
 
         $member->update($validated);
 
@@ -526,12 +529,56 @@ class ApiMemberController extends Controller
     /*  GET /api/families */
     /* ------------------------------------------------------------------ */
 
-    public function familiesIndex(): JsonResponse
+    public function familiesIndex(Request $request): JsonResponse
     {
-        $families = Family::with([])->orderBy('family_name')->get();
+        $families = Family::query()->orderBy('family_name')->get();
+
+        $memberId = $request->query('member_id');
+
+        if ($memberId !== null && $memberId !== '') {
+            $memberIdInt = (int) $memberId;
+
+            $families = $families->filter(function (Family $family) use ($memberIdInt): bool {
+                $memberIds = collect($family->members_data ?? [])
+                    ->pluck('member_id')
+                    ->filter()
+                    ->map(fn ($id): int => (int) $id)
+                    ->all();
+
+                return in_array($memberIdInt, $memberIds, true);
+            })->values();
+        }
+
+        $sectionId = $request->query('section_id');
+
+        if (($memberId === null || $memberId === '') && $sectionId !== null && $sectionId !== '') {
+            $allowedMemberIds = Member::query()
+                ->where('section_id', (int) $sectionId)
+                ->pluck('id')
+                ->map(fn ($id): int => (int) $id)
+                ->all();
+
+            $allowedMemberLookup = array_flip($allowedMemberIds);
+
+            $families = $families->filter(function (Family $family) use ($allowedMemberLookup): bool {
+                $memberIds = collect($family->members_data ?? [])
+                    ->pluck('member_id')
+                    ->filter()
+                    ->map(fn ($id): int => (int) $id)
+                    ->all();
+
+                foreach ($memberIds as $memberId) {
+                    if (isset($allowedMemberLookup[$memberId])) {
+                        return true;
+                    }
+                }
+
+                return false;
+            })->values();
+        }
 
         return response()->json([
-            'data' => $families->map(fn ($f) => $this->formatFamilyResponse($f)),
+            'data' => $families->map(fn (Family $f) => $this->formatFamilyResponse($f)),
         ]);
     }
 

@@ -35,37 +35,17 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-    protected static function canManageUsers(): bool
+    private static function authUser(): ?User
     {
-        $user = auth('internal')->user();
-
-        return $user instanceof User && $user->hasPermissionTo('manage users', 'web');
+        $u = auth('internal')->user();
+        return $u instanceof User ? $u : null;
     }
 
-    public static function canViewAny(): bool
-    {
-        return static::canManageUsers();
-    }
-
-    public static function canCreate(): bool
-    {
-        return static::canManageUsers();
-    }
-
-    public static function canEdit($record): bool
-    {
-        return static::canManageUsers();
-    }
-
-    public static function canDelete($record): bool
-    {
-        return static::canManageUsers();
-    }
-
-    public static function canDeleteAny(): bool
-    {
-        return static::canManageUsers();
-    }
+    public static function canViewAny(): bool   { return static::authUser()?->hasPermissionTo('view users', 'web') ?? false; }
+    public static function canCreate(): bool    { return static::authUser()?->hasPermissionTo('create users', 'web') ?? false; }
+    public static function canEdit($record): bool   { return static::authUser()?->hasPermissionTo('edit users', 'web') ?? false; }
+    public static function canDelete($record): bool { return static::authUser()?->hasPermissionTo('delete users', 'web') ?? false; }
+    public static function canDeleteAny(): bool { return static::authUser()?->hasPermissionTo('delete users', 'web') ?? false; }
 
     public static function form(Schema $schema): Schema
     {
