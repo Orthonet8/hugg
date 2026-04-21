@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Members\Pages;
 
 use App\Filament\Resources\Members\MemberResource;
-use App\Models\Member;
 use App\Models\Section;
+use App\Models\User;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Component;
@@ -28,19 +28,21 @@ class ManageMembers extends ManageRecords
 
     protected function getTableQuery(): Builder
     {
-        return Member::with('section');
+        return $this->getScopedMembersQuery();
     }
 
     public function getTabs(): array
     {
+        $scopedQuery = $this->getScopedMembersQuery();
+
         $tabs = [
             'all' => Tab::make('All')
                 ->icon('heroicon-o-users')
-                ->badge((string) Member::query()->count())
+                ->badge((string) (clone $scopedQuery)->count())
                 ->badgeColor('primary'),
         ];
 
-        $batches = Member::query()
+        $batches = (clone $scopedQuery)
             ->whereNotNull('batch')
             ->where('batch', '!=', '')
             ->distinct()
@@ -51,20 +53,25 @@ class ManageMembers extends ManageRecords
             $tabs['batch_'.$batch] = Tab::make('Batch: '.$batch)
                 ->icon('heroicon-o-calendar-days')
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('batch', $batch))
-                ->badge((string) Member::query()->where('batch', $batch)->count())
+                ->badge((string) (clone $scopedQuery)->where('batch', $batch)->count())
                 ->badgeColor('info');
         }
 
-        $sections = Section::query()
-            ->orderBy('name_am')
-            ->get();
+        $leaderSectionIds = $this->getLeaderSectionIds();
+        $sectionsQuery = Section::query()->orderBy('name_am');
+
+        if (! empty($leaderSectionIds)) {
+            $sectionsQuery->whereIn('id', $leaderSectionIds);
+        }
+
+        $sections = $sectionsQuery->get();
 
         foreach ($sections as $section) {
             $sectionId = $section->id;
             $tabs['section_'.$sectionId] = Tab::make('Section: '.$section->display_name)
                 ->icon('heroicon-o-squares-2x2')
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('section_id', $sectionId))
-                ->badge((string) Member::query()->where('section_id', $sectionId)->count())
+                ->badge((string) (clone $scopedQuery)->where('section_id', $sectionId)->count())
                 ->badgeColor('success');
         }
 
@@ -79,5 +86,24 @@ class ManageMembers extends ManageRecords
             ->contained(true)
             ->tabs($this->getCachedTabs())
             ->hidden(empty($this->getCachedTabs()));
+    }
+
+    protected function getScopedMembersQuery(): Builder
+    {
+        return MemberResource::getEloquentQuery()->with('section');
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    protected function getLeaderSectionIds(): array
+    {
+        $user = auth('internal')->user();
+
+        if (! $user instanceof User) {
+            return [];
+        }
+
+        return $user->ledSections()->pluck('id')->map(fn ($id): int => (int) $id)->all();
     }
 }

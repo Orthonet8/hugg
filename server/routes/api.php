@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ApiMemberController;
+use App\Http\Controllers\ApiEventController;
+use App\Http\Controllers\ApiPostController;
 use Illuminate\Support\Facades\Route;
 
 /* ------------------------------------------------------------------ */
@@ -17,6 +19,8 @@ Route::get('/auth/google/callback', [ApiMemberController::class, 'googleCallback
 /* ------------------------------------------------------------------ */
 Route::get('/families', [ApiMemberController::class, 'familiesIndex']);
 Route::get('/families/{id}', [ApiMemberController::class, 'familiesShow']);
+Route::get('/events', [ApiEventController::class, 'index']);
+Route::get('/posts', [ApiPostController::class, 'index']);
 
 /* ------------------------------------------------------------------ */
 /*  Protected routes — require Bearer token */

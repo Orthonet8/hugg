@@ -5,6 +5,7 @@ import { PageHeader } from "../components/common/PageHeader";
 import { FilterBar } from "../components/news/FilterBar";
 import { PostCard } from "../components/news/PostCard";
 import { useAppStore } from "../context/useAppStore";
+import { useAuthStore } from "../context/useAuthStore";
 import { useFilteredPosts } from "../hooks/useFilteredPosts";
 import { useI18n } from "../i18n/I18nProvider";
 import type { Post } from "../types";
@@ -14,14 +15,19 @@ export const NewsPage = () => {
   const [activeDepartment, setActiveDepartment] = useState("ሁሉም");
   const [activeTab, setActiveTab] = useState<"all" | "saved">("all");
   const [posts, setPosts] = useState<Post[]>([]);
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     const API_BASE = import.meta.env.VITE_API_BASE || "";
-    fetch(`${API_BASE}/api/posts`)
+    const sectionId = (user as { sectionId?: number } | null)?.sectionId;
+    const url = sectionId
+      ? `${API_BASE}/api/posts?section_id=${sectionId}`
+      : `${API_BASE}/api/posts`;
+    fetch(url)
       .then((res) => res.json())
       .then((data: Post[]) => setPosts(data))
       .catch(() => setPosts([]));
-  }, []);
+  }, [user]);
 
   const likedPosts = useAppStore((state) => state.likedPosts);
   const savedPosts = useAppStore((state) => state.savedPosts);

@@ -35,6 +35,17 @@ class FamilyResource extends Resource
         return $user instanceof User && $user->hasPermissionTo('manage families', 'web');
     }
 
+    protected static function leaderSectionIds(): array
+    {
+        $user = auth('internal')->user();
+
+        if (! $user instanceof User) {
+            return [];
+        }
+
+        return $user->ledSections()->pluck('id')->map(fn ($id): int => (int) $id)->all();
+    }
+
     public static function canViewAny(): bool
     {
         return static::canManageFamilies();
@@ -187,5 +198,31 @@ SVG;
         return [
             'index' => ManageFamilies::route('/'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $leaderSectionIds = static::leaderSectionIds();
+
+        if (empty($leaderSectionIds)) {
+            return $query;
+        }
+
+        $memberIds = Member::query()
+            ->whereIn('section_id', $leaderSectionIds)
+            ->pluck('id')
+            ->map(fn ($id): int => (int) $id)
+            ->all();
+
+        if (empty($memberIds)) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->where(function (Builder $familyQuery) use ($memberIds): void {
+            foreach ($memberIds as $memberId) {
+                $familyQuery->orWhereJsonContains('members_data', [['member_id' => $memberId]]);
+            }
+        });
     }
 }

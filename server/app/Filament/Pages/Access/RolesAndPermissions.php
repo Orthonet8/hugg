@@ -3,6 +3,9 @@
 namespace App\Filament\Pages\Access;
 
 use App\Models\User;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -68,7 +71,69 @@ class RolesAndPermissions extends Page implements HasForms
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            Action::make('createRole')
+                ->label('Create Role')
+                ->icon(Heroicon::OutlinedPlus)
+                ->color('primary')
+                ->modalHeading('Create Role')
+                ->form([
+                    TextInput::make('name')
+                        ->label('Role Name')
+                        ->required()
+                        ->maxLength(255),
+                    Select::make('guard_name')
+                        ->label('Guard')
+                        ->options($this->getGuardOptions())
+                        ->required()
+                        ->default('web')
+                        ->searchable(),
+                ])
+                ->action(function (array $data): void {
+                    $name = trim((string) ($data['name'] ?? ''));
+                    $guardName = (string) ($data['guard_name'] ?? 'web');
+
+                    if ($name === '') {
+                        Notification::make()
+                            ->title('Role name is required')
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
+                    $existingRole = Role::query()
+                        ->where('name', $name)
+                        ->where('guard_name', $guardName)
+                        ->first();
+
+                    if ($existingRole) {
+                        Notification::make()
+                            ->title('Role already exists')
+                            ->body("{$name} ({$guardName}) already exists.")
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
+                    $role = Role::query()->create([
+                        'name' => $name,
+                        'guard_name' => $guardName,
+                    ]);
+
+                    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+                    $this->rebuildFormState();
+                    $this->activeRoleId = (int) $role->id;
+
+                    Notification::make()
+                        ->title('Role created')
+                        ->body("{$role->name} role has been created.")
+                        ->success()
+                        ->send();
+                }),
+        ];
     }
 
     public function form(Schema $schema): Schema
@@ -394,5 +459,28 @@ class RolesAndPermissions extends Page implements HasForms
     private function isAdminRole(Role $role): bool
     {
         return mb_strtolower($role->name) === 'admin';
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getGuardOptions(): array
+    {
+        $guards = Role::query()
+            ->pluck('guard_name')
+            ->merge(Permission::query()->pluck('guard_name'))
+            ->map(fn ($guardName): string => (string) $guardName)
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        if ($guards->isEmpty()) {
+            $guards = collect(['web']);
+        }
+
+        return $guards
+            ->mapWithKeys(fn (string $guardName): array => [$guardName => $guardName])
+            ->all();
     }
 }

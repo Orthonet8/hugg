@@ -55,6 +55,17 @@ class MemberResource extends Resource
         return $user instanceof User && $user->hasPermissionTo('manage members', 'web');
     }
 
+    protected static function leaderSectionIds(): array
+    {
+        $user = auth('internal')->user();
+
+        if (! $user instanceof User) {
+            return [];
+        }
+
+        return $user->ledSections()->pluck('id')->map(fn ($id): int => (int) $id)->all();
+    }
+
     public static function canViewAny(): bool
     {
         return static::canManageMembers();
@@ -82,6 +93,8 @@ class MemberResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $leaderSectionIds = static::leaderSectionIds();
+
         return $table
             ->columns([
                 ImageColumn::make('profile_photo')
@@ -167,11 +180,18 @@ HTML;
                         ->toArray()),
                 SelectFilter::make('section_id')
                     ->label('Section')
-                    ->options(fn (): array => Section::query()
-                        ->orderBy('name_am')
-                        ->get()
-                        ->mapWithKeys(fn (Section $section): array => [$section->id => $section->display_name])
-                        ->toArray()),
+                    ->options(function () use ($leaderSectionIds): array {
+                        $query = Section::query()->orderBy('name_am');
+
+                        if (! empty($leaderSectionIds)) {
+                            $query->whereIn('id', $leaderSectionIds);
+                        }
+
+                        return $query
+                            ->get()
+                            ->mapWithKeys(fn (Section $section): array => [$section->id => $section->display_name])
+                            ->toArray();
+                    }),
             ])
             ->recordActions([
                 ActionGroup::make([
@@ -302,6 +322,8 @@ HTML;
 
     public static function form(Schema $schema): Schema
     {
+        $leaderSectionIds = static::leaderSectionIds();
+
         return $schema
             ->components([
                 Tabs::make('Member Details')
@@ -389,7 +411,15 @@ HTML;
                                 Select::make('section_id')
                                     ->label('Section')
                                     ->relationship('section', 'name_am')
-                                    ->options(Section::query()->pluck('name_am', 'id'))
+                                    ->options(function () use ($leaderSectionIds): array {
+                                        $query = Section::query();
+
+                                        if (! empty($leaderSectionIds)) {
+                                            $query->whereIn('id', $leaderSectionIds);
+                                        }
+
+                                        return $query->pluck('name_am', 'id')->toArray();
+                                    })
                                     ->nullable()
                                     ->preload()
                                     ->searchable(),
@@ -406,5 +436,17 @@ HTML;
         return [
             'index' => ManageMembers::route('/'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $leaderSectionIds = static::leaderSectionIds();
+
+        if (! empty($leaderSectionIds)) {
+            $query->whereIn('section_id', $leaderSectionIds);
+        }
+
+        return $query;
     }
 }
