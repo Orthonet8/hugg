@@ -1,18 +1,27 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Card } from "../components/common/Card";
 import { PageHeader } from "../components/common/PageHeader";
 import { FilterBar } from "../components/news/FilterBar";
 import { PostCard } from "../components/news/PostCard";
 import { useAppStore } from "../context/useAppStore";
-import { posts } from "../data";
 import { useFilteredPosts } from "../hooks/useFilteredPosts";
 import { useI18n } from "../i18n/I18nProvider";
+import type { Post } from "../types";
 
 export const NewsPage = () => {
   const { t } = useI18n();
   const [activeDepartment, setActiveDepartment] = useState("ሁሉም");
   const [activeTab, setActiveTab] = useState<"all" | "saved">("all");
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    const API_BASE = import.meta.env.VITE_API_BASE || "";
+    fetch(`${API_BASE}/api/posts`)
+      .then((res) => res.json())
+      .then((data: Post[]) => setPosts(data))
+      .catch(() => setPosts([]));
+  }, []);
 
   const likedPosts = useAppStore((state) => state.likedPosts);
   const savedPosts = useAppStore((state) => state.savedPosts);

@@ -9,13 +9,12 @@ import {
   subMonths,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { EventCard } from "../components/calendar/EventCard";
 import { EventModal } from "../components/calendar/EventModal";
 import { Card } from "../components/common/Card";
 import { PageHeader } from "../components/common/PageHeader";
 import { useAppStore } from "../context/useAppStore";
-import { events } from "../data";
 import type { EventItem } from "../types";
 import { buildMonthGrid, toIsoDate } from "../utils/calendar";
 import { departmentStyles } from "../utils/theme";
@@ -32,6 +31,15 @@ export const CalendarPage = () => {
   const [currentMonth, setCurrentMonth] = useState(() =>
     startOfMonth(parseISO(selectedDate)),
   );
+  const [events, setEvents] = useState<EventItem[]>([]);
+
+  useEffect(() => {
+    const API_BASE = import.meta.env.VITE_API_BASE || "";
+    fetch(`${API_BASE}/api/events`)
+      .then((res) => res.json())
+      .then((data: EventItem[]) => setEvents(data))
+      .catch(() => setEvents([]));
+  }, []);
 
   const monthDays = useMemo(() => buildMonthGrid(currentMonth), [currentMonth]);
 
@@ -44,7 +52,7 @@ export const CalendarPage = () => {
     });
 
     return bucket;
-  }, []);
+  }, [events]);
 
   const selectedDateEvents = eventsByDate.get(selectedDate) ?? [];
 

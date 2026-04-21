@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, LogOut } from "lucide-react";
 import { registrationSlides } from "../data/registrationSlides";
 import { SlideBasicInfo } from "../components/registration/SlideBasicInfo";
 import { SlideCampusAcademics } from "../components/registration/SlideCampusAcademics";
@@ -19,14 +19,32 @@ const slideMap: Record<string, React.ComponentType<{ form: RegistrationForm; set
   "contact-social": SlideContactSocial,
 };
 
-/* Slide accent colors — each step gets its own identity */
-const SLIDE_ACCENTS = [
-  { from: "#5f0113", to: "#9b1a2f" },   // 1 — deep crimson
-  { from: "#1d4ed8", to: "#3b82f6" },   // 2 — blue
-  { from: "#047857", to: "#10b981" },   // 3 — green
-  { from: "#7c3aed", to: "#a78bfa" },   // 4 — purple
-  { from: "#b45309", to: "#f59e0b" },   // 5 — gold
+/* Each slide gets its own gradient — matches Stitch color identity */
+const GRADIENTS = [
+  ["#5f0113", "#9b1a2f"],  // 1 crimson
+  ["#1e3a8a", "#2563eb"],  // 2 blue
+  ["#064e3b", "#059669"],  // 3 green
+  ["#4c1d95", "#7c3aed"],  // 4 purple
+  ["#92400e", "#d97706"],  // 5 amber/gold
 ];
+
+/* Stitch slide subtitles */
+const SUBTITLES: Record<string, string> = {
+  "basic-info": "Tell us about yourself",
+  "campus-academics": "Tell us about your university life.",
+  "background-participation": "Please provide details about your local origins and church history.",
+  "skills-service": "Help us understand how you'd like to contribute to our community.",
+  "contact-social": "Almost done!",
+};
+
+/* Stitch slide motivational quotes */
+const QUOTES: Record<string, string> = {
+  "basic-info": "Welcome to the HUGGB family 🙏",
+  "campus-academics": "Academic & Spiritual Excellence",
+  "background-participation": '"Grow in the grace and knowledge of our Lord."',
+  "skills-service": "Serve with heart, lead with faith.",
+  "contact-social": "Welcome to the family. We're glad you're here.",
+};
 
 export interface RegistrationForm {
   fullName: string; christianName: string; gender: string; age: string;
@@ -56,17 +74,6 @@ const validators: Record<string, (f: RegistrationForm) => boolean> = {
   "contact-social": () => true,
 };
 
-const slideTitleKeys: Record<string, string> = {
-  "basic-info": "reg.step1Title", "campus-academics": "reg.step2Title",
-  "background-participation": "reg.step3Title", "skills-service": "reg.step4Title",
-  "contact-social": "reg.step5Title",
-};
-const slideSubtitleKeys: Record<string, string> = {
-  "basic-info": "reg.step1Subtitle", "campus-academics": "reg.step2Subtitle",
-  "background-participation": "reg.step3Subtitle", "skills-service": "reg.step4Subtitle",
-  "contact-social": "reg.step5Subtitle",
-};
-
 export const RegistrationPage = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -76,16 +83,16 @@ export const RegistrationPage = () => {
   const [form, setForm] = useState<RegistrationForm>({ ...initialForm });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [direction, setDirection] = useState<1 | -1>(1);
+  const [dir, setDir] = useState<1 | -1>(1);
 
   const currentIndex = useMemo(() => {
     const idx = registrationSlides.findIndex((s) => s.id === stepId);
     return idx >= 0 ? idx : 0;
   }, [stepId]);
 
-  const currentSlide = registrationSlides[currentIndex];
-  const SlideComponent = slideMap[currentSlide?.id];
-  const accent = SLIDE_ACCENTS[currentIndex] ?? SLIDE_ACCENTS[0];
+  const slide = registrationSlides[currentIndex];
+  const SlideComponent = slideMap[slide?.id];
+  const [gradFrom, gradTo] = GRADIENTS[currentIndex] ?? GRADIENTS[0];
   const isLast = currentIndex === registrationSlides.length - 1;
 
   const goTo = (idx: number) => {
@@ -94,7 +101,7 @@ export const RegistrationPage = () => {
   };
 
   const handleNext = async () => {
-    if (!validators[currentSlide?.id]?.(form)) { setError(t("reg.validationError")); return; }
+    if (!validators[slide?.id]?.(form)) { setError(t("reg.validationError")); return; }
     setError("");
     if (isLast) {
       setSubmitting(true);
@@ -102,74 +109,77 @@ export const RegistrationPage = () => {
       catch { setError("Failed to save. Please try again."); setSubmitting(false); }
       return;
     }
-    setDirection(1);
-    goTo(currentIndex + 1);
+    setDir(1); goTo(currentIndex + 1);
   };
 
   const handleBack = () => {
-    setDirection(-1);
+    setDir(-1);
     if (currentIndex === 0) navigate("/news");
     else goTo(currentIndex - 1);
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ background: `linear-gradient(160deg, ${accent.from} 0%, ${accent.to} 100%)` }}>
+    <div className="fixed inset-0 flex flex-col" style={{ background: `linear-gradient(160deg, ${gradFrom} 0%, ${gradTo} 100%)` }}>
+
       {/* ── Top bar ── */}
-      <div className="flex items-center justify-between px-5 pt-safe pt-4 pb-2 z-10">
+      <div className="flex items-center justify-between px-5 pt-12 pb-3">
         <button type="button" onClick={handleBack}
-          className="flex items-center justify-center h-10 w-10 rounded-full bg-white/20 text-white backdrop-blur-sm transition hover:bg-white/30">
+          className="h-9 w-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition">
           <ChevronLeft size={20} />
         </button>
 
-        {/* Step dots */}
+        {/* Dot indicators */}
         <div className="flex items-center gap-1.5">
-          {registrationSlides.map((_, idx) => (
-            <motion.div key={idx} animate={{ width: idx === currentIndex ? 24 : 8, opacity: idx <= currentIndex ? 1 : 0.4 }}
-              className="h-2 rounded-full bg-white" transition={{ duration: 0.3 }} />
+          {registrationSlides.map((_, i) => (
+            <motion.div key={i}
+              animate={{ width: i === currentIndex ? 22 : 7, opacity: i <= currentIndex ? 1 : 0.35 }}
+              transition={{ duration: 0.3 }}
+              className="h-[7px] rounded-full bg-white" />
           ))}
         </div>
 
         <button type="button" onClick={() => navigate("/news")}
-          className="text-xs font-semibold text-white/70 hover:text-white transition px-2 py-1">
-          Skip
+          className="flex items-center gap-1 text-xs font-semibold text-white/70 hover:text-white transition">
+          <LogOut size={14} /> Exit
         </button>
       </div>
 
-      {/* ── Hero header ── */}
-      <div className="px-6 pt-4 pb-6 text-white">
-        <motion.p key={`step-${currentIndex}`} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-          className="text-xs font-bold uppercase tracking-widest text-white/60 mb-1">
-          Step {currentSlide.step} of {registrationSlides.length}
+      {/* ── Gradient header ── */}
+      <div className="px-6 pt-3 pb-7 text-white">
+        <motion.p key={`step-${currentIndex}`} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+          className="text-[11px] font-bold uppercase tracking-widest text-white/55 mb-1">
+          Step {slide.step} of {registrationSlides.length} · {slide.progress}% complete
         </motion.p>
-        <motion.h1 key={`title-${currentSlide.id}`} initial={{ opacity: 0, x: direction * 30 }} animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35 }}
-          className="app-heading text-2xl font-bold leading-snug">
-          {t(slideTitleKeys[currentSlide.id] ?? currentSlide.title)}
+        <motion.h1 key={`h-${slide.id}`} initial={{ opacity: 0, x: dir * 24 }} animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.32 }}
+          className="app-heading text-[1.6rem] font-bold leading-tight">
+          {slide.title}
         </motion.h1>
-        <motion.p key={`sub-${currentSlide.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
-          className="mt-1 text-sm text-white/70">
-          {t(slideSubtitleKeys[currentSlide.id] ?? currentSlide.subtitle)}
+        <motion.p key={`s-${slide.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
+          className="mt-1 text-sm text-white/65">
+          {SUBTITLES[slide.id]}
         </motion.p>
       </div>
 
-      {/* ── White sheet (slides up) ── */}
-      <div className="flex-1 flex flex-col bg-[color:var(--surface)] rounded-t-[2rem] overflow-hidden">
-        {/* Progress bar at top of sheet */}
-        <div className="h-1 w-full bg-[color:var(--surface-soft)]">
+      {/* ── White sheet ── */}
+      <div className="flex-1 flex flex-col bg-[color:var(--surface)] rounded-t-[2rem] overflow-hidden min-h-0">
+
+        {/* Thin progress bar */}
+        <div className="h-[3px] bg-[color:var(--surface-soft)] shrink-0">
           <motion.div className="h-full rounded-full"
-            style={{ background: `linear-gradient(90deg, ${accent.from}, ${accent.to})` }}
-            animate={{ width: `${currentSlide.progress}%` }}
+            style={{ background: `linear-gradient(90deg, ${gradFrom}, ${gradTo})` }}
+            animate={{ width: `${slide.progress}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }} />
         </div>
 
-        {/* Scrollable form content */}
-        <div className="flex-1 overflow-y-auto">
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div key={currentSlide.id} custom={direction}
-              initial={{ x: direction * 60, opacity: 0 }}
+        {/* Scrollable form */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          <AnimatePresence mode="wait" custom={dir}>
+            <motion.div key={slide.id}
+              initial={{ x: dir * 50, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: direction * -60, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              exit={{ x: dir * -50, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 340, damping: 34 }}
               className="px-6 pt-6 pb-4">
 
               {error && (
@@ -179,25 +189,35 @@ export const RegistrationPage = () => {
                 </motion.div>
               )}
 
-              {SlideComponent
-                ? <SlideComponent form={form} setForm={setForm} />
-                : <p className="text-center text-sm text-[color:var(--text-muted)] py-10">Slide not found.</p>}
+              {SlideComponent && <SlideComponent form={form} setForm={setForm} />}
+
+              {/* Stitch motivational quote */}
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+                className="mt-6 rounded-2xl px-4 py-3 text-center text-xs font-medium italic"
+                style={{ background: `linear-gradient(135deg, ${gradFrom}18, ${gradTo}18)`, color: gradFrom }}>
+                {QUOTES[slide.id]}
+              </motion.div>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* ── Bottom action bar ── */}
-        <div className="px-6 py-5 border-t border-[color:var(--border)] bg-[color:var(--surface)]">
+        {/* ── Bottom CTA ── */}
+        <div className="shrink-0 px-6 py-5 border-t border-[color:var(--border)] bg-[color:var(--surface)] flex items-center gap-3">
+          {currentIndex > 0 && (
+            <button type="button" onClick={handleBack}
+              className="h-14 px-5 rounded-2xl border-2 flex items-center gap-1.5 text-sm font-bold transition hover:bg-[color:var(--soft-hover)]"
+              style={{ borderColor: gradFrom, color: gradFrom }}>
+              <ChevronLeft size={18} /> Back
+            </button>
+          )}
           <button type="button" onClick={handleNext} disabled={submitting}
-            className="w-full h-14 rounded-2xl flex items-center justify-center gap-2 text-base font-bold text-white transition active:scale-95 disabled:opacity-60"
-            style={{ background: `linear-gradient(135deg, ${accent.from}, ${accent.to})`, boxShadow: `0 4px 20px ${accent.from}55` }}>
-            {submitting ? (
-              <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-            ) : isLast ? (
-              <><Check size={20} /> Complete Registration</>
-            ) : (
-              <>{t("common.next")} <ChevronRight size={20} /></>
-            )}
+            className="flex-1 h-14 rounded-2xl flex items-center justify-center gap-2 text-base font-bold text-white transition active:scale-[0.98] disabled:opacity-60"
+            style={{ background: `linear-gradient(135deg, ${gradFrom}, ${gradTo})`, boxShadow: `0 4px 18px ${gradFrom}44` }}>
+            {submitting
+              ? <span className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+              : isLast
+                ? <><Check size={20} /> Complete Registration</>
+                : <>Continue <ChevronRight size={20} /></>}
           </button>
         </div>
       </div>
