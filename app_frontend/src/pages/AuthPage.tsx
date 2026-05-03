@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2, UserPlus, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button } from "../components/common/Button";
 import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
 import { ThemeToggle } from "../components/common/ThemeToggle";
@@ -205,10 +205,28 @@ function LoginForm({ onLogin, onForgotPassword, onSwitchToSignup }: {
         {t("auth.continueWithGoogle")}
       </button>
 
-      <button type="button" onClick={onSwitchToSignup}
-        className="mt-3 w-full rounded-2xl border-2 border-dashed border-[color:var(--border-strong)] bg-[color:var(--surface-soft)] py-3 text-sm font-semibold text-[color:var(--primary)] hover:border-[color:var(--primary)] hover:bg-[color:var(--soft-hover)] flex items-center justify-center gap-2 transition">
-        <UserPlus size={16} />
-        {t("auth.signUp")}
+      <button
+        type="button"
+        onClick={onSwitchToSignup}
+        className="signup-entry-btn mt-3 w-full text-left"
+      >
+        <div className="flex items-start gap-3">
+          <div className="signup-entry-icon">
+            <UserPlus size={18} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm font-semibold text-[color:var(--primary)]">{t("auth.signUp")}</span>
+              <span className="signup-entry-badge">
+                <Sparkles size={12} />
+                New member
+              </span>
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-[color:var(--text-muted)]">
+              Create your account, then continue into the full church and campus profile setup.
+            </p>
+          </div>
+        </div>
       </button>
     </div>
   );

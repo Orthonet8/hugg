@@ -21,7 +21,7 @@ export const InputField = ({ label, helperText, className, id, ...props }: Input
       <label
         htmlFor={inputId}
         className={clsx(
-          "block text-sm font-medium transition-colors duration-200",
+          "block text-sm font-semibold transition-colors duration-200",
           focused ? "text-(--primary)" : "text-(--text-secondary)"
         )}
       >
@@ -32,7 +32,7 @@ export const InputField = ({ label, helperText, className, id, ...props }: Input
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         className={clsx(
-          "app-input w-full rounded-xl px-4 py-3 text-sm transition-all duration-200",
+          "app-input w-full rounded-[1rem] px-4 py-3.5 text-sm transition-all duration-200",
           "focus:ring-2 focus:ring-(--ring) focus:ring-offset-2 focus:ring-offset-(--surface)",
           "focus:border-(--primary)"
         )}
@@ -64,7 +64,7 @@ export const SelectField = ({ label, helperText, className, id, children, ...pro
       <label
         htmlFor={selectId}
         className={clsx(
-          "block text-sm font-medium transition-colors duration-200",
+          "block text-sm font-semibold transition-colors duration-200",
           focused ? "text-(--primary)" : "text-(--text-secondary)"
         )}
       >
@@ -75,7 +75,7 @@ export const SelectField = ({ label, helperText, className, id, children, ...pro
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         className={clsx(
-          "app-input w-full rounded-xl px-4 py-3 text-sm transition-all duration-200",
+          "app-input w-full rounded-[1rem] px-4 py-3.5 text-sm transition-all duration-200",
           "focus:ring-2 focus:ring-(--ring) focus:ring-offset-2 focus:ring-offset-(--surface)",
           "focus:border-(--primary)"
         )}
@@ -99,11 +99,11 @@ interface SectionCardProps {
 
 export const SectionCard = ({ title, subtitle, children, className }: SectionCardProps) => {
   return (
-    <div className={clsx("rounded-2xl border border-(--border) bg-(--surface-soft) p-4 space-y-4", className)}>
+    <div className={clsx("rounded-[1.5rem] border border-(--border) bg-(--surface-soft) p-4 shadow-[0_14px_30px_rgba(95,1,19,0.05)] space-y-4", className)}>
       <div>
-        <h3 className="text-sm font-semibold text-(--text-primary)">{title}</h3>
+        <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-(--text-primary)">{title}</h3>
         {subtitle ? (
-          <p className="mt-1 text-xs text-(--text-muted)">{subtitle}</p>
+          <p className="mt-1 text-sm leading-relaxed text-(--text-muted)">{subtitle}</p>
         ) : null}
       </div>
       {children}
@@ -143,7 +143,7 @@ export const OptionPills = ({ label, value, options, onChange, multi = false, cl
   return (
     <div className={clsx("space-y-2.5", className)}>
       {label && (
-        <label className="block text-sm font-medium text-(--text-secondary)">
+        <label className="block text-sm font-semibold text-(--text-secondary)">
           {label}
         </label>
       )}
@@ -155,9 +155,9 @@ export const OptionPills = ({ label, value, options, onChange, multi = false, cl
             onClick={() => handleToggle(option)}
             data-active={isSelected(option)}
             className={clsx(
-              "rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200",
+              "rounded-full border px-4 py-2.5 text-sm font-semibold transition-all duration-200",
               "data-[active=true]:bg-(--primary) data-[active=true]:text-(--on-primary) data-[active=true]:border-(--primary) data-[active=true]:shadow-md data-[active=true]:scale-105",
-              "data-[active=false]:border-(--border-strong) data-[active=false]:text-(--text-muted) data-[active=false]:hover:bg-(--soft-hover) data-[active=false]:hover:scale-102",
+              "data-[active=false]:border-(--border-strong) data-[active=false]:bg-(--surface) data-[active=false]:text-(--text-muted) data-[active=false]:hover:bg-(--soft-hover) data-[active=false]:hover:scale-102",
             )}
           >
             {option}

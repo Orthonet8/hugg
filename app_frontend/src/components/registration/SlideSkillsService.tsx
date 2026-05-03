@@ -16,6 +16,13 @@ export const SlideSkillsService = ({ form, setForm }: SlideProps) => {
 
   return (
     <div className="space-y-5">
+      <div className="rounded-[1.4rem] border border-(--border) bg-(--surface) px-4 py-4 shadow-[0_16px_36px_rgba(95,1,19,0.06)]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-(--primary)">Service and gifts</p>
+        <p className="mt-2 text-sm leading-relaxed text-(--text-secondary)">
+          Pick the ministries you are drawn to and share the abilities you can bring into community life.
+        </p>
+      </div>
+
       <SectionCard
         title="Service Areas"
         subtitle="Choose where you would like to contribute."
@@ -27,6 +34,12 @@ export const SlideSkillsService = ({ form, setForm }: SlideProps) => {
           onChange={(v) => setForm((f) => ({ ...f, serviceDepartments: v as string[] }))}
           multi
         />
+        <div className="rounded-[1.1rem] border border-(--border) bg-(--surface) px-4 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-muted)">Selected departments</p>
+          <p className="mt-1 text-sm text-(--text-secondary)">
+            {form.serviceDepartments.length > 0 ? form.serviceDepartments.join(", ") : "No service departments selected yet."}
+          </p>
+        </div>
       </SectionCard>
 
       <SectionCard
@@ -76,6 +89,13 @@ export const SlideSkillsService = ({ form, setForm }: SlideProps) => {
             onChange={(e) => setForm((f) => ({ ...f, talentDescription: e.target.value }))}
             placeholder={t("reg.describeTalents")} />
         )}
+
+        <div className="rounded-[1.1rem] border border-(--border) bg-(--surface) px-4 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-muted)">Talent snapshot</p>
+          <p className="mt-1 text-sm text-(--text-secondary)">
+            {form.talents.length > 0 ? form.talents.join(", ") : "Choose at least one talent or a service area to continue."}
+          </p>
+        </div>
       </SectionCard>
     </div>
   );

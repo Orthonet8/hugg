@@ -11,7 +11,14 @@ export const SlideBackgroundParticipation = ({ form, setForm }: SlideProps) => {
   const { t } = useI18n();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      <div className="rounded-[1.4rem] border border-(--border) bg-(--surface) px-4 py-4 shadow-[0_16px_36px_rgba(95,1,19,0.06)]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-(--primary)">Background and participation</p>
+        <p className="mt-2 text-sm leading-relaxed text-(--text-secondary)">
+          This part gives context for language support, church background, and how familiar you already are with the ministry.
+        </p>
+      </div>
+
       <SectionCard
         title="Origin"
         subtitle="Your home background and language profile."
@@ -48,6 +55,16 @@ export const SlideBackgroundParticipation = ({ form, setForm }: SlideProps) => {
           onChange={(e) => setForm((f) => ({ ...f, extraLanguages: e.target.value }))}
           placeholder={t("reg.extraLanguagesPlaceholder")}
         />
+
+        <div className="rounded-[1.1rem] border border-(--border) bg-(--surface) px-4 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-muted)">Language profile</p>
+          <p className="mt-1 text-sm font-semibold text-(--text-primary)">
+            {form.nativeLanguage || "Native language not added yet"}
+          </p>
+          <p className="mt-1 text-xs text-(--text-muted)">
+            {form.extraLanguages || "Additional languages can help connect you with broader ministry teams."}
+          </p>
+        </div>
       </SectionCard>
 
       <SectionCard
@@ -69,6 +86,15 @@ export const SlideBackgroundParticipation = ({ form, setForm }: SlideProps) => {
           onChange={(e) => setForm((f) => ({ ...f, localChurch: e.target.value }))}
           placeholder={t("reg.localChurchPlaceholder")}
         />
+
+        <div className="rounded-[1.1rem] border border-(--border) bg-(--surface) px-4 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-muted)">Participation note</p>
+          <p className="mt-1 text-sm text-(--text-secondary)">
+            {form.previousParticipation
+              ? `Previous participation: ${form.previousParticipation}`
+              : "Tell us whether you have participated before so onboarding can be adjusted."}
+          </p>
+        </div>
       </SectionCard>
     </div>
   );

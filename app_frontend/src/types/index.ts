@@ -12,6 +12,9 @@ export interface UserProfile {
   id: string;
   fullName: string;
   christianName: string;
+  emailOrUsername?: string;
+  gender?: string;
+  age?: string;
   campus: string;
   dorm: string;
   languages: string[];
@@ -21,7 +24,24 @@ export interface UserProfile {
   email: string;
   phone: string;
   telegram: string;
+  sectionId?: string | number | null;
+  section?: {
+    id: string | number;
+    name: string;
+  } | null;
+  isActive?: boolean;
   donationAccounts: DonationAccount[];
+  region?: string;
+  zone?: string;
+  woreda?: string;
+  fieldOfStudy?: string;
+  previousParticipation?: string;
+  localChurch?: string;
+  ordination?: string;
+  ordinationYear?: string;
+  diocese?: string;
+  bishop?: string;
+  talentDescription?: string;
   password?: string; // Optional — only used during auth flow, never persisted to UI state
 }
 

@@ -283,6 +283,114 @@ select {
   color: var(--primary);
 }
 
+.signup-entry-btn {
+  border: 1.5px solid color-mix(in srgb, var(--primary) 14%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--surface-soft) 92%, transparent), var(--surface)),
+    var(--surface);
+  border-radius: 1.4rem;
+  padding: 0.95rem 1rem;
+  box-shadow: 0 16px 34px rgba(95, 1, 19, 0.08);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.signup-entry-btn:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  box-shadow: 0 20px 38px rgba(95, 1, 19, 0.12);
+}
+
+.signup-entry-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 72%, var(--accent)));
+  color: var(--on-primary);
+  box-shadow: 0 12px 24px rgba(95, 1, 19, 0.18);
+  flex-shrink: 0;
+}
+
+.signup-entry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+  color: color-mix(in srgb, var(--primary) 85%, black);
+  padding: 0.28rem 0.55rem;
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.signup-flow-shell {
+  position: relative;
+}
+
+.signup-flow-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--primary) 12%, transparent);
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 24%, transparent), transparent 32%),
+    linear-gradient(145deg, color-mix(in srgb, var(--surface-soft) 94%, transparent), var(--surface));
+  border-radius: 1.6rem;
+  padding: 1rem 1rem 1.05rem;
+  box-shadow: 0 18px 36px rgba(95, 1, 19, 0.08);
+}
+
+.signup-flow-hero-badge,
+.signup-flow-promise,
+.signup-hint-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.signup-flow-hero-badge {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+  padding: 0.38rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.signup-flow-promise {
+  margin-top: 0.95rem;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 0.72rem 0.8rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.signup-step-rail {
+  display: flex;
+  align-items: center;
+}
+
+.signup-step-line {
+  flex: 1;
+  height: 2px;
+  margin: 0 0.55rem 1rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 92%, transparent);
+  transition: background 240ms ease;
+}
+
+.signup-step-line.is-done {
+  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 65%, var(--accent)));
+}
+
 /* Step pill for signup */
 .step-pill {
   display: flex;
@@ -309,6 +417,46 @@ select {
   color: var(--text-muted);
 }
 
+.signup-step-panel {
+  border: 1px solid color-mix(in srgb, var(--primary) 10%, transparent);
+  border-radius: 1.6rem;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 20px 44px rgba(95, 1, 19, 0.08);
+  padding: 1.15rem;
+}
+
+.signup-section-copy {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.signup-section-eyebrow {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.signup-hint-card,
+.signup-preview-card {
+  border-radius: 1.15rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface-soft) 88%, transparent);
+}
+
+.signup-hint-card {
+  padding: 0.85rem 0.9rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.signup-preview-card {
+  padding: 0.95rem 1rem;
+}
+
 /* Registration progress bar glow */
 .reg-progress-bar {
   height: 6px;
@@ -322,4 +470,206 @@ select {
   background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 70%, var(--accent)));
   box-shadow: 0 0 8px color-mix(in srgb, var(--primary) 50%, transparent);
   transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.registration-shell {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.registration-shell::before,
+.registration-shell::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(24px);
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.registration-shell::before {
+  width: 16rem;
+  height: 16rem;
+  top: -4rem;
+  right: -3rem;
+  background: color-mix(in srgb, var(--accent) 65%, transparent);
+}
+
+.registration-shell::after {
+  width: 14rem;
+  height: 14rem;
+  bottom: 10rem;
+  left: -4rem;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.registration-sheet {
+  background: color-mix(in srgb, var(--surface) 98%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.registration-content-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.registration-visual-column,
+.registration-form-column {
+  min-width: 0;
+}
+
+.slide-visual-card {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 0;
+  border-radius: 1.6rem;
+  border: 1px solid color-mix(in srgb, var(--slide-accent) 20%, transparent);
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--slide-accent) 34%, transparent), transparent 34%),
+    linear-gradient(145deg, color-mix(in srgb, var(--primary) 92%, black), color-mix(in srgb, var(--primary) 70%, var(--slide-accent)));
+  box-shadow: 0 24px 44px rgba(47, 9, 16, 0.18);
+  padding: 1rem;
+}
+
+.slide-visual-art {
+  position: relative;
+  min-height: 9.75rem;
+  border-radius: 1.3rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.16), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+}
+
+.slide-visual-orb {
+  position: absolute;
+  border-radius: 999px;
+  background: var(--slide-glow);
+  filter: blur(12px);
+}
+
+.slide-visual-orb.orb-a {
+  width: 5rem;
+  height: 5rem;
+  top: 0.9rem;
+  left: 1rem;
+}
+
+.slide-visual-orb.orb-b {
+  width: 6rem;
+  height: 6rem;
+  right: 0.5rem;
+  bottom: 0.2rem;
+}
+
+.slide-visual-orb.orb-c {
+  width: 3.5rem;
+  height: 3.5rem;
+  top: 50%;
+  right: 32%;
+}
+
+.slide-visual-svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 9.75rem;
+  display: block;
+}
+
+.slide-quote-card {
+  position: relative;
+  z-index: 1;
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0.95rem 1rem;
+  color: white;
+}
+
+.slide-quote-mark {
+  margin: 0;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.slide-quote-text {
+  margin: 0.15rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.slide-quote-verse {
+  margin: 0.55rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (min-width: 640px) {
+  .slide-visual-art,
+  .slide-visual-svg {
+    min-height: 11rem;
+    height: 11rem;
+  }
+
+  .slide-quote-text {
+    font-size: 0.94rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .registration-content-grid {
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    align-items: start;
+    gap: 1.25rem;
+  }
+
+  .registration-visual-column {
+    position: sticky;
+    top: 0;
+  }
+}
+
+@media (min-width: 900px) {
+  .slide-visual-card {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .slide-visual-art,
+  .slide-visual-svg {
+    min-height: 14rem;
+    height: 14rem;
+  }
+
+  .slide-quote-card {
+    padding: 1rem 1.05rem;
+  }
+
+  .slide-quote-text {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .registration-content-grid {
+    grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1.2fr);
+    gap: 1.5rem;
+  }
+
+  .slide-visual-art,
+  .slide-visual-svg {
+    min-height: 15rem;
+    height: 15rem;
+  }
 }

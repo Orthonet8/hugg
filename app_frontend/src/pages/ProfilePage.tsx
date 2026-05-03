@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -15,6 +16,12 @@ import {
   Check,
   Moon,
   Sun,
+  BookOpen,
+  ClipboardList,
+  MapPin,
+  ShieldAlert,
+  Church,
+  Sparkles,
 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
@@ -27,6 +34,7 @@ export const ProfilePage = () => {
   const { t } = useI18n();
   const { mode, toggleMode } = useThemeMode();
   const navigate = useNavigate();
+  const [showRegistrationPreview, setShowRegistrationPreview] = useState(false);
 
   if (!user) return null;
 
@@ -40,6 +48,73 @@ export const ProfilePage = () => {
     ...(user.talents || []).map((t) => ({ label: t, icon: Music, accent: true })),
     ...(user.languages || []).map((l) => ({ label: l, icon: Globe, accent: false })),
   ];
+
+  const profileComplete = Boolean(user.christianName && user.campus);
+
+  const registrationSections = useMemo(
+    () => [
+      {
+        title: "Identity",
+        icon: User,
+        items: [
+          ["Full name", user.fullName],
+          ["Christian name", user.christianName],
+          ["Gender", user.gender],
+          ["Age", user.age],
+        ],
+      },
+      {
+        title: "Campus",
+        icon: GraduationCap,
+        items: [
+          ["Campus", user.campus],
+          ["Field of study", user.fieldOfStudy],
+          ["Dorm", user.dorm],
+        ],
+      },
+      {
+        title: "Background",
+        icon: MapPin,
+        items: [
+          ["Region", user.region],
+          ["Zone", user.zone],
+          ["Woreda", user.woreda],
+          ["Languages", user.languages?.join(", ")],
+        ],
+      },
+      {
+        title: "Church",
+        icon: Church,
+        items: [
+          ["Previous participation", user.previousParticipation],
+          ["Local church", user.localChurch],
+          ["Ordination", user.ordination],
+          ["Ordination year", user.ordinationYear],
+          ["Diocese", user.diocese],
+          ["Bishop", user.bishop],
+        ],
+      },
+      {
+        title: "Service",
+        icon: Sparkles,
+        items: [
+          ["Departments", user.services?.join(", ")],
+          ["Talents", user.talents?.join(", ")],
+          ["Talent detail", user.talentDescription],
+        ],
+      },
+      {
+        title: "Contact",
+        icon: Send,
+        items: [
+          ["Phone", user.phone],
+          ["Telegram", user.telegram],
+          ["Email / Username", user.emailOrUsername || user.email],
+        ],
+      },
+    ],
+    [user],
+  );
 
   return (
     <div className="space-y-5">
@@ -81,6 +156,90 @@ export const ProfilePage = () => {
             {t("profile.memberBadge")}
           </span>
         </div>
+      </Card>
+
+      {!profileComplete && (
+        <Card className="overflow-hidden p-0">
+          <div className="bg-[color:var(--surface-soft)] p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-[color:var(--primary)] text-[color:var(--on-primary)] shrink-0">
+                <ShieldAlert size={20} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-[color:var(--text-primary)]">Finish your fellowship registration</p>
+                <p className="mt-1 text-sm leading-relaxed text-[color:var(--text-muted)]">
+                  Your account is active, but some church and campus details are still missing. Complete them to finish your member profile.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 p-4 sm:flex-row">
+            <Button className="flex-1" variant="primary" onClick={() => navigate("/register/basic-info")}>
+              <ClipboardList size={16} />
+              Finish Registration
+            </Button>
+            <Button className="flex-1" variant="outline" onClick={() => setShowRegistrationPreview((value) => !value)}>
+              <BookOpen size={16} />
+              {showRegistrationPreview ? "Hide Preview" : "Preview Details"}
+            </Button>
+          </div>
+        </Card>
+      )}
+
+      <Card className="p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-sm font-bold uppercase tracking-widest text-[color:var(--text-muted)]">
+              Registration Details
+            </h3>
+            <p className="mt-1 text-sm text-[color:var(--text-secondary)]">
+              Preview the information saved from your fellowship registration flow.
+            </p>
+          </div>
+          <Button variant="outline" onClick={() => setShowRegistrationPreview((value) => !value)}>
+            <BookOpen size={16} />
+            {showRegistrationPreview ? "Hide Details" : "Show Details"}
+          </Button>
+        </div>
+
+        {showRegistrationPreview && (
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {registrationSections.map((section) => {
+              const visibleItems = section.items.filter(([, value]) => Boolean(value));
+
+              if (visibleItems.length === 0) return null;
+
+              return (
+                <div
+                  key={section.title}
+                  className="rounded-[1.3rem] border border-[color:var(--border)] bg-[color:var(--surface-soft)] p-4"
+                >
+                  <div className="mb-3 flex items-center gap-2">
+                    <section.icon size={16} className="text-[color:var(--primary)]" />
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--text-primary)]">
+                      {section.title}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    {visibleItems.map(([label, value]) => (
+                      <div
+                        key={label}
+                        className="rounded-[1rem] bg-[color:var(--surface)] px-3 py-2.5"
+                      >
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+                          {label}
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-[color:var(--text-primary)]">
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </Card>
 
       {/* Personal Info */}

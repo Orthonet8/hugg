@@ -30,38 +30,47 @@ export const SlideBasicInfo = ({ form, setForm }: SlideProps) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      <div className="rounded-[1.4rem] border border-(--border) bg-(--surface) px-4 py-4 shadow-[0_16px_36px_rgba(95,1,19,0.06)]">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-(--primary)">Basic profile</p>
+        <p className="mt-2 text-sm leading-relaxed text-(--text-secondary)">
+          Start with the details people will recognize first in fellowship groups, family assignments, and ministry coordination.
+        </p>
+      </div>
+
       <SectionCard
         title="Identity"
         subtitle="Basic profile information used across the app."
       >
         <div>
           <label className="mb-1.5 block text-sm font-medium text-(--text-secondary)">Profile Photo</label>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4 rounded-[1.2rem] border border-(--border) bg-(--surface) p-3">
             {form.profilePhotoPreview ? (
               <img
                 src={form.profilePhotoPreview}
                 alt="Profile preview"
-                className="h-14 w-14 rounded-full border border-(--border) object-cover"
+                className="h-18 w-18 rounded-[1.2rem] border border-(--border) object-cover"
               />
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-(--border) bg-(--surface) text-sm font-semibold text-(--text-muted)">
+              <div className="flex h-18 w-18 items-center justify-center rounded-[1.2rem] border border-dashed border-(--border-strong) bg-(--surface-soft) text-lg font-semibold text-(--text-muted)">
                 {form.fullName ? form.fullName.charAt(0).toUpperCase() : "?"}
               </div>
             )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              className="block w-full rounded-xl border border-(--border) bg-(--surface) px-3 py-2 text-sm text-(--text-secondary)"
-            />
+            <div className="min-w-0 flex-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="block w-full rounded-[1rem] border border-(--border) bg-(--surface) px-3 py-2.5 text-sm text-(--text-secondary)"
+              />
+              <p className="mt-2 text-xs leading-relaxed text-(--text-muted)">Optional. A clear photo helps leaders and members recognize you faster.</p>
+            </div>
           </div>
-          <p className="mt-1 text-xs text-(--text-muted)">Optional. JPG/PNG up to 2MB.</p>
         </div>
 
         {form.fullName ? (
           <div
-            className="rounded-xl border px-3.5 py-3"
+            className="rounded-[1.1rem] border px-3.5 py-3"
             style={{ borderColor: "var(--border)", backgroundColor: "var(--surface)" }}
           >
             <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: "var(--text-muted)" }}>
@@ -85,9 +94,20 @@ export const SlideBasicInfo = ({ form, setForm }: SlideProps) => {
         title="Demographics"
         subtitle="This helps group and personalize ministry activities."
       >
-        <InputField label={t("reg.age")} type="number" value={form.age}
-          onChange={(e) => setForm((f) => ({ ...f, age: e.target.value }))}
-          placeholder={t("reg.agePlaceholder")} min="16" max="100" required />
+        <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
+          <InputField label={t("reg.age")} type="number" value={form.age}
+            onChange={(e) => setForm((f) => ({ ...f, age: e.target.value }))}
+            placeholder={t("reg.agePlaceholder")} min="16" max="100" required />
+          <div className="rounded-[1.1rem] border border-(--border) bg-(--surface) px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-(--text-muted)">Profile snapshot</p>
+            <p className="mt-1 text-base font-semibold text-(--text-primary)">
+              {form.fullName || "Your name"}
+            </p>
+            <p className="mt-1 text-xs text-(--text-muted)">
+              {form.gender || "Gender"} · {form.age || "Age"}
+            </p>
+          </div>
+        </div>
         <OptionPills label={t("reg.gender")} value={form.gender}
           options={[t("reg.male"), t("reg.female")]}
           onChange={(v) => setForm((f) => ({ ...f, gender: v === t("reg.male") ? "ወንድ" : "ሴት" }))} />
