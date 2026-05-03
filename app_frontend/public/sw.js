@@ -1,5 +1,6 @@
-const CACHE_NAME = "church-student-pwa-v2";
-const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest"];
+const CACHE_NAME = "church-student-pwa-v3";
+const APP_BASE = new URL(self.registration.scope).pathname.replace(/\/$/, "");
+const APP_SHELL = [`${APP_BASE}/`, `${APP_BASE}/index.html`, `${APP_BASE}/manifest.webmanifest`];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -40,8 +41,8 @@ self.addEventListener("fetch", (event) => {
   // For HTML navigation requests, always serve index.html (SPA fallback)
   if (event.request.mode === "navigate") {
     event.respondWith(
-      caches.match("/index.html").then(
-        (cached) => cached || fetch("/index.html"),
+      caches.match(`${APP_BASE}/index.html`).then(
+        (cached) => cached || fetch(`${APP_BASE}/index.html`),
       ),
     );
     return;

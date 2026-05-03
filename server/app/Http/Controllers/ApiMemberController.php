@@ -16,6 +16,30 @@ use Laravel\Socialite\Facades\Socialite;
 
 class ApiMemberController extends Controller
 {
+    private function normalizeEmailOrUsername(?string $value): string
+    {
+        $identifier = trim((string) $value);
+
+        if ($identifier !== '' && filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            return mb_strtolower($identifier);
+        }
+
+        return $identifier;
+    }
+
+    private function findMemberByIdentifier(?string $value): ?Member
+    {
+        $identifier = $this->normalizeEmailOrUsername($value);
+
+        if ($identifier === '') {
+            return null;
+        }
+
+        return Member::query()
+            ->whereRaw('LOWER(email_or_username) = ?', [mb_strtolower($identifier)])
+            ->first();
+    }
+
     /* ------------------------------------------------------------------ */
     /*  POST /api/auth/register */
     /* ------------------------------------------------------------------ */
@@ -25,6 +49,10 @@ class ApiMemberController extends Controller
         $input = $request->all();
         if (array_key_exists('telegram', $input)) {
             $input['telegram'] = $this->normalizeTelegram($input['telegram']);
+        }
+
+        if (array_key_exists('email_or_username', $input)) {
+            $input['email_or_username'] = $this->normalizeEmailOrUsername($input['email_or_username']);
         }
 
         $validator = Validator::make($input, [
@@ -110,7 +138,7 @@ class ApiMemberController extends Controller
 
         $validated = $validator->validated();
 
-        $identifier = trim((string) ($validated['email_or_username'] ?? ''));
+        $identifier = $this->normalizeEmailOrUsername($validated['email_or_username'] ?? '');
         $mobile = trim((string) ($validated['mobile'] ?? ''));
         $telegram = trim((string) ($validated['telegram'] ?? ''));
 
@@ -197,21 +225,33 @@ class ApiMemberController extends Controller
                 return redirect()->away($frontendRedirect.'?error='.urlencode('Google account did not provide an email.'));
             }
 
-            $member = Member::query()
-                ->whereRaw('LOWER(email_or_username) = ?', [mb_strtolower($email)])
-                ->first();
+            $member = $this->findMemberByIdentifier($email);
 
             if (! $member) {
                 $displayName = trim((string) $googleUser->getName());
 
                 $member = Member::create([
-                    'email_or_username' => $email,
+                    'email_or_username' => $this->normalizeEmailOrUsername($email),
                     'password' => Hash::make(Str::random(40)),
                     'full_name' => $displayName !== '' ? $displayName : $email,
                     'batch' => '2018',
                     'email_verified_at' => now(),
                     'profile_photo' => $googleUser->getAvatar(),
                 ]);
+            } else {
+                $updates = [];
+
+                if (! $member->email_verified_at) {
+                    $updates['email_verified_at'] = now();
+                }
+
+                if (blank($member->profile_photo) && $googleUser->getAvatar()) {
+                    $updates['profile_photo'] = $googleUser->getAvatar();
+                }
+
+                if ($updates !== []) {
+                    $member->forceFill($updates)->save();
+                }
             }
 
             if (! $member->is_active) {
@@ -245,8 +285,9 @@ class ApiMemberController extends Controller
         }
 
         $validated = $validator->validated();
+        $normalizedIdentifier = $this->normalizeEmailOrUsername($validated['email_or_username']);
 
-        $identifier = 'login:' . $validated['email_or_username'];
+        $identifier = 'login:' . mb_strtolower($normalizedIdentifier);
         $attempts = (int) Cache::get($identifier, 0);
         $maxAttempts = 3;
 
@@ -265,7 +306,7 @@ class ApiMemberController extends Controller
             $attempts = 0;
         }
 
-        $member = Member::where('email_or_username', $validated['email_or_username'])->first();
+        $member = $this->findMemberByIdentifier($normalizedIdentifier);
 
         $isDeactivated = $member && $member->is_active === false;
 

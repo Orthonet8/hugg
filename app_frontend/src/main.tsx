@@ -6,10 +6,12 @@ import App from "./App.tsx";
 import { ThemeProvider } from "./context/ThemeProvider";
 import { I18nProvider } from "./i18n/I18nProvider";
 
+const routerBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 if ("serviceWorker" in navigator) {
   if (import.meta.env.PROD) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => null);
+      navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => null);
     });
   } else {
     window.addEventListener("load", () => {
@@ -26,7 +28,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <I18nProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={routerBase}>
           <App />
         </BrowserRouter>
       </I18nProvider>

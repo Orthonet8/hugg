@@ -115,6 +115,7 @@ function LoginForm({ onLogin, onForgotPassword, onSwitchToSignup }: {
   onSwitchToSignup: () => void;
 }) {
   const { t } = useI18n();
+  const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");

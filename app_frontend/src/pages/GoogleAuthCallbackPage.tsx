@@ -5,6 +5,7 @@ import { useAuthStore } from "../context/useAuthStore";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 const BACKEND_BASE = API_BASE.replace(/\/+$/, "").replace(/\/api$/, "");
+const GOOGLE_CALLBACK_TOKEN_KEY = "hugg-google-callback-token";
 
 export const GoogleAuthCallbackPage = () => {
   const navigate = useNavigate();
@@ -20,15 +21,17 @@ export const GoogleAuthCallbackPage = () => {
 
     const finishAuth = async () => {
       const params = new URLSearchParams(window.location.search);
-      const token = params.get("token") ?? "";
+      const callbackToken = params.get("token") ?? "";
+      const token = callbackToken || window.sessionStorage.getItem(GOOGLE_CALLBACK_TOKEN_KEY) || "";
       const callbackError = params.get("error") ?? "";
       const hasCodeFlowParams = params.has("code") || params.has("state") || params.has("scope");
 
-      if (!hasCodeFlowParams && window.location.search !== "") {
-        window.history.replaceState(null, "", window.location.pathname);
+      if (callbackToken !== "") {
+        window.sessionStorage.setItem(GOOGLE_CALLBACK_TOKEN_KEY, callbackToken);
       }
 
       if (callbackError !== "") {
+        window.sessionStorage.removeItem(GOOGLE_CALLBACK_TOKEN_KEY);
         if (!cancelled) setError(callbackError);
         return;
       }
@@ -48,12 +51,14 @@ export const GoogleAuthCallbackPage = () => {
 
       try {
         await loginWithToken(token);
+        window.sessionStorage.removeItem(GOOGLE_CALLBACK_TOKEN_KEY);
         if (!cancelled) {
           const user = useAuthStore.getState().user;
           const needsRegistration = !user?.christianName || !user?.campus;
           navigate(needsRegistration ? "/register/basic-info" : "/news", { replace: true });
         }
       } catch (e) {
+        window.sessionStorage.removeItem(GOOGLE_CALLBACK_TOKEN_KEY);
         if (!cancelled) {
           const message = e instanceof Error ? e.message : "Failed to complete Google sign in.";
           setError(message);
