@@ -79,7 +79,7 @@ class MemberResource extends Resource
                 ImageColumn::make('profile_photo')
                     ->label('Photo')
                     ->circular()
-                    ->defaultImageUrl(fn (Member $r): ?string => $r->profile_photo ? asset('storage/'.$r->profile_photo) : null)
+                    ->disk('public')
                     ->size(40),
                 TextColumn::make('full_name')
                     ->searchable()
@@ -156,7 +156,9 @@ HTML;
                         ->distinct()
                         ->orderBy('batch')
                         ->pluck('batch', 'batch')
-                        ->toArray()),
+                        ->toArray())
+                    ->searchable()
+                    ->preload(),
                 SelectFilter::make('section_id')
                     ->label('Section')
                     ->options(function () use ($leaderSectionIds): array {
@@ -170,12 +172,22 @@ HTML;
                             ->get()
                             ->mapWithKeys(fn (Section $section): array => [$section->id => $section->display_name])
                             ->toArray();
-                    }),
+                    })
+                    ->searchable()
+                    ->preload(),
             ])
+            ->recordAction('view')
             ->recordActions([
                 ActionGroup::make([
                     EditAction::make()->slideOver()->modalWidth('7xl'),
-                    ViewAction::make(),
+                    ViewAction::make('view')
+                        ->label('View Registration Details')
+                        ->icon(Heroicon::OutlinedEye)
+                        ->modalHeading(fn (Member $record): string => "Member Profile: {$record->full_name}")
+                        ->modalDescription('Full registration and onboarding details for this fellowship member.')
+                        ->modalWidth('5xl')
+                        ->schema([])
+                        ->modalContent(fn (Member $record) => view('filament.resources.members.member-details-modal', ['record' => $record])),
                     DeleteAction::make(),
                 ]),
             ])
@@ -312,20 +324,25 @@ HTML;
                             ->icon(Heroicon::OutlinedKey)
                             ->schema([
                                 TextInput::make('email_or_username')
-                                    ->label('Email or Username')
+                                    ->label('Username or Email')
+                                    ->helperText('This is the login name the member uses.')
                                     ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(255)
                                     ->columnSpan(2),
                                 TextInput::make('password')
+                                    ->label('New Password')
+                                    ->helperText('Leave blank to keep the current password.')
                                     ->password()
                                     ->revealable()
                                     ->required(fn (string $operation): bool => $operation === 'create')
                                     ->dehydrated(fn (?string $state): bool => filled($state))
+                                    ->autocomplete('new-password')
                                     ->maxLength(255)
                                     ->columnSpan(2),
                                 FileUpload::make('profile_photo')
                                     ->image()
+                                    ->disk('public')
                                     ->directory('avatars/members')
                                     ->maxSize(2048)
                                     ->columnSpan(2),
@@ -405,6 +422,28 @@ HTML;
                                 Toggle::make('is_active')
                                     ->label('Active')
                                     ->default(true),
+                            ])->columns(2),
+
+                        Tab::make('Emergency & Account')
+                            ->icon(Heroicon::OutlinedShieldCheck)
+                            ->schema([
+                                TextInput::make('parent_phone')
+                                    ->label('Parent Phone')
+                                    ->tel()
+                                    ->maxLength(50),
+                                TextInput::make('emergency_contacts')
+                                    ->label('Emergency Contacts')
+                                    ->helperText('Separate multiple phone numbers with commas.')
+                                    ->maxLength(2000),
+                                TextInput::make('account_number')
+                                    ->label('Bank Account Number')
+                                    ->maxLength(50),
+                                TextInput::make('account_name')
+                                    ->label('Account Holder Name')
+                                    ->maxLength(255),
+                                TextInput::make('account_type')
+                                    ->label('Bank / Account Type (e.g. CBE, Telebirr)')
+                                    ->maxLength(100),
                             ])->columns(2),
                     ]),
             ]);
