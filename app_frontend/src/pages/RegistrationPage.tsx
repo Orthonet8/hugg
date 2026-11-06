@@ -8,7 +8,9 @@ import { SlideCampusAcademics } from "../components/registration/SlideCampusAcad
 import { SlideBackgroundParticipation } from "../components/registration/SlideBackgroundParticipation";
 import { SlideSkillsService } from "../components/registration/SlideSkillsService";
 import { SlideContactSocial } from "../components/registration/SlideContactSocial";
-import { SlideVisualPanel } from "../components/registration/SlideVisualPanel";
+import { SlideEmergencyContact } from "../components/registration/SlideEmergencyContact";
+import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
+import { ThemeToggle } from "../components/common/ThemeToggle";
 import { useAuthStore } from "../context/useAuthStore";
 import { useI18n } from "../i18n/I18nProvider";
 
@@ -18,10 +20,11 @@ const slideMap: Record<string, React.ComponentType<{ form: RegistrationForm; set
   "background-participation": SlideBackgroundParticipation,
   "skills-service": SlideSkillsService,
   "contact-social": SlideContactSocial,
+  "emergency-contact": SlideEmergencyContact,
 };
 
 /* Keep one brand gradient across all steps for a consistent experience. */
-const REGISTRATION_GRADIENT: [string, string] = ["#5f0113", "#9b1a2f"];
+const REGISTRATION_GRADIENT: [string, string] = ["#5f0113", "#8d1b32"];
 
 /* Stitch slide subtitles */
 const SUBTITLES: Record<string, string> = {
@@ -30,6 +33,7 @@ const SUBTITLES: Record<string, string> = {
   "background-participation": "Share your background and church participation.",
   "skills-service": "Select your ministry interests and talents.",
   "contact-social": "Finalize your contact information.",
+  "emergency-contact": "Add emergency contacts and your preferred account details.",
 };
 
 export interface RegistrationForm {
@@ -40,6 +44,7 @@ export interface RegistrationForm {
   ordination: string; ordinationYear: string; diocese: string; bishop: string;
   serviceDepartments: string[]; talents: string[]; talentDescription: string;
   mobile: string; emailOrUsername: string; telegram: string;
+  parentPhone: string; emergencyContacts: string; accountNumber: string; accountName: string; accountType: string;
   profilePhotoFile: File | null;
   profilePhotoPreview: string;
 }
@@ -52,6 +57,7 @@ const initialForm: RegistrationForm = {
   ordination: "", ordinationYear: "", diocese: "", bishop: "",
   serviceDepartments: [], talents: [], talentDescription: "",
   mobile: "", emailOrUsername: "", telegram: "",
+  parentPhone: "", emergencyContacts: "", accountNumber: "", accountName: "", accountType: "",
   profilePhotoFile: null,
   profilePhotoPreview: "",
 };
@@ -62,6 +68,7 @@ const validators: Record<string, (f: RegistrationForm) => boolean> = {
   "background-participation": (f) => !!(f.region && f.previousParticipation),
   "skills-service": (f) => f.serviceDepartments.length > 0 || f.talents.length > 0,
   "contact-social": () => true,
+  "emergency-contact": () => true,
 };
 
 export const RegistrationPage = () => {
@@ -87,6 +94,11 @@ export const RegistrationPage = () => {
       christianName: prev.christianName || ((user as { christianName?: string }).christianName ?? ""),
       mobile: prev.mobile || ((user as { phone?: string }).phone ?? ""),
       telegram: prev.telegram || ((user as { telegram?: string }).telegram ?? ""),
+      parentPhone: prev.parentPhone || ((user as { parentPhone?: string }).parentPhone ?? ""),
+      emergencyContacts: prev.emergencyContacts || ((user as { emergencyContacts?: string }).emergencyContacts ?? ""),
+      accountNumber: prev.accountNumber || ((user as { accountNumber?: string }).accountNumber ?? ""),
+      accountName: prev.accountName || ((user as { accountName?: string }).accountName ?? ""),
+      accountType: prev.accountType || ((user as { accountType?: string }).accountType ?? ""),
       profilePhotoPreview: prev.profilePhotoPreview || ((user as { avatar?: string }).avatar ?? ""),
       emailOrUsername:
         prev.emailOrUsername ||
@@ -130,122 +142,92 @@ export const RegistrationPage = () => {
   };
 
   return (
-    <div className="registration-shell" style={{ background: `linear-gradient(160deg, ${gradFrom} 0%, ${gradTo} 100%)` }}>
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col lg:px-6 lg:py-6">
+    <div className="registration-shell">
+      <div className="mx-auto flex w-full max-w-3xl flex-col px-3 py-3 sm:px-5 lg:py-5">
 
-        <div className="flex items-center justify-between px-5 pt-12 pb-3 lg:px-8 lg:pt-5">
+        <div className="registration-topbar flex items-center justify-between px-2 py-1 sm:px-3">
           <button type="button" onClick={handleBack}
-            className="h-10 w-10 rounded-full bg-white/16 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/28 transition">
-            <ChevronLeft size={20} />
+            className="registration-icon-button">
+            <ChevronLeft size={18} />
           </button>
 
-          <div className="hidden rounded-full border border-white/16 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 lg:block">
-            Member registration
+          <div className="text-center">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-(--text-muted)">Profile setup</p>
+            <p className="mt-0.5 text-xs font-semibold text-(--text-primary)">Step {slide.step} of {registrationSlides.length}</p>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            {registrationSlides.map((_, i) => (
-              <motion.div key={i}
-                animate={{ width: i === currentIndex ? 24 : 8, opacity: i <= currentIndex ? 1 : 0.35 }}
-                transition={{ duration: 0.3 }}
-                className="h-2 rounded-full bg-white" />
-            ))}
+          <div className="flex items-center gap-1">
+            <div className="registration-control">
+              <LanguageSwitcher />
+              <ThemeToggle />
+            </div>
+            <button type="button" onClick={() => navigate("/news")}
+              className="registration-exit-button">
+              <LogOut size={14} /> <span className="hidden sm:inline">Exit</span>
+            </button>
           </div>
-
-          <button type="button" onClick={() => navigate("/news")}
-            className="flex items-center gap-1 text-xs font-semibold text-white/75 hover:text-white transition">
-            <LogOut size={14} /> Exit
-          </button>
         </div>
 
-        <div className="px-6 pt-3 pb-7 text-white lg:px-8">
-          <motion.p key={`step-${currentIndex}`} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
-            className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white/60">
-            Step {slide.step} of {registrationSlides.length}
-          </motion.p>
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
+        <div className="px-2 pt-5 pb-4 sm:px-3">
+          <div className="flex flex-col gap-2">
+            <div>
               <motion.h1 key={`h-${slide.id}`} initial={{ opacity: 0, x: dir * 24 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.32 }}
-                className="app-heading text-[1.8rem] font-bold leading-tight lg:text-[2.25rem]">
+                className="app-heading text-lg font-bold leading-tight text-(--text-primary) sm:text-xl">
                 {slide.title}
               </motion.h1>
               <motion.p key={`s-${slide.id}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}
-                className="mt-2 max-w-xl text-sm leading-relaxed text-white/72">
+                className="mt-1 max-w-2xl text-xs leading-relaxed text-(--text-muted) sm:text-sm">
                 {SUBTITLES[slide.id]}
               </motion.p>
-            </div>
-            <div className="rounded-[1.25rem] border border-white/16 bg-white/10 px-4 py-3 backdrop-blur-sm lg:min-w-[240px]">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">Progress</p>
-              <p className="mt-1 text-lg font-semibold text-white">{slide.progress}% complete</p>
-              <p className="mt-1 text-xs leading-relaxed text-white/68">Finish this profile once and your account is ready for the app.</p>
             </div>
           </div>
         </div>
 
-        <div className="registration-sheet flex flex-1 flex-col overflow-hidden rounded-t-[2rem] min-h-0 lg:rounded-[2rem] lg:shadow-[0_32px_80px_rgba(32,0,8,0.24)]">
+        <div className="registration-sheet flex flex-col rounded-2xl">
 
-          <div className="h-1 bg-(--surface-soft) shrink-0">
+          <div className="registration-progress-track">
             <motion.div className="h-full rounded-full"
               style={{ background: `linear-gradient(90deg, ${gradFrom}, ${gradTo})` }}
               animate={{ width: `${slide.progress}%` }}
               transition={{ duration: 0.5, ease: "easeOut" }} />
           </div>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div>
             <AnimatePresence mode="wait" custom={dir}>
               <motion.div key={slide.id}
-                initial={{ x: dir * 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: dir * -50, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 340, damping: 34 }}
-                className="px-6 pt-6 pb-4 lg:px-8 lg:pt-7">
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className={`registration-step-content px-4 py-4 sm:px-6 sm:py-5 ${slide.id === "basic-info" ? "registration-basic-step" : ""}`}>
 
                 {error && (
                   <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
-                    className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 flex items-center gap-2">
+                    className="app-alert-error mb-4 rounded-xl px-4 py-3 text-sm flex items-center gap-2">
                     ⚠ {error}
                   </motion.div>
                 )}
 
-                <div className="registration-content-grid">
-                  <div className="registration-visual-column">
-                    <SlideVisualPanel slideId={slide.id as Parameters<typeof SlideVisualPanel>[0]["slideId"]} />
-                  </div>
-
-                  <div className="registration-form-column">
-                    {SlideComponent && <SlideComponent form={form} setForm={setForm} />}
-                  </div>
+                <div className="registration-form-column">
+                  {SlideComponent && <SlideComponent form={form} setForm={setForm} />}
                 </div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 }}
-                  className="mt-6 rounded-[1.4rem] border border-(--border) bg-(--surface-soft) px-4 py-3"
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-(--text-muted)">
-                    Progress Note
-                  </p>
-                  <p className="mt-1 text-sm text-(--text-secondary)">
-                    Complete this step to continue. Your information is saved when you finish registration.
-                  </p>
-                </motion.div>
               </motion.div>
             </AnimatePresence>
           </div>
 
-          <div className="shrink-0 border-t border-(--border) bg-(--surface) px-6 py-5 lg:px-8">
+          <div className="border-t border-(--border) bg-(--surface) px-5 py-3 lg:px-8">
             <div className="flex items-center gap-3">
               {currentIndex > 0 && (
                 <button type="button" onClick={handleBack}
-                  className="h-14 px-5 rounded-[1.15rem] border-2 flex items-center gap-1.5 text-sm font-bold transition hover:bg-(--soft-hover)"
+                  className="h-11 px-4 rounded-[1rem] border-2 flex items-center gap-1.5 text-sm font-bold transition hover:bg-(--soft-hover)"
                   style={{ borderColor: gradFrom, color: gradFrom }}>
                   <ChevronLeft size={18} /> Back
                 </button>
               )}
               <button type="button" onClick={handleNext} disabled={submitting}
-                className="flex-1 h-14 rounded-[1.15rem] flex items-center justify-center gap-2 text-base font-bold text-white transition active:scale-[0.98] disabled:opacity-60"
+                className="flex-1 h-11 rounded-[1rem] flex items-center justify-center gap-2 text-sm font-bold text-white transition active:scale-[0.98] disabled:opacity-60"
                 style={{ background: `linear-gradient(135deg, ${gradFrom}, ${gradTo})`, boxShadow: `0 10px 28px ${gradFrom}44` }}>
                 {submitting
                   ? <span className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin" />

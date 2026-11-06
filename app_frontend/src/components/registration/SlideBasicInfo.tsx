@@ -30,29 +30,28 @@ export const SlideBasicInfo = ({ form, setForm }: SlideProps) => {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="rounded-[1.4rem] border border-(--border) bg-(--surface) px-4 py-4 shadow-[0_16px_36px_rgba(95,1,19,0.06)]">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-(--primary)">Basic profile</p>
-        <p className="mt-2 text-sm leading-relaxed text-(--text-secondary)">
+    <div className="basic-info-form space-y-3">
+      <div className="rounded-[1rem] border border-(--border) bg-(--surface) px-3 py-2.5">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-(--primary)">Basic profile</p>
+        <p className="mt-1 text-xs leading-relaxed text-(--text-secondary)">
           Start with the details people will recognize first in fellowship groups, family assignments, and ministry coordination.
         </p>
       </div>
 
       <SectionCard
         title="Identity"
-        subtitle="Basic profile information used across the app."
       >
         <div>
           <label className="mb-1.5 block text-sm font-medium text-(--text-secondary)">Profile Photo</label>
-          <div className="flex items-center gap-4 rounded-[1.2rem] border border-(--border) bg-(--surface) p-3">
+          <div className="flex items-center gap-3 rounded-[1rem] border border-(--border) bg-(--surface) p-2.5">
             {form.profilePhotoPreview ? (
               <img
                 src={form.profilePhotoPreview}
                 alt="Profile preview"
-                className="h-18 w-18 rounded-[1.2rem] border border-(--border) object-cover"
+                className="h-14 w-14 rounded-[0.9rem] border border-(--border) object-cover"
               />
             ) : (
-              <div className="flex h-18 w-18 items-center justify-center rounded-[1.2rem] border border-dashed border-(--border-strong) bg-(--surface-soft) text-lg font-semibold text-(--text-muted)">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[0.9rem] border border-dashed border-(--border-strong) bg-(--surface-soft) text-lg font-semibold text-(--text-muted)">
                 {form.fullName ? form.fullName.charAt(0).toUpperCase() : "?"}
               </div>
             )}
@@ -63,7 +62,7 @@ export const SlideBasicInfo = ({ form, setForm }: SlideProps) => {
                 onChange={handlePhotoChange}
                 className="block w-full rounded-[1rem] border border-(--border) bg-(--surface) px-3 py-2.5 text-sm text-(--text-secondary)"
               />
-              <p className="mt-2 text-xs leading-relaxed text-(--text-muted)">Optional. A clear photo helps leaders and members recognize you faster.</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-(--text-muted)">Optional photo for your member profile.</p>
             </div>
           </div>
         </div>
@@ -92,9 +91,8 @@ export const SlideBasicInfo = ({ form, setForm }: SlideProps) => {
 
       <SectionCard
         title="Demographics"
-        subtitle="This helps group and personalize ministry activities."
       >
-        <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
+        <div className="grid gap-2 md:grid-cols-[0.9fr_1.1fr]">
           <InputField label={t("reg.age")} type="number" value={form.age}
             onChange={(e) => setForm((f) => ({ ...f, age: e.target.value }))}
             placeholder={t("reg.agePlaceholder")} min="16" max="100" required />

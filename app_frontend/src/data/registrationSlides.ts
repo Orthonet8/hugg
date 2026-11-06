@@ -31,8 +31,15 @@ export const registrationSlides = [
   {
     id: "contact-social",
     step: 5,
-    title: "ተገቢውን መረጃ በትክክል ሞልተው ስለመለሱልን እናመሰግናለን",
-    subtitle: "Haramaya University Gebi Gubae Management System v1.0",
+    title: "የመገናኛ መረጃ",
+    subtitle: "Add the best ways to reach you.",
+    progress: 80,
+  },
+  {
+    id: "emergency-contact",
+    step: 6,
+    title: "የአደጋ ጊዜ እና የሂሳብ መረጃ",
+    subtitle: "Emergency contact and account details",
     progress: 100,
   },
 ];
