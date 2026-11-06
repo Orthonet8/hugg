@@ -1,4 +1,4 @@
-const CACHE_NAME = "church-student-pwa-v3";
+const CACHE_NAME = "church-student-pwa-v4";
 const APP_BASE = new URL(self.registration.scope).pathname.replace(/\/$/, "");
 const APP_SHELL = [`${APP_BASE}/`, `${APP_BASE}/index.html`, `${APP_BASE}/manifest.webmanifest`];
 
