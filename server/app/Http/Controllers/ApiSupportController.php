@@ -31,9 +31,7 @@ class ApiSupportController extends Controller
 
         $username = $parts[0];
 
-        return Member::active()
-            ->whereRaw('LOWER(email_or_username) = ?', [mb_strtolower($username)])
-            ->first();
+        return Member::active()->where('email_or_username', $username)->first();
     }
 
     /**

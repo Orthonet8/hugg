@@ -20,7 +20,13 @@ class ApiMemberController extends Controller
 {
     private function normalizeEmailOrUsername(?string $value): string
     {
-        return mb_strtolower(trim((string) $value));
+        $identifier = trim((string) $value);
+
+        if ($identifier !== '' && filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            return mb_strtolower($identifier);
+        }
+
+        return $identifier;
     }
 
     private function findMemberByIdentifier(?string $value): ?Member
@@ -31,8 +37,15 @@ class ApiMemberController extends Controller
             return null;
         }
 
+        // Email is case-insensitive, but username is strictly case-sensitive
+        if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            return Member::query()
+                ->whereRaw('LOWER(email_or_username) = ?', [mb_strtolower($identifier)])
+                ->first();
+        }
+
         return Member::query()
-            ->whereRaw('LOWER(email_or_username) = ?', [mb_strtolower($identifier)])
+            ->where('email_or_username', $identifier)
             ->first();
     }
 
@@ -855,9 +868,7 @@ class ApiMemberController extends Controller
 
         $username = $parts[0];
 
-        return Member::active()
-            ->whereRaw('LOWER(email_or_username) = ?', [mb_strtolower($username)])
-            ->first();
+        return Member::active()->where('email_or_username', $username)->first();
     }
 
     private function normalizeTelegram(mixed $value): ?string
