@@ -657,14 +657,26 @@ export const SupportPage = () => {
                                   className="max-h-56 w-auto rounded-lg object-cover"
                                 />
                               </a>
-                            ) : msg.attachment_type === "audio" ? (
-                              <div className="space-y-1.5 py-0.5">
-                                <span className="text-[10px] font-bold uppercase tracking-wider opacity-85 flex items-center gap-1.5">
-                                  <Mic size={12} /> Voice Recording (የድምፅ መልዕክት)
-                                </span>
-                                <audio controls className="w-full max-w-[260px] h-8">
-                                  <source src={`/storage/${msg.attachment_url}`} />
-                                </audio>
+                            ) : msg.attachment_type === "audio" || (msg.attachment_url && (msg.attachment_url.includes('voice_note') || msg.attachment_url.endsWith('.ogg') || msg.attachment_url.endsWith('.opus') || msg.attachment_url.endsWith('.webm') || msg.attachment_url.endsWith('.mp3'))) ? (
+                              <div className="flex items-center gap-3 py-1">
+                                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-xs ${
+                                  isMe ? "bg-white/20 text-white" : "bg-[color:var(--primary)] text-white"
+                                }`}>
+                                  <Mic size={18} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-[10px] font-bold uppercase tracking-wider opacity-85">
+                                    Voice Note · የድምፅ መልዕክት
+                                  </p>
+                                  <audio
+                                    controls
+                                    className="h-8 w-full max-w-[240px] mt-1"
+                                    style={{ filter: isMe ? "invert(1) hue-rotate(180deg)" : "none" }}
+                                  >
+                                    <source src={`/storage/${msg.attachment_url}`} />
+                                    Your browser does not support audio.
+                                  </audio>
+                                </div>
                               </div>
                             ) : msg.attachment_type === "video" ? (
                               <video controls className="max-h-56 w-full rounded-xl bg-black">

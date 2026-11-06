@@ -55,6 +55,24 @@ class SupportTicketResource extends Resource
         return static::authUser() !== null;
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = static::authUser();
+
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        // If user is admin or super_admin, they see all tickets
+        if ($user->hasRole('admin') || $user->hasRole('super_admin')) {
+            return $query;
+        }
+
+        // Otherwise (non-admin supporter), only see tickets assigned to them
+        return $query->where('assigned_user_id', $user->id);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema

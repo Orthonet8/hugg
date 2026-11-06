@@ -155,12 +155,18 @@ class ApiSupportController extends Controller
             $attachmentName = $file->getClientOriginalName();
             $mime = $file->getMimeType();
 
+            $nameLower = strtolower($attachmentName);
             if (str_starts_with($mime, 'image/')) {
                 $attachmentType = 'image';
-            } elseif (str_starts_with($mime, 'audio/')) {
+            } elseif (str_starts_with($mime, 'audio/') || str_contains($nameLower, 'voice_note') || preg_match('/\.(opus|ogg|mp3|wav|m4a|aac)$/i', $nameLower)) {
                 $attachmentType = 'audio';
             } elseif (str_starts_with($mime, 'video/')) {
-                $attachmentType = 'video';
+                // If it's a webm created without video tracks (audio recorder), treat as audio
+                if (str_contains($nameLower, 'voice_note') || str_ends_with($nameLower, '.webm')) {
+                    $attachmentType = 'audio';
+                } else {
+                    $attachmentType = 'video';
+                }
             } else {
                 $attachmentType = 'file';
             }
@@ -247,12 +253,18 @@ class ApiSupportController extends Controller
             $attachmentName = $file->getClientOriginalName();
             $mime = $file->getMimeType();
 
+            $nameLower = strtolower($attachmentName);
             if (str_starts_with($mime, 'image/')) {
                 $attachmentType = 'image';
-            } elseif (str_starts_with($mime, 'audio/')) {
+            } elseif (str_starts_with($mime, 'audio/') || str_contains($nameLower, 'voice_note') || preg_match('/\.(opus|ogg|mp3|wav|m4a|aac)$/i', $nameLower)) {
                 $attachmentType = 'audio';
             } elseif (str_starts_with($mime, 'video/')) {
-                $attachmentType = 'video';
+                // If it's a webm created without video tracks (audio recorder), treat as audio
+                if (str_contains($nameLower, 'voice_note') || str_ends_with($nameLower, '.webm')) {
+                    $attachmentType = 'audio';
+                } else {
+                    $attachmentType = 'video';
+                }
             } else {
                 $attachmentType = 'file';
             }

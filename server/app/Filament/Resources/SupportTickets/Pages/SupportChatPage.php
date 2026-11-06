@@ -43,7 +43,14 @@ class SupportChatPage extends Page implements HasForms
 
     public function loadTicket(): void
     {
-        $this->ticket = SupportTicket::with(['member', 'assignedUser', 'messages' => fn ($q) => $q->oldest()])->findOrFail($this->record);
+        $user = auth('internal')->user();
+        $query = SupportTicket::with(['member', 'assignedUser', 'messages' => fn ($q) => $q->oldest()]);
+
+        if ($user && ! ($user->hasRole('admin') || $user->hasRole('super_admin'))) {
+            $query->where('assigned_user_id', $user->id);
+        }
+
+        $this->ticket = $query->findOrFail($this->record);
         $this->update_status = $this->ticket->status;
     }
 
@@ -92,8 +99,14 @@ class SupportChatPage extends Page implements HasForms
             if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
                 $attachmentType = 'image';
             } elseif (in_array($ext, ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'opus', 'webm'])) {
-                $attachmentType = 'audio';
-            } elseif (in_array($ext, ['mp4', 'mov', 'webm', 'mkv'])) {
+                // If the file was recorded via audio MediaRecorder, it is an audio/voice note
+                $mime = method_exists($this->attachment, 'getMimeType') ? $this->attachment->getMimeType() : '';
+                if (str_starts_with($mime, 'video/') && ! in_array($ext, ['mp4', 'mov', 'mkv'])) {
+                    $attachmentType = 'video';
+                } else {
+                    $attachmentType = 'audio';
+                }
+            } elseif (in_array($ext, ['mp4', 'mov', 'mkv'])) {
                 $attachmentType = 'video';
             } else {
                 $attachmentType = 'file';
