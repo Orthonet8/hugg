@@ -308,7 +308,7 @@
                     @if ($member?->telegram)
                         <div class="flex items-center gap-2">
                             <span class="text-gray-400">Telegram:</span>
-                            <span class="font-medium text-sky-600 dark:text-sky-400">@{{ ltrim($member->telegram, '@') }}</span>
+                            <span class="font-medium text-sky-600 dark:text-sky-400">{{ '@' . ltrim($member->telegram, '@') }}</span>
                         </div>
                     @endif
                 </div>
