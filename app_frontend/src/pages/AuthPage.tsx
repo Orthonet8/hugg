@@ -13,6 +13,8 @@ const TRANSITION = { duration: 0.38, ease: [0.25, 0.1, 0.25, 1] as const };
 const API_BASE = import.meta.env.VITE_API_BASE ?? "";
 const BACKEND_BASE = API_BASE.replace(/\/+$/, "").replace(/\/api$/, "");
 
+import { PwaInstallPrompt } from "../components/common/PwaInstallPrompt";
+
 export const AuthPage = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ export const AuthPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
+      <PwaInstallPrompt />
       {/* ── Desktop: left hero panel ── */}
       <div className="auth-hero hidden lg:flex lg:w-[42%] flex-col justify-between p-10 text-white">
         <div className="flex items-center gap-3">

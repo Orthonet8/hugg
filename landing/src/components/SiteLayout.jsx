@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import huggLogo from '../assets/hugg-logo.png'
+import PwaInstallPrompt from './PwaInstallPrompt'
 
 function isActive(pathname, to) {
   if (to === '/') return pathname === '/'
@@ -63,6 +64,7 @@ export default function SiteLayout() {
 
   return (
     <div className="page-shell bg-surface text-on-surface min-h-screen font-body">
+      <PwaInstallPrompt />
       <div className="fixed top-4 right-4 z-70" ref={languageMenuRef}>
         <button
           type="button"

@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Outlet, useLocation } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
 import { SideNav } from "./SideNav";
+import { PwaInstallPrompt } from "../common/PwaInstallPrompt";
 
 export const AppLayout = () => {
   const location = useLocation();
@@ -9,6 +10,7 @@ export const AppLayout = () => {
 
   return (
     <div className="min-h-screen">
+      <PwaInstallPrompt />
       <div className="app-web-layout">
         <SideNav />
         <div className={isProfileRoute ? "min-w-0 flex-1" : "app-shell"}>
