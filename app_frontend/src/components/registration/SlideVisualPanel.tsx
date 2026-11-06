@@ -68,7 +68,7 @@ export const SlideVisualPanel = ({ slideId }: { slideId: SlideVisualId }) => {
         ["--slide-glow" as string]: visual.glow,
       }}
     >
-      <div className="slide-visual-art">
+      <div className="slide-visual-art hidden sm:block">
         <motion.div
           className="slide-visual-orb orb-a"
           animate={{ y: [0, -8, 0], x: [0, 4, 0] }}

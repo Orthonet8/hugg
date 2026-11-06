@@ -475,7 +475,31 @@ select {
 .registration-shell {
   min-height: 100vh;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+}
+
+.registration-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--primary) 32%, transparent) transparent;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.registration-scroller::-webkit-scrollbar {
+  width: 6px;
+}
+
+.registration-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.registration-scroller::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--primary) 32%, transparent);
+  border-radius: 9999px;
+}
+
+.registration-scroller::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }
 
 .registration-shell::before,

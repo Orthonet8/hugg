@@ -7,6 +7,8 @@ interface AuthState {
   user: UserProfile | null;
   token: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
+  checkAuth: () => Promise<boolean>;
   login: (emailOrUsername: string, password: string) => Promise<boolean>;
   loginWithToken: (token: string) => Promise<boolean>;
   signup: (data: SignupPayload) => Promise<boolean>;
@@ -49,6 +51,7 @@ const api = async <T>(path: string, body: unknown, token?: string, method = "POS
   const res = await fetch(buildApiUrl(path), {
     method,
     headers,
+    credentials: "include",
     body: method !== "GET" ? JSON.stringify(body) : undefined,
   });
 
@@ -76,7 +79,10 @@ const apiGet = async <T>(path: string, token?: string): Promise<T> => {
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(buildApiUrl(path), { headers });
+  const res = await fetch(buildApiUrl(path), {
+    headers,
+    credentials: "include",
+  });
   const json = await res.json();
   if (!res.ok) {
     const payload = json as {
@@ -98,6 +104,19 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
+      isLoading: false,
+
+      checkAuth: async () => {
+        set({ isLoading: true });
+        try {
+          const data = await apiGet<{ member: UserProfile }>("/api/auth/me");
+          set({ user: data.member, isAuthenticated: true, isLoading: false });
+          return true;
+        } catch {
+          set({ user: null, token: null, isAuthenticated: false, isLoading: false });
+          return false;
+        }
+      },
 
       login: async (emailOrUsername: string, password: string) => {
         const data = await api<{ member: UserProfile; token: string }>("/api/auth/login", {
@@ -134,7 +153,9 @@ export const useAuthStore = create<AuthState>()(
 
       updateProfile: async (data: RegistrationForm) => {
         const state = get();
-        if (!state.user || !state.token) return false;
+        if (!state.user) {
+          throw new Error("Please log in to complete your profile.");
+        }
 
         const formData = new FormData();
         const appendIfPresent = (key: string, value: string | null | undefined) => {
@@ -174,10 +195,11 @@ export const useAuthStore = create<AuthState>()(
 
         const res = await fetch(buildApiUrl(`/api/members/${state.user.id}/profile`), {
           method: "PATCH",
+          credentials: "include",
           headers: {
             Accept: "application/json",
             "X-Requested-With": "XMLHttpRequest",
-            Authorization: `Bearer ${state.token}`,
+            ...(state.token ? { Authorization: `Bearer ${state.token}` } : {}),
           },
           body: formData,
         });

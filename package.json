@@ -1,0 +1,18 @@
+{
+  "name": "hugg-workspace",
+  "private": true,
+  "scripts": {
+    "install:landing": "npm --prefix landing install",
+    "install:app": "npm --prefix app_frontend install",
+    "install:server": "npm --prefix server install",
+    "install:all": "npm run install:landing && npm run install:app && npm run install:server",
+    "build:landing": "npm --prefix landing run build",
+    "build:app": "npm --prefix app_frontend run build",
+    "build:server": "npm --prefix server run build",
+    "build:all": "npm run build:landing && npm run build:app && npm run build:server",
+    "dev:landing": "npm --prefix landing run dev -- --port 5174",
+    "dev:app": "npm --prefix app_frontend run dev -- --port 5173",
+    "dev:server": "docker compose up",
+    "dev": "npx concurrently -n \"server,app,landing\" -c \"blue,magenta,cyan\" \"npm run dev:server\" \"npm run dev:app\" \"npm run dev:landing\""
+  }
+}

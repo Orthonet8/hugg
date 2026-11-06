@@ -19,7 +19,7 @@ export default function BlackPage() {
           <span className="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-bold tracking-widest uppercase mb-4 rounded-sm">
             {t('black.chip')}
           </span>
-          <h2 className="text-5xl md:text-7xl font-headline font-bold italic mb-6 leading-tight text-white">{t('black.title')}</h2>
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-headline font-bold italic mb-6 leading-tight text-white">{t('black.title')}</h2>
           <p className="text-lg md:text-xl font-body font-light amharic-text opacity-90 leading-relaxed">
             {t('black.intro')}
           </p>

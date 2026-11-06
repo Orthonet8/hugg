@@ -23,9 +23,9 @@ Route::get('/events', [ApiEventController::class, 'index']);
 Route::get('/posts', [ApiPostController::class, 'index']);
 
 /* ------------------------------------------------------------------ */
-/*  Protected routes — require Bearer token */
+/*  Protected routes — require valid cookie or Bearer token */
 /* ------------------------------------------------------------------ */
-Route::middleware('api')->group(function () {
+Route::middleware(['api', 'auth.member'])->group(function () {
     // Auth
     Route::post('/auth/logout', [ApiMemberController::class, 'logout']);
     Route::get('/auth/me', [ApiMemberController::class, 'me']);

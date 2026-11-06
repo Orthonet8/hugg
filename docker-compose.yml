@@ -1,0 +1,11 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: hugg-server
+    container_name: hugg-server
+    network_mode: host
+    volumes:
+      - ./server:/app
+    restart: unless-stopped

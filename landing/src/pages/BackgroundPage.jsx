@@ -19,7 +19,7 @@ export default function BackgroundPage() {
             alt={t('common.logoAlt')}
             className="h-20 w-20 md:h-24 md:w-24 object-contain mb-4 rounded-full bg-white/90 p-2 shadow-[0_12px_30px_rgba(21,28,39,0.22)]"
           />
-          <h2 className="font-headline text-5xl md:text-6xl text-white font-bold leading-tight mb-4 italic">{t('background.heroTitle')}</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl md:text-6xl text-white font-bold leading-tight mb-4 italic">{t('background.heroTitle')}</h2>
           <div className="h-1 w-24 bg-secondary-fixed" />
         </div>
       </section>

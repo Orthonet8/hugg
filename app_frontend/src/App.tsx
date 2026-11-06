@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { AppLayout } from "./components/layout/AppLayout";
@@ -16,7 +17,12 @@ import { useI18n } from "./i18n/I18nProvider";
 
 function App() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const checkAuth = useAuthStore((s) => s.checkAuth);
   const { languageSelected } = useI18n();
+
+  useEffect(() => {
+    void checkAuth();
+  }, [checkAuth]);
 
   return (
     <Routes>
@@ -37,12 +43,13 @@ function App() {
               : <AuthPage />
         }
       />
+      <Route path="/register" element={<Navigate to="/login?mode=signup" replace />} />
       <Route path="/set-password" element={<SetPasswordPage />} />
       <Route path="/auth/google/callback" element={<GoogleAuthCallbackPage />} />
-      <Route path="/register/:stepId" element={<RegistrationPage />} />
 
       {/* Protected routes — require authentication */}
       <Route element={<ProtectedRoute />}>
+        <Route path="/register/:stepId" element={<RegistrationPage />} />
         <Route element={<AppLayout />}>
           <Route path="/" element={<Navigate to="/news" replace />} />
           <Route path="/news" element={<NewsPage />} />

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Family;
 use App\Models\Member;
+use App\Models\MemberToken;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -106,14 +107,14 @@ class ApiMemberController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // Generate a simple token (in production, use Laravel Sanctum)
-        $token = $member->email_or_username.':'.bin2hex(random_bytes(16));
+        $token = $member->createApiToken(daysValid: 30);
+        $cookie = cookie('hugg_token', $token, 60 * 24 * 30, '/', null, request()->isSecure(), true, false, 'Lax');
 
         return response()->json([
             'message' => 'Registration successful',
             'member' => $this->formatMemberResponse($member),
             'token' => $token,
-        ], 201);
+        ], 201)->withCookie($cookie);
     }
 
     public function checkIdentifier(Request $request): JsonResponse
@@ -258,9 +259,10 @@ class ApiMemberController extends Controller
                 return redirect()->away($frontendRedirect.'?error='.urlencode('Your account is deactivated.'));
             }
 
-            $token = $member->email_or_username.':'.bin2hex(random_bytes(16));
+            $token = $member->createApiToken(daysValid: 30);
+            $cookie = cookie('hugg_token', $token, 60 * 24 * 30, '/', null, request()->isSecure(), true, false, 'Lax');
 
-            return redirect()->away($frontendRedirect.'?token='.urlencode($token));
+            return redirect()->away($frontendRedirect.'?token='.urlencode($token))->withCookie($cookie);
         } catch (\Throwable $e) {
             return redirect()->away($frontendRedirect.'?error='.urlencode('Google sign in failed. Please try again.'));
         }
@@ -348,19 +350,31 @@ class ApiMemberController extends Controller
         Cache::forget($identifier);
         Cache::forget($identifier . ':locked_until');
 
-        $token = $member->email_or_username.':'.bin2hex(random_bytes(16));
+        $token = $member->createApiToken(daysValid: 30);
+        $cookie = cookie('hugg_token', $token, 60 * 24 * 30, '/', null, request()->isSecure(), true, false, 'Lax');
 
         return response()->json([
             'message' => 'Login successful',
             'member'  => $this->formatMemberResponse($member),
             'token'   => $token,
-        ]);
+        ])->withCookie($cookie);
     }
 
     public function logout(Request $request): JsonResponse
     {
-        // In production, invalidate Sanctum token here
-        return response()->json(['message' => 'Logged out successfully']);
+        $tokenRecord = $request->attributes->get('auth_token_record');
+
+        if (! $tokenRecord) {
+            $plainToken = $request->cookie('hugg_token') ?? $request->bearerToken();
+            if ($plainToken) {
+                MemberToken::query()->where('token_hash', hash('sha256', $plainToken))->delete();
+            }
+        } else {
+            $tokenRecord->delete();
+        }
+
+        return response()->json(['message' => 'Logged out successfully'])
+            ->withoutCookie('hugg_token');
     }
 
     /* ------------------------------------------------------------------ */
@@ -369,7 +383,8 @@ class ApiMemberController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        $member = $this->authenticateRequest($request);
+        $member = $request->attributes->get('auth_member') ?? $this->authenticateRequest($request);
+
         if (! $member) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
@@ -384,21 +399,45 @@ class ApiMemberController extends Controller
 
     public function updateProfile(Request $request, int $id): JsonResponse
     {
-        $member = Member::find($id);
+        $authMember = $request->attributes->get('auth_member') ?? $this->authenticateRequest($request);
 
-        if (! $member) {
-            return response()->json(["message" => "Member not found"], 404);
+        if (! $authMember) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
+        if ((int) $authMember->id !== $id) {
+            return response()->json(['message' => 'Forbidden. You can only update your own profile.'], 403);
+        }
+
+        $member = $authMember;
+
         $input = $request->all();
+
+        // Normalize gender
+        if (isset($input['gender'])) {
+            $g = strtolower(trim((string) $input['gender']));
+            if ($g === 'male' || $g === 'ወንድ') {
+                $input['gender'] = 'ወንድ';
+            } elseif ($g === 'female' || $g === 'ሴት') {
+                $input['gender'] = 'ሴት';
+            }
+        }
+
+        // Normalize empty strings to null for unique DB columns
+        if (array_key_exists('mobile', $input)) {
+            $m = trim((string) $input['mobile']);
+            $input['mobile'] = $m !== '' ? $m : null;
+        }
+
         if (array_key_exists('telegram', $input)) {
-            $input['telegram'] = $this->normalizeTelegram($input['telegram']);
+            $t = $this->normalizeTelegram($input['telegram']);
+            $input['telegram'] = $t !== '' ? $t : null;
         }
 
         $validated = Validator::make($input, [
             "full_name"           => "nullable|string|max:255",
             "christian_name"       => "nullable|string|max:255",
-            "gender"               => "nullable|in:ወንድ,ሴት",
+            "gender"               => "nullable|in:ወንድ,ሴት,Male,Female,male,female",
             "age"                  => "nullable|string|max:10",
             "campus"               => "nullable|string|max:255",
             "field_of_study"       => "nullable|string|max:255",
@@ -419,7 +458,7 @@ class ApiMemberController extends Controller
             "talent_description"   => "nullable|string|max:1000",
             "mobile"               => "nullable|string|max:50|unique:members,mobile,{$id}",
             "telegram"             => "nullable|string|max:255|unique:members,telegram,{$id}",
-            "profile_photo"        => "nullable|image|max:2048",
+            "profile_photo"        => "nullable|image|max:10240",
         ])->validate();
 
         if ($request->hasFile('profile_photo')) {
@@ -485,11 +524,17 @@ class ApiMemberController extends Controller
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $member = Member::find($id);
+        $authMember = $request->attributes->get('auth_member') ?? $this->authenticateRequest($request);
 
-        if (! $member) {
-            return response()->json(['message' => 'Member not found'], 404);
+        if (! $authMember) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
+
+        if ((int) $authMember->id !== $id) {
+            return response()->json(['message' => 'Forbidden. You can only update your own profile.'], 403);
+        }
+
+        $member = $authMember;
 
         $input = $request->all();
         if (array_key_exists('telegram', $input)) {
@@ -549,13 +594,19 @@ class ApiMemberController extends Controller
     /*  DELETE /api/members/{id} */
     /* ------------------------------------------------------------------ */
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
-        $member = Member::find($id);
+        $authMember = $request->attributes->get('auth_member') ?? $this->authenticateRequest($request);
 
-        if (! $member) {
-            return response()->json(['message' => 'Member not found'], 404);
+        if (! $authMember) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
+
+        if ((int) $authMember->id !== $id) {
+            return response()->json(['message' => 'Forbidden. You can only deactivate your own account.'], 403);
+        }
+
+        $member = $authMember;
 
         // Soft-delete by deactivating
         $member->update(['is_active' => false]);
@@ -747,24 +798,33 @@ class ApiMemberController extends Controller
     }
 
     /**
-     * Simple token-based auth for API (replace with Sanctum in production).
+     * Authenticate member request via cookie or Bearer token.
      */
     protected function authenticateRequest(Request $request): ?Member
     {
-        $token = $request->header('Authorization');
-        if (! $token || ! str_starts_with($token, 'Bearer ')) {
+        $plainToken = $request->cookie('hugg_token') ?? $request->bearerToken();
+        if (! $plainToken) {
             return null;
         }
 
-        $token = substr($token, 7);
-        $parts = explode(':', $token, 2);
-        if (count($parts) !== 2) {
+        $tokenHash = hash('sha256', $plainToken);
+
+        $memberToken = MemberToken::query()
+            ->where('token_hash', $tokenHash)
+            ->with('member')
+            ->first();
+
+        if (! $memberToken || ! $memberToken->isValid()) {
             return null;
         }
 
-        $username = $parts[0];
+        $member = $memberToken->member;
 
-        return Member::active()->where('email_or_username', $username)->first();
+        if (! $member || ! $member->is_active) {
+            return null;
+        }
+
+        return $member;
     }
 
     private function normalizeTelegram(mixed $value): ?string

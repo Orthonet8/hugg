@@ -8,6 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Family;
 use App\Models\Section;
+use App\Models\MemberToken;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Member extends Authenticatable
 {
@@ -71,6 +74,25 @@ class Member extends Authenticatable
     public function section(): BelongsTo
     {
         return $this->belongsTo(Section::class);
+    }
+
+    public function tokens(): HasMany
+    {
+        return $this->hasMany(MemberToken::class);
+    }
+
+    public function createApiToken(?int $daysValid = 30): string
+    {
+        $plainToken = Str::random(40);
+        $tokenHash = hash('sha256', $plainToken);
+
+        $this->tokens()->create([
+            'token_hash' => $tokenHash,
+            'last_used_at' => now(),
+            'expires_at' => $daysValid ? now()->addDays($daysValid) : null,
+        ]);
+
+        return $plainToken;
     }
 
     /**

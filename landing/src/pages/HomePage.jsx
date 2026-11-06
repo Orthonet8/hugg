@@ -58,18 +58,24 @@ export default function HomePage() {
             alt={t('common.logoAlt')}
             className="h-28 w-28 md:h-32 md:w-32 lg:h-28 lg:w-28 xl:h-36 xl:w-36 object-contain rounded-full bg-white/90 p-2 shadow-[0_12px_30px_rgba(15,38,34,0.24)] hero-logo-glow"
           />
-          <h2 className="font-headline text-5xl md:text-7xl text-white leading-[1.08] font-semibold italic drop-shadow-[0_8px_22px_rgba(0,0,0,0.25)]">
+          <h2 className="font-headline text-3xl sm:text-5xl md:text-7xl text-white leading-[1.12] font-semibold italic drop-shadow-[0_8px_22px_rgba(0,0,0,0.25)]">
             {t('home.titleLine1')} <br /> {t('home.titleLine2')}
           </h2>
-          <p className="text-white/88 font-body text-lg md:text-xl leading-relaxed max-w-xl">
+          <p className="text-white/88 font-body text-base sm:text-lg md:text-xl leading-relaxed max-w-xl">
             {t('home.intro')}
           </p>
-          <div className="flex flex-wrap gap-4 pt-4">
-            <Link className="sacred-gradient text-on-primary px-8 py-4 rounded-full font-semibold flex items-center gap-2 group transition-all shadow-[0_14px_30px_rgba(8,61,65,0.3)] active:scale-95" to="/background">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-3 sm:pt-4">
+            <a
+              href="/app/login?mode=signup"
+              className="sacred-gradient text-on-primary px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-semibold flex items-center justify-center gap-2 group transition-all shadow-[0_14px_30px_rgba(8,61,65,0.3)] active:scale-95"
+            >
+              <span>አባል ይሁኑ / ይመዝገቡ</span>
+              <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">person_add</span>
+            </a>
+            <Link className="bg-white/15 backdrop-blur-md border border-white/30 text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-semibold hover:bg-white/24 transition-all text-center" to="/background">
               {t('home.ctaReadMore')}
-              <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
             </Link>
-            <Link className="bg-white/12 backdrop-blur-md border border-white/30 text-white px-8 py-4 rounded-full font-semibold hover:bg-white/24 transition-all" to="/about">
+            <Link className="bg-white/10 backdrop-blur-md border border-white/20 text-white/90 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-semibold hover:bg-white/20 transition-all text-center" to="/about">
               {t('home.ctaAbout')}
             </Link>
           </div>
@@ -254,6 +260,38 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Community Onboarding Banner */}
+      <section className="px-6 md:px-10 lg:pl-20 lg:pr-12 py-12 md:py-16 bg-transparent">
+        <div className="rounded-3xl p-8 md:p-12 sacred-gradient text-on-primary shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="relative z-10 max-w-xl space-y-3 sm:space-y-4 text-center md:text-left">
+            <div className="inline-block px-3 py-1 bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-widest uppercase rounded-full shadow-sm">
+              የግቢ ጉባኤ አባልነት
+            </div>
+            <h3 className="font-headline text-2xl sm:text-3xl md:text-4xl font-bold leading-tight">
+              የሐረማያ ዩኒቨርሲቲ ግቢ ጉባኤ አባል ይሁኑ
+            </h3>
+            <p className="text-white/88 text-sm sm:text-base md:text-lg leading-relaxed">
+              በግቢ ቆይታዎ በመንፈሳዊ ዕውቀትና አገልግሎት እንዲሳተፉ፣ በኮርሶች እንዲካፈሉ እና ከኦርቶዶክሳውያን ተማሪዎች ጋር እንዲተዋወቁ ዛሬውኑ ይመዝገቡ።
+            </p>
+          </div>
+          <div className="relative z-10 flex flex-col sm:flex-row gap-3 sm:gap-4 shrink-0 w-full md:w-auto">
+            <a
+              href="/app/login?mode=signup"
+              className="px-7 py-3.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-bold text-center shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm sm:text-base"
+            >
+              <span>አዲስ ይመዝገቡ</span>
+              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
+            <a
+              href="/app/login"
+              className="px-7 py-3.5 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white font-semibold text-center hover:bg-white/25 active:scale-95 transition-all text-sm sm:text-base"
+            >
+              ይግቡ
+            </a>
           </div>
         </div>
       </section>

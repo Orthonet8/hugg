@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, type FormEvent } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, Loader2, UserPlus, Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button } from "../components/common/Button";
@@ -16,7 +16,14 @@ const BACKEND_BASE = API_BASE.replace(/\/+$/, "").replace(/\/api$/, "");
 export const AuthPage = () => {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const [showSignup, setShowSignup] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [showSignup, setShowSignup] = useState(() => searchParams.get("mode") === "signup");
+
+  useEffect(() => {
+    if (searchParams.get("mode") === "signup") {
+      setShowSignup(true);
+    }
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -58,8 +65,8 @@ export const AuthPage = () => {
         </div>
 
         {/* Form — overlaps hero on mobile (negative margin) */}
-        <div className="flex-1 flex items-start lg:items-center justify-center px-5 lg:px-12 -mt-10 lg:mt-0">
-          <div className="w-full max-w-[420px] bg-[color:var(--surface)] rounded-3xl shadow-2xl p-7 lg:bg-transparent lg:shadow-none lg:rounded-none lg:p-0">
+        <div className="flex-1 flex items-start lg:items-center justify-center px-4 sm:px-6 lg:px-12 -mt-8 sm:-mt-10 lg:mt-0 pb-8 lg:pb-0">
+          <div className="w-full max-w-[420px] bg-[color:var(--surface)] rounded-3xl shadow-2xl p-5 sm:p-7 lg:bg-transparent lg:shadow-none lg:rounded-none lg:p-0">
             <AnimatePresence mode="wait" initial={false}>
               {!showSignup ? (
                 <motion.div

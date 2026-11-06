@@ -14,7 +14,7 @@ export const BottomNav = () => {
   ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 mx-auto w-full max-w-md px-4 pb-4 md:max-w-2xl md:px-8">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 mx-auto w-full max-w-md px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] md:max-w-2xl md:px-8">
       <div className="rounded-3xl border border-[color:var(--border-strong)] bg-[color:var(--glass)] p-2 shadow-[0_20px_40px_rgba(57,0,7,0.28)] backdrop-blur">
         <ul className="grid grid-cols-4 gap-1">
           {navItems.map((item) => (

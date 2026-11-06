@@ -141,7 +141,7 @@ export default function AboutPage() {
       <section className="relative pt-12 px-6 md:px-10 lg:pl-20 lg:pr-12 overflow-hidden">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <img src={huggLogo} alt={t('common.logoAlt')} className="mx-auto h-24 w-24 md:h-28 md:w-28 object-contain vellum-shadow" />
-          <h2 className="font-headline text-5xl md:text-7xl font-bold text-primary tracking-tight leading-tight">{t('about.title')}</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl md:text-7xl font-bold text-primary tracking-tight leading-tight">{t('about.title')}</h2>
           <p className="amharic-text text-xl md:text-2xl text-on-surface-variant font-medium max-w-2xl mx-auto">
             {t('about.subtitle')}
           </p>

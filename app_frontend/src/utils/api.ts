@@ -27,7 +27,13 @@ async function api<T>(
 ): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
   const res = await fetch(url, {
-    headers: { "Content-Type": "application/json", ...options.headers },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "X-Requested-With": "XMLHttpRequest",
+      ...options.headers,
+    },
     ...options,
   });
   if (!res.ok) {
@@ -38,7 +44,7 @@ async function api<T>(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Auth API (mock now, real later)                                   */
+/*  Auth API                                                          */
 /* ------------------------------------------------------------------ */
 
 export interface LoginPayload {
@@ -64,7 +70,7 @@ export const authApi = {
     }),
 
   signup: (payload: SignupApiPayload) =>
-    api<SignupResponse>("/api/auth/signup", {
+    api<SignupResponse>("/api/auth/register", {
       method: "POST",
       body: JSON.stringify(payload),
     }),
@@ -101,7 +107,7 @@ export const eventsApi = {
 /* ------------------------------------------------------------------ */
 
 export const familyApi = {
-  getGroup: () => api<FamilyGroup>("/api/family"),
+  getGroup: () => api<FamilyGroup>("/api/families"),
 };
 
 /* ------------------------------------------------------------------ */
