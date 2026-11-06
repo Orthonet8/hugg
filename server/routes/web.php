@@ -3,6 +3,25 @@
 use App\Http\Controllers\ApiMemberController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/manifest.webmanifest', function () {
+    $file = public_path('manifest.webmanifest');
+    if (file_exists($file)) {
+        return response()->file($file, ['Content-Type' => 'application/manifest+json']);
+    }
+    abort(404);
+});
+
+Route::get('/sw.js', function () {
+    $file = public_path('sw.js');
+    if (file_exists($file)) {
+        return response()->file($file, [
+            'Content-Type' => 'application/javascript',
+            'Service-Worker-Allowed' => '/',
+        ]);
+    }
+    abort(404);
+});
+
 Route::get('/', function () {
     $index = public_path('landing/index.html');
 

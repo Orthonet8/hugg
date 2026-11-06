@@ -11,7 +11,7 @@ const routerBase = import.meta.env.BASE_URL.replace(/\/$/, "");
 if ("serviceWorker" in navigator) {
   if (import.meta.env.PROD) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => null);
+      navigator.serviceWorker.register("/sw.js").catch(() => null);
     });
   } else {
     window.addEventListener("load", () => {
