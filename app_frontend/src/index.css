@@ -245,7 +245,7 @@ select option {
   margin: 0 auto;
   width: 100%;
   max-width: 100%;
-  padding: 1rem 0.75rem 6.5rem;
+  padding: 1rem 0.75rem calc(7.5rem + env(safe-area-inset-bottom, 0px));
   overflow-x: hidden;
   box-sizing: border-box;
 }
@@ -263,7 +263,7 @@ select option {
 @media (min-width: 640px) {
   .app-shell {
     max-width: 28rem;
-    padding: 1.25rem 1rem 7rem;
+    padding: 1.25rem 1rem calc(7.5rem + env(safe-area-inset-bottom, 0px));
   }
   .app-web-layout {
     padding: 0 1rem;

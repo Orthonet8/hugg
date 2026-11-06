@@ -300,7 +300,7 @@ export const SupportPage = () => {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6 space-y-4">
+    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6 space-y-4 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] lg:pb-8">
       {/* Top Header Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

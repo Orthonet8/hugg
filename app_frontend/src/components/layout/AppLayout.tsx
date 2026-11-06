@@ -13,7 +13,7 @@ export const AppLayout = () => {
       <PwaInstallPrompt />
       <div className="app-web-layout">
         <SideNav />
-        <div className={isProfileRoute ? "min-w-0 flex-1" : "app-shell"}>
+        <div className={isProfileRoute ? "min-w-0 flex-1 pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] lg:pb-8" : "app-shell"}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
