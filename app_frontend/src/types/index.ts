@@ -24,6 +24,11 @@ export interface UserProfile {
   email: string;
   phone: string;
   telegram: string;
+  parentPhone?: string;
+  emergencyContacts?: string;
+  accountNumber?: string;
+  accountName?: string;
+  accountType?: string;
   sectionId?: string | number | null;
   section?: {
     id: string | number;

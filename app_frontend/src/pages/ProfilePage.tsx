@@ -2,39 +2,35 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
-  GraduationCap,
-  Home,
-  Phone,
-  Send,
-  Music,
-  Heart,
-  Globe,
   Bell,
   HelpCircle,
   LogOut,
   ChevronRight,
   Check,
-  Moon,
-  Sun,
   BookOpen,
   ClipboardList,
   MapPin,
   ShieldAlert,
   Church,
   Sparkles,
+  LockKeyhole,
 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
 import { useAuthStore } from "../context/useAuthStore";
 import { useI18n } from "../i18n/I18nProvider";
-import { useThemeMode } from "../hooks/useThemeMode";
 
 export const ProfilePage = () => {
-  const { user, logout } = useAuthStore();
+  const { user, logout, updateCredentials } = useAuthStore();
   const { t } = useI18n();
-  const { mode, toggleMode } = useThemeMode();
   const navigate = useNavigate();
   const [showRegistrationPreview, setShowRegistrationPreview] = useState(false);
+  const [showCredentialEditor, setShowCredentialEditor] = useState(false);
+  const [credentialUsername, setCredentialUsername] = useState("");
+  const [credentialPassword, setCredentialPassword] = useState("");
+  const [credentialConfirmation, setCredentialConfirmation] = useState("");
+  const [credentialError, setCredentialError] = useState("");
+  const [savingCredentials, setSavingCredentials] = useState(false);
 
   if (!user) return null;
 
@@ -42,12 +38,6 @@ export const ProfilePage = () => {
     logout();
     navigate("/login", { replace: true });
   };
-
-  const departments = [
-    ...(user.services || []).map((s) => ({ label: s, icon: Heart, accent: true })),
-    ...(user.talents || []).map((t) => ({ label: t, icon: Music, accent: true })),
-    ...(user.languages || []).map((l) => ({ label: l, icon: Globe, accent: false })),
-  ];
 
   const profileComplete = Boolean(user.christianName && user.campus);
 
@@ -64,12 +54,15 @@ export const ProfilePage = () => {
         ],
       },
       {
-        title: "Campus",
-        icon: GraduationCap,
+        title: "Personal Information",
+        icon: User,
         items: [
           ["Campus", user.campus],
-          ["Field of study", user.fieldOfStudy],
           ["Dorm", user.dorm],
+          ["Field of study", user.fieldOfStudy],
+          ["Phone", user.phone],
+          ["Email", user.emailOrUsername || user.email],
+          ["Telegram", user.telegram],
         ],
       },
       {
@@ -86,6 +79,7 @@ export const ProfilePage = () => {
         title: "Church",
         icon: Church,
         items: [
+          ["Section", user.section?.name],
           ["Previous participation", user.previousParticipation],
           ["Local church", user.localChurch],
           ["Ordination", user.ordination],
@@ -95,7 +89,7 @@ export const ProfilePage = () => {
         ],
       },
       {
-        title: "Service",
+        title: "Skills & Services",
         icon: Sparkles,
         items: [
           ["Departments", user.services?.join(", ")],
@@ -104,12 +98,14 @@ export const ProfilePage = () => {
         ],
       },
       {
-        title: "Contact",
-        icon: Send,
+        title: "Emergency & account",
+        icon: ShieldAlert,
         items: [
-          ["Phone", user.phone],
-          ["Telegram", user.telegram],
-          ["Email / Username", user.emailOrUsername || user.email],
+          ["Parent phone", user.parentPhone],
+          ["Emergency contacts", user.emergencyContacts],
+          ["Account number", user.accountNumber],
+          ["Account holder", user.accountName],
+          ["Account type", user.accountType],
         ],
       },
     ],
@@ -158,6 +154,99 @@ export const ProfilePage = () => {
         </div>
       </Card>
 
+      <Card className="p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[color:var(--surface-soft)] text-[color:var(--primary)]">
+              <LockKeyhole size={17} />
+            </span>
+            <div>
+              <h3 className="text-sm font-bold text-[color:var(--text-primary)]">Login details</h3>
+              <p className="mt-1 text-xs text-[color:var(--text-muted)]">Update your username or password.</p>
+            </div>
+          </div>
+          <Button variant="outline" onClick={() => {
+            setCredentialUsername(user.emailOrUsername || "");
+            setCredentialPassword("");
+            setCredentialConfirmation("");
+            setCredentialError("");
+            setShowCredentialEditor((value) => !value);
+          }}>
+            {showCredentialEditor ? "Cancel" : "Edit Login"}
+          </Button>
+        </div>
+
+        {showCredentialEditor && (
+          <form
+            className="mt-4 grid gap-3 sm:grid-cols-2"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              setCredentialError("");
+              if (!credentialUsername.trim()) {
+                setCredentialError("Username or email is required.");
+                return;
+              }
+              if (credentialPassword && credentialPassword.length < 8) {
+                setCredentialError("Password must be at least 8 characters.");
+                return;
+              }
+              if (credentialPassword !== credentialConfirmation) {
+                setCredentialError("Passwords do not match.");
+                return;
+              }
+              setSavingCredentials(true);
+              try {
+                await updateCredentials(credentialUsername.trim(), credentialPassword, credentialConfirmation);
+                setCredentialPassword("");
+                setCredentialConfirmation("");
+                setShowCredentialEditor(false);
+              } catch (error) {
+                setCredentialError(error instanceof Error ? error.message : "Unable to update login details.");
+              } finally {
+                setSavingCredentials(false);
+              }
+            }}
+          >
+            <label className="text-xs font-semibold text-[color:var(--text-secondary)]">
+              Username or email
+              <input
+                className="app-input mt-1 w-full rounded-xl px-3 py-2.5 text-sm"
+                value={credentialUsername}
+                onChange={(event) => setCredentialUsername(event.target.value)}
+                autoComplete="username"
+              />
+            </label>
+            <label className="text-xs font-semibold text-[color:var(--text-secondary)]">
+              New password
+              <input
+                type="password"
+                className="app-input mt-1 w-full rounded-xl px-3 py-2.5 text-sm"
+                value={credentialPassword}
+                onChange={(event) => setCredentialPassword(event.target.value)}
+                placeholder="Leave blank to keep current"
+                autoComplete="new-password"
+              />
+            </label>
+            <label className="text-xs font-semibold text-[color:var(--text-secondary)] sm:col-start-2">
+              Confirm new password
+              <input
+                type="password"
+                className="app-input mt-1 w-full rounded-xl px-3 py-2.5 text-sm"
+                value={credentialConfirmation}
+                onChange={(event) => setCredentialConfirmation(event.target.value)}
+                autoComplete="new-password"
+              />
+            </label>
+            {credentialError && <p className="text-xs font-semibold text-[color:var(--danger-text)] sm:col-span-2">{credentialError}</p>}
+            <div className="sm:col-span-2 sm:flex sm:justify-end">
+              <Button type="submit" variant="primary" disabled={savingCredentials}>
+                {savingCredentials ? "Saving..." : "Save Login Details"}
+              </Button>
+            </div>
+          </form>
+        )}
+      </Card>
+
       {!profileComplete && (
         <Card className="overflow-hidden p-0">
           <div className="bg-[color:var(--surface-soft)] p-4">
@@ -203,7 +292,7 @@ export const ProfilePage = () => {
         </div>
 
         {showRegistrationPreview && (
-          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
             {registrationSections.map((section) => {
               const visibleItems = section.items.filter(([, value]) => Boolean(value));
 
@@ -212,26 +301,28 @@ export const ProfilePage = () => {
               return (
                 <div
                   key={section.title}
-                  className="rounded-[1.3rem] border border-[color:var(--border)] bg-[color:var(--surface-soft)] p-4"
+                  className="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-soft)] p-4 shadow-sm"
                 >
-                  <div className="mb-3 flex items-center gap-2">
-                    <section.icon size={16} className="text-[color:var(--primary)]" />
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[color:var(--text-primary)]">
-                      {section.title}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    {visibleItems.map(([label, value]) => (
-                      <div
-                        key={label}
-                        className="rounded-[1rem] bg-[color:var(--surface)] px-3 py-2.5"
-                      >
-                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
-                          {label}
-                        </p>
-                        <p className="mt-1 text-sm font-semibold text-[color:var(--text-primary)]">
-                          {value}
-                        </p>
+                <div className="mb-3 flex items-center gap-2 border-b border-[color:var(--border)] pb-2.5">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[color:var(--primary)] text-[color:var(--on-primary)]">
+                    <section.icon size={14} />
+                  </span>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-[color:var(--text-primary)]">
+                    {section.title}
+                  </p>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {visibleItems.map(([label, value]) => (
+                    <div
+                      key={label}
+                      className="min-w-0 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2.5"
+                    >
+                      <p className="truncate text-[10px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-muted)]">
+                        {label}
+                      </p>
+                      <p className="mt-1 break-words text-sm font-semibold leading-snug text-[color:var(--text-primary)]">
+                        {value}
+                      </p>
                       </div>
                     ))}
                   </div>
@@ -241,102 +332,6 @@ export const ProfilePage = () => {
           </div>
         )}
       </Card>
-
-      {/* Personal Info */}
-      <Card className="divide-y divide-[color:var(--border)] overflow-hidden rounded-xl p-0">
-        <div className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-[color:var(--text-muted)]">
-          {t("profile.personalInfo")}
-        </div>
-        {user.campus && (
-          <div className="flex items-center gap-3 px-4 py-3">
-            <GraduationCap size={18} className="text-[color:var(--primary)] shrink-0" />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-tighter text-[color:var(--text-muted)]">
-                {t("profile.campus")}
-              </p>
-              <p className="text-sm font-semibold text-[color:var(--text-primary)]">
-                {user.campus}
-              </p>
-            </div>
-          </div>
-        )}
-        {user.dorm && (
-          <div className="flex items-center gap-3 px-4 py-3">
-            <Home size={18} className="text-[color:var(--primary)] shrink-0" />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-tighter text-[color:var(--text-muted)]">
-                {t("profile.dorm")}
-              </p>
-              <p className="text-sm font-semibold text-[color:var(--text-primary)]">
-                {user.dorm}
-              </p>
-            </div>
-          </div>
-        )}
-        {user.phone && (
-          <div className="flex items-center gap-3 px-4 py-3">
-            <Phone size={18} className="text-[color:var(--primary)] shrink-0" />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-tighter text-[color:var(--text-muted)]">
-                {t("profile.phone")}
-              </p>
-              <p className="text-sm font-semibold text-[color:var(--text-primary)]">
-                {user.phone}
-              </p>
-            </div>
-          </div>
-        )}
-        {user.email && (
-          <div className="flex items-center gap-3 px-4 py-3">
-            <Send size={18} className="text-[color:var(--primary)] shrink-0" />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-tighter text-[color:var(--text-muted)]">
-                Email
-              </p>
-              <p className="text-sm font-semibold text-[color:var(--text-primary)]">
-                {user.email}
-              </p>
-            </div>
-          </div>
-        )}
-        {user.telegram && (
-          <div className="flex items-center gap-3 px-4 py-3">
-            <Send size={18} className="text-[color:var(--primary)] shrink-0" />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-tighter text-[color:var(--text-muted)]">
-                {t("profile.telegram")}
-              </p>
-              <p className="text-sm font-semibold text-[color:var(--text-primary)]">
-                {user.telegram}
-              </p>
-            </div>
-          </div>
-        )}
-      </Card>
-
-      {/* Skills & Services */}
-      {departments.length > 0 && (
-        <Card className="p-4">
-          <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-[color:var(--text-muted)]">
-            {t("profile.skillsServices")}
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {departments.map((dept, i) => (
-              <span
-                key={i}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${
-                  dept.accent
-                    ? "bg-[color:var(--accent)] text-[color:var(--on-accent)]"
-                    : "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text-primary)]"
-                }`}
-              >
-                <dept.icon size={12} />
-                {dept.label}
-              </span>
-            ))}
-          </div>
-        </Card>
-      )}
 
       {/* Donation Accounts */}
       {user.donationAccounts && user.donationAccounts.length > 0 && (
@@ -379,29 +374,10 @@ export const ProfilePage = () => {
           <ChevronRight size={16} className="text-[color:var(--border-strong)]" />
         </button>
 
-        {/* Theme Toggle */}
-        <button
-          type="button"
-          onClick={toggleMode}
-          className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[color:var(--soft-hover)]"
-        >
-          {mode === "dark" ? (
-            <Sun size={18} className="text-[color:var(--accent)] shrink-0" />
-          ) : (
-            <Moon size={18} className="text-[color:var(--primary)] shrink-0" />
-          )}
-          <span className="flex-1 text-sm font-semibold text-[color:var(--text-primary)]">
-            {t("common.theme")}
-          </span>
-          <span className="text-xs font-medium text-[color:var(--text-muted)]">
-            {mode === "dark" ? "Dark" : "Light"}
-          </span>
-        </button>
-
         {/* Help */}
         <button
           type="button"
-          onClick={() => alert("Help & Support — coming soon")}
+          onClick={() => navigate("/support")}
           className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[color:var(--soft-hover)]"
         >
           <HelpCircle size={18} className="text-[color:var(--primary)] shrink-0" />
