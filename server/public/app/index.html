@@ -2,15 +2,48 @@
 <html lang="am">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/app/icons/icon-192.svg" />
-    <link rel="manifest" href="/app/manifest.webmanifest" />
-    <meta name="theme-color" content="#5f0113" />
-    <meta name="description" content="HU Gibi Gubae — worship, fellowship, learning, and service for Haramaya University students." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+
+    <!-- Application Identity & SEO -->
+    <title>HU Gibi Gubae | የሐረማያ ዩኒቨርሲቲ ግቢ ጉባኤ</title>
+    <meta name="description" content="HU Gibi Gubae — worship, spiritual growth, education, and student fellowship for Haramaya University Orthodox Tewahido students." />
+    <meta name="keywords" content="HU Gibi Gubae, Haramaya University, ግቢ ጉባኤ, ሐረማያ ዩኒቨርሲቲ, Orthodox Tewahido, students fellowship, Ethiopia" />
+    <meta name="author" content="Haramaya University Gibi Gubae" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Theme & Colors -->
+    <meta name="theme-color" content="#5f0113" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#140d0f" media="(prefers-color-scheme: dark)" />
+
+    <!-- PWA & Mobile Web App Meta -->
     <meta name="application-name" content="HU Gibi Gubae" />
     <meta name="apple-mobile-web-app-title" content="HU Gubae" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="robots" content="noindex, nofollow" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Favicons & Touch Icons -->
+    <link rel="icon" type="image/x-icon" href="/app/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/app/icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/app/icons/icon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/app/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/app/manifest.webmanifest" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="HU Gibi Gubae" />
+    <meta property="og:title" content="HU Gibi Gubae | የሐረማያ ዩኒቨርሲቲ ግቢ ጉባኤ" />
+    <meta property="og:description" content="Haramaya University Gibi Gubae Fellowship — worship, spiritual growth, education, and student community." />
+    <meta property="og:image" content="/app/icons/icon-512.png" />
+    <meta property="og:url" content="/app/" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="HU Gibi Gubae" />
+    <meta name="twitter:description" content="Haramaya University Gibi Gubae Fellowship Portal" />
+    <meta name="twitter:image" content="/app/icons/icon-192.png" />
+
     <style>
       :root {
         color-scheme: light;
@@ -48,27 +81,15 @@
     <script>
       (() => {
         try {
-          const storageKey = "church-student-pwa-theme";
-          const savedTheme = localStorage.getItem(storageKey);
-          const prefersDark = window.matchMedia(
-            "(prefers-color-scheme: dark)",
-          ).matches;
-          const theme =
-            savedTheme === "dark" || savedTheme === "light"
-              ? savedTheme
-              : prefersDark
-                ? "dark"
-                : "light";
-
-          document.documentElement.setAttribute("data-theme", theme);
-          document.documentElement.style.colorScheme = theme;
+          const stored = localStorage.getItem("hugg-theme");
+          const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          const theme = stored || (prefersDark ? "dark" : "light");
+          document.documentElement.dataset.theme = theme;
         } catch {
-          document.documentElement.setAttribute("data-theme", "light");
+          // Fall back gracefully to light
         }
       })();
     </script>
-    <title>HU Gibi Gubae | Member App</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script type="module" crossorigin src="/app/assets/index-DBTeKr2S.js"></script>
     <link rel="stylesheet" crossorigin href="/app/assets/index-C5O_QDQN.css">
   </head>

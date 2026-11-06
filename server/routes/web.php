@@ -25,7 +25,11 @@ Route::get('/app/assets/{path}', function () {
     abort(404);
 })->where('path', '.*');
 
-Route::get('/app/icons/{path}', function () {
+Route::get('/app/icons/{path}', function ($path) {
+    $file = public_path('app/icons/' . $path);
+    if (file_exists($file)) {
+        return response()->file($file);
+    }
     abort(404);
 })->where('path', '.*');
 
