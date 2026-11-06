@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Loader2, UserPlus, Eye, EyeOff, Sparkles } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
 import { Button } from "../components/common/Button";
 import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
 import { ThemeToggle } from "../components/common/ThemeToggle";
@@ -152,7 +152,7 @@ function LoginForm({ onLogin, onForgotPassword, onSwitchToSignup }: {
 
       {error && (
         <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
-          className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 flex items-start gap-2">
+          className="app-alert-error mb-4 rounded-xl px-4 py-3 text-sm flex items-start gap-2">
           <span className="mt-0.5 shrink-0">⚠</span> {error}
         </motion.div>
       )}
@@ -198,35 +198,20 @@ function LoginForm({ onLogin, onForgotPassword, onSwitchToSignup }: {
         <span className="h-px flex-1 bg-[color:var(--border)]" />
       </div>
 
-      <button type="button"
-        className="w-full rounded-2xl border border-[color:var(--border-strong)] bg-[color:var(--surface)] py-3 text-sm font-semibold text-[color:var(--text-primary)] hover:bg-[color:var(--soft-hover)] flex items-center justify-center gap-2.5 transition"
-        onClick={() => { window.location.href = `${BACKEND_BASE}/auth/google/redirect`; }}>
-        <GoogleIcon />
-        {t("auth.continueWithGoogle")}
-      </button>
-
       <button
         type="button"
         onClick={onSwitchToSignup}
-        className="signup-entry-btn mt-3 w-full text-left"
+        className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-[color:var(--primary)] bg-[color:var(--surface)] py-3 text-sm font-semibold text-[color:var(--primary)] transition hover:bg-[color:var(--soft-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ring)]"
       >
-        <div className="flex items-start gap-3">
-          <div className="signup-entry-icon">
-            <UserPlus size={18} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-semibold text-[color:var(--primary)]">{t("auth.signUp")}</span>
-              <span className="signup-entry-badge">
-                <Sparkles size={12} />
-                New member
-              </span>
-            </div>
-            <p className="mt-1 text-xs leading-relaxed text-[color:var(--text-muted)]">
-              Create your account, then continue into the full church and campus profile setup.
-            </p>
-          </div>
-        </div>
+        <UserPlus size={17} />
+        {t("auth.signUp")}
+      </button>
+
+      <button type="button"
+        className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-2xl border border-[color:var(--border-strong)] bg-[color:var(--surface)] py-3 text-sm font-semibold text-[color:var(--text-primary)] transition hover:bg-[color:var(--soft-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--ring)]"
+        onClick={() => { window.location.href = `${BACKEND_BASE}/auth/google/redirect`; }}>
+        <GoogleIcon />
+        {t("auth.continueWithGoogle")}
       </button>
     </div>
   );
