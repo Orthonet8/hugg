@@ -156,7 +156,23 @@ export default function SiteLayout() {
             )
           })}
         </div>
+
+        <a
+          href="/app/login"
+          className="hidden md:inline-flex md:mr-24 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-on-primary shadow-[0_8px_18px_rgba(8,61,65,0.2)] transition hover:-translate-y-0.5 hover:bg-primary-container"
+        >
+          <span className="material-symbols-outlined text-[16px]">login</span>
+          Member Login
+        </a>
       </nav>
+
+      <a
+        href="/app/login"
+        className="fixed bottom-24 right-4 z-40 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-on-primary shadow-[0_10px_22px_rgba(8,61,65,0.22)] md:hidden"
+      >
+        <span className="material-symbols-outlined text-[16px]">login</span>
+        Login
+      </a>
     </div>
   )
 }

@@ -4,6 +4,10 @@ import './index.css'
 import App from './App.jsx'
 import './i18n'
 
+if (window.location.pathname === '/') {
+  window.history.replaceState({}, '', '/landing')
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />

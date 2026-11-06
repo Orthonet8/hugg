@@ -65,6 +65,10 @@ export default function HomePage() {
             {t('home.intro')}
           </p>
           <div className="flex flex-wrap gap-4 pt-4">
+            <a className="sacred-gradient text-on-primary px-8 py-4 rounded-full font-semibold flex items-center gap-2 group transition-all shadow-[0_14px_30px_rgba(8,61,65,0.3)] active:scale-95" href="/app/login">
+              Member Login
+              <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">login</span>
+            </a>
             <Link className="sacred-gradient text-on-primary px-8 py-4 rounded-full font-semibold flex items-center gap-2 group transition-all shadow-[0_14px_30px_rgba(8,61,65,0.3)] active:scale-95" to="/background">
               {t('home.ctaReadMore')}
               <span className="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>

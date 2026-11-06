@@ -7,7 +7,7 @@ import HomePage from './pages/HomePage'
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/landing">
       <Routes>
         <Route element={<SiteLayout />}>
           <Route path="/" element={<HomePage />} />
