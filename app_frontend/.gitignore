@@ -24,5 +24,8 @@ dist-ssr
 *.sw?
 
 .env
+.env.prod
+.env.production
+.env*.local
 
 .kiro
