@@ -12,10 +12,10 @@ export const LanguageSwitcher = () => {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--primary)] shadow-[0_8px_20px_rgba(57,0,7,0.12)] transition hover:bg-[color:var(--surface-soft)]"
+        className="inline-flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--primary)] shadow-[0_8px_20px_rgba(57,0,7,0.12)] transition hover:bg-[color:var(--surface-soft)] active:scale-95"
         aria-label="Language"
       >
-        <Globe size={20} />
+        <Globe size={18} />
       </button>
 
       {open && (
@@ -23,7 +23,7 @@ export const LanguageSwitcher = () => {
           {/* Backdrop to close dropdown */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
-          <div className="absolute right-0 top-12 z-50 min-w-[200px] overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 shadow-xl">
+          <div className="absolute right-0 top-12 z-50 min-w-[180px] sm:min-w-[200px] overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-1.5 shadow-xl">
             {(["en", "am", "om"] as Locale[]).map((lang) => (
               <button
                 key={lang}

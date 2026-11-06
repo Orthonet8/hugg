@@ -149,6 +149,13 @@ body,
   min-height: 100%;
 }
 
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   background:
@@ -237,16 +244,31 @@ select option {
 .app-shell {
   margin: 0 auto;
   width: 100%;
-  max-width: 28rem;
-  padding: 1.25rem 1rem 7rem;
+  max-width: 100%;
+  padding: 1rem 0.75rem 6.5rem;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .app-web-layout {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   max-width: 72rem;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .app-shell {
+    max-width: 28rem;
+    padding: 1.25rem 1rem 7rem;
+  }
+  .app-web-layout {
+    padding: 0 1rem;
+    gap: 2rem;
+  }
 }
 
 @media (min-width: 768px) {
