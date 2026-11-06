@@ -20,10 +20,16 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     protected $fillable = [
         'name',
         'username',
+        'email',
+        'phone',
+        'telegram_username',
         'fellowship_name',
         'logo',
         'motto',
         'avatar_url',
+        'is_supporter',
+        'support_sectors',
+        'support_bio',
         'password',
     ];
 
@@ -36,6 +42,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return [
             'password' => 'hashed',
+            'is_supporter' => 'boolean',
+            'support_sectors' => 'array',
         ];
     }
 
