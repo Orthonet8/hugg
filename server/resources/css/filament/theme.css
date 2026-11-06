@@ -2,9 +2,7 @@
 
 /* Tailwind v4+ Source Scanning */
 @source '../../../app/Filament/**/*';
-@source '../../../resources/views/filament/**/*';
-@source '../../../resources/views/livewire/**/*';
-@source '../../../resources/views/students/**/*';
+@source '../../../resources/views/**/*';
 
 .welcome-gradient {
     background:
@@ -47,14 +45,14 @@ main.fi-main.fi-width-7xl {
 }
 
 /* Sidebar should span full viewport height from the very top (even with topbar) */
-.fi-body-has-topbar aside.fi-sidebar {
+.fi-body-has-topbar .fi-sidebar {
     top: 0 ;
     height: 100dvh ;
 }
 
 /* Keep sidebar pinned while the page scrolls (Filament uses sticky on desktop in some modes) */
 @media (min-width: 64rem) {
-    aside.fi-sidebar {
+    .fi-sidebar {
         position: fixed ;
         top: 0 ;
         bottom: 0 ;
@@ -64,7 +62,7 @@ main.fi-main.fi-width-7xl {
 
 /* Ensure sidebar covers the left area of the sticky topbar (no "hole" on desktop) */
 @media (min-width: 64rem) {
-    aside.fi-sidebar {
+    .fi-sidebar {
         z-index: 40 ;
     }
 }
@@ -91,12 +89,12 @@ main.fi-main.fi-width-7xl {
     }
 
     /* Collapsible on desktop: use collapsed width by default, expand when open */
-    .fi-body.fi-body-has-sidebar-collapsible-on-desktop aside.fi-sidebar {
+    .fi-body.fi-body-has-sidebar-collapsible-on-desktop .fi-sidebar {
         width: var(--app-sidebar-collapsed-width) ;
     }
 
     .fi-body.fi-body-has-sidebar-collapsible-on-desktop
-        aside.fi-sidebar.fi-sidebar-open {
+        .fi-sidebar.fi-sidebar-open {
         width: var(--sidebar-width, 16rem) ;
     }
 
@@ -107,11 +105,11 @@ main.fi-main.fi-width-7xl {
     }
 
     .fi-body.fi-body-has-sidebar-collapsible-on-desktop:has(
-            aside.fi-sidebar.fi-sidebar-open
+            .fi-sidebar.fi-sidebar-open
         )
         .fi-main-ctn,
     .fi-body.fi-body-has-sidebar-collapsible-on-desktop:has(
-            aside.fi-sidebar.fi-sidebar-open
+            .fi-sidebar.fi-sidebar-open
         )
         .fi-topbar {
         margin-inline-start: var(--sidebar-width, 16rem);
@@ -126,11 +124,11 @@ main.fi-main.fi-width-7xl {
     }
 
     .fi-body.fi-body-has-sidebar-fully-collapsible-on-desktop:has(
-            aside.fi-sidebar.fi-sidebar-open
+            .fi-sidebar.fi-sidebar-open
         )
         .fi-main-ctn,
     .fi-body.fi-body-has-sidebar-fully-collapsible-on-desktop:has(
-            aside.fi-sidebar.fi-sidebar-open
+            .fi-sidebar.fi-sidebar-open
         )
         .fi-topbar {
         margin-inline-start: var(--sidebar-width, 16rem);
@@ -196,7 +194,8 @@ header.fi-sidebar-header .fi-sidebar-close-collapse-sidebar-btn {
 }
 
 /* Custom Livewire sidebar brand replaces the default Filament logo slot */
-aside.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn {
+aside.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn,
+.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn {
     display: none !important;
 }
 
@@ -301,7 +300,7 @@ aside.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn {
  */
 @media (min-width: 1024px) {
     .fi-body-has-sidebar-collapsible-on-desktop
-        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar:not(.fi-sidebar-open)
         header.fi-sidebar-header {
         margin-bottom: 0.35rem;
         min-height: 0;
@@ -312,13 +311,13 @@ aside.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn {
     }
 
     .fi-body-has-sidebar-collapsible-on-desktop
-        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar:not(.fi-sidebar-open)
         .app-sidebar-brand-wrap {
         gap: 0.25rem;
     }
 
     .fi-body-has-sidebar-collapsible-on-desktop
-        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar:not(.fi-sidebar-open)
         .app-sidebar-brand-text {
         position: absolute;
         width: 1px;
@@ -332,7 +331,7 @@ aside.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn {
     }
 
     .fi-body-has-sidebar-collapsible-on-desktop
-        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar:not(.fi-sidebar-open)
         .app-sidebar-brand-logo-img {
         max-height: 2.25rem;
         width: auto;
@@ -340,14 +339,14 @@ aside.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn {
     }
 
     .fi-body-has-sidebar-collapsible-on-desktop
-        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar:not(.fi-sidebar-open)
         .app-sidebar-brand-logo:not(:has(img)) {
         height: 2.25rem;
         width: 2.25rem;
     }
 
     .fi-body-has-sidebar-collapsible-on-desktop
-        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar:not(.fi-sidebar-open)
         .app-sidebar-brand-logo
         span {
         font-size: 0.95rem;
@@ -355,14 +354,14 @@ aside.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn {
     }
 
     .fi-body-has-sidebar-collapsible-on-desktop
-        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar:not(.fi-sidebar-open)
         .fi-sidebar-header-hover-btn {
         width: 2rem;
         height: 2rem;
     }
 
     .fi-body-has-sidebar-collapsible-on-desktop
-        aside.fi-sidebar:not(.fi-sidebar-open)
+        .fi-sidebar:not(.fi-sidebar-open)
         .fi-sidebar-header-hover-btn
         .fi-icon {
         width: 1.25rem;
@@ -380,7 +379,8 @@ aside.fi-main-sidebar header.fi-sidebar-header > .fi-sidebar-header-logo-ctn {
 }
 
 /* --- Sidebar Container & Scrollbar --- */
-aside.fi-sidebar {
+aside.fi-sidebar,
+.fi-sidebar {
     @apply bg-[#152259] flex flex-col h-dvh overflow-hidden;
 
     /* Tighten overall sidebar spacing */
@@ -686,16 +686,19 @@ input[type="date"] {
 }
 
 /* Smooth sidebar open/close animation */
-aside.fi-sidebar {
+aside.fi-sidebar,
+.fi-sidebar {
     @apply transition-transform duration-300 ease-out;
 }
 
 @media (max-width: 1024px) {
-    aside.fi-sidebar:not(.fi-sidebar-open) {
+    aside.fi-sidebar:not(.fi-sidebar-open),
+    .fi-sidebar:not(.fi-sidebar-open) {
         @apply -translate-x-full;
     }
     
-    aside.fi-sidebar.fi-sidebar-open {
+    aside.fi-sidebar.fi-sidebar-open,
+    .fi-sidebar.fi-sidebar-open {
         @apply translate-x-0;
     }
 }

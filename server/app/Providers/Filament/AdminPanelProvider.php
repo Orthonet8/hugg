@@ -68,6 +68,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 BeautifulAccountWidget::class,
+                \App\Filament\Widgets\FellowshipStatsOverview::class,
+                \App\Filament\Widgets\MemberBatchesChart::class,
+                \App\Filament\Widgets\MemberGenderDistributionChart::class,
+                \App\Filament\Widgets\LatestMembersWidget::class,
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()
