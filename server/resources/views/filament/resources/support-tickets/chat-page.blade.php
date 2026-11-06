@@ -71,6 +71,15 @@
                         $senderAvatar = $isUser
                             ? (\App\Models\User::find($msg->sender_id)?->avatar_url ? asset('storage/' . \App\Models\User::find($msg->sender_id)->avatar_url) : $placeholder)
                             : ($member?->profile_photo ? asset('storage/' . $member->profile_photo) : $placeholder);
+
+                        $isVoiceNote = $msg->attachment_type === 'audio' ||
+                            ($msg->attachment_url && (
+                                str_contains($msg->attachment_url, 'voice_note') ||
+                                str_ends_with($msg->attachment_url, '.opus') ||
+                                str_ends_with($msg->attachment_url, '.ogg') ||
+                                str_ends_with($msg->attachment_url, '.webm') ||
+                                str_ends_with($msg->attachment_url, '.mp3')
+                            ));
                     @endphp
 
                     <div class="flex items-end gap-2.5 {{ $isUser ? 'flex-row-reverse' : '' }}">
@@ -93,19 +102,26 @@
                                 @if ($msg->attachment_url)
                                     @php $fileUrl = asset('storage/' . $msg->attachment_url); @endphp
                                     <div class="mt-2.5 pt-2 border-t {{ $isUser ? 'border-primary-400/50' : 'border-gray-100 dark:border-gray-700' }}">
-                                        @if ($msg->attachment_type === 'image')
+                                        @if ($isVoiceNote)
+                                            <div class="flex items-center gap-3 py-1">
+                                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl shadow-xs {{ $isUser ? 'bg-white/20 text-white' : 'bg-primary-600 text-white' }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v7.5a3 3 0 0 1-3 3Z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="min-w-0 flex-1">
+                                                    <span class="text-[10px] font-bold uppercase tracking-wider opacity-85 block">
+                                                        Voice Note · የድምፅ መልዕክት
+                                                    </span>
+                                                    <audio controls class="h-8 w-full max-w-[240px] mt-1">
+                                                        <source src="{{ $fileUrl }}" />
+                                                    </audio>
+                                                </div>
+                                            </div>
+                                        @elseif ($msg->attachment_type === 'image')
                                             <a href="{{ $fileUrl }}" target="_blank" class="block overflow-hidden rounded-xl border border-black/5">
                                                 <img src="{{ $fileUrl }}" class="max-h-60 w-auto rounded-lg object-cover hover:scale-[1.02] transition-transform duration-200" alt="Attachment" />
                                             </a>
-                                        @elseif ($msg->attachment_type === 'audio')
-                                            <div class="space-y-1">
-                                                <span class="text-[10px] font-bold uppercase tracking-wider opacity-85 flex items-center gap-1.5">
-                                                    🎙️ Voice Note
-                                                </span>
-                                                <audio controls class="w-full max-w-[260px] h-8">
-                                                    <source src="{{ $fileUrl }}" />
-                                                </audio>
-                                            </div>
                                         @elseif ($msg->attachment_type === 'video')
                                             <video controls class="max-h-60 w-full rounded-xl bg-black">
                                                 <source src="{{ $fileUrl }}" />
@@ -133,16 +149,100 @@
                 @endforelse
             </div>
 
-            {{-- Compact Message Composer --}}
-            <form wire:submit.prevent="sendMessage" class="border-t border-gray-100 p-4 bg-white dark:border-gray-800 dark:bg-gray-900">
+            {{-- Compact Message Composer with In-App Audio Voice Recorder for Admin/Staff --}}
+            <div
+                x-data="{
+                    isRecording: false,
+                    seconds: 0,
+                    timer: null,
+                    mediaRecorder: null,
+                    audioChunks: [],
+                    audioUrl: null,
+
+                    async startRecording() {
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            this.audioChunks = [];
+                            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus') ? 'audio/ogg;codecs=opus' : 'audio/webm');
+                            this.mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+                            this.mediaRecorder.ondataavailable = (e) => {
+                                if (e.data.size > 0) this.audioChunks.push(e.data);
+                            };
+
+                            this.mediaRecorder.onstop = () => {
+                                const blob = new Blob(this.audioChunks, { type: mimeType });
+                                const ext = mimeType.includes('ogg') ? 'ogg' : 'webm';
+                                const file = new File([blob], `staff_voice_note_${Date.now()}.${ext}`, { type: mimeType });
+                                @this.upload('attachment', file);
+                                this.audioUrl = URL.createObjectURL(blob);
+                                stream.getTracks().forEach(t => t.stop());
+                            };
+
+                            this.mediaRecorder.start();
+                            this.isRecording = true;
+                            this.seconds = 0;
+                            this.timer = setInterval(() => { this.seconds++; }, 1000);
+                        } catch (err) {
+                            alert('Microphone permission denied or device not supported.');
+                        }
+                    },
+
+                    stopRecording() {
+                        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                            this.mediaRecorder.stop();
+                        }
+                        if (this.timer) { clearInterval(this.timer); this.timer = null; }
+                        this.isRecording = false;
+                    },
+
+                    cancelRecording() {
+                        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                            this.mediaRecorder.onstop = null;
+                            this.mediaRecorder.stop();
+                            this.mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                        }
+                        if (this.timer) { clearInterval(this.timer); this.timer = null; }
+                        this.isRecording = false;
+                        this.seconds = 0;
+                        this.audioUrl = null;
+                        @this.set('attachment', null);
+                    },
+
+                    formatTime(s) {
+                        const m = Math.floor(s / 60);
+                        const r = s % 60;
+                        return `${m}:${r < 10 ? '0' : ''}${r}`;
+                    }
+                }"
+                class="border-t border-gray-100 p-4 bg-white dark:border-gray-800 dark:bg-gray-900"
+            >
                 @if ($attachment)
                     <div class="mb-3 flex items-center justify-between rounded-xl bg-primary-50 px-3 py-2 text-xs text-primary-900 dark:bg-primary-950 dark:text-primary-200">
-                        <span class="truncate font-semibold">📎 Ready to upload: {{ method_exists($attachment, 'getClientOriginalName') ? $attachment->getClientOriginalName() : 'File selected' }}</span>
-                        <button type="button" wire:click="$set('attachment', null)" class="text-rose-600 hover:underline font-bold text-xs">Remove</button>
+                        <span class="truncate font-semibold">📎 Ready to upload: {{ method_exists($attachment, 'getClientOriginalName') ? $attachment->getClientOriginalName() : 'File/Voice Note selected' }}</span>
+                        <button type="button" wire:click="$set('attachment', null)" @click="audioUrl = null" class="text-rose-600 hover:underline font-bold text-xs">Remove</button>
                     </div>
                 @endif
 
-                <div class="flex items-center gap-2">
+                <template x-if="isRecording">
+                    <div class="flex items-center justify-between rounded-2xl bg-rose-50 px-4 py-2.5 border border-rose-200 text-rose-700 animate-pulse">
+                        <div class="flex items-center gap-3">
+                            <span class="h-3 w-3 rounded-full bg-rose-600 animate-ping"></span>
+                            <span class="text-xs font-bold">Recording Voice Note...</span>
+                            <span class="rounded-lg bg-rose-200/80 px-2 py-0.5 text-xs font-mono font-bold" x-text="formatTime(seconds)"></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="cancelRecording()" class="rounded-xl p-1.5 text-gray-500 hover:bg-rose-100 transition">
+                                ✕ Cancel
+                            </button>
+                            <button type="button" @click="stopRecording()" class="flex items-center gap-1.5 rounded-xl bg-rose-600 px-3 py-1 text-xs font-bold text-white shadow-xs hover:bg-rose-700">
+                                ■ Done
+                            </button>
+                        </div>
+                    </div>
+                </template>
+
+                <form x-show="!isRecording" wire:submit.prevent="sendMessage" class="flex items-center gap-2">
                     <label class="cursor-pointer rounded-2xl p-2.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200 transition-colors">
                         <input type="file" wire:model="attachment" class="hidden" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" />
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -150,10 +250,22 @@
                         </svg>
                     </label>
 
+                    {{-- Staff Record Button --}}
+                    <button
+                        type="button"
+                        @click="startRecording()"
+                        title="Record Voice Note"
+                        class="rounded-2xl p-2.5 text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v7.5a3 3 0 0 1-3 3Z" />
+                        </svg>
+                    </button>
+
                     <input
                         type="text"
                         wire:model.defer="reply_message"
-                        placeholder="Type a reply..."
+                        placeholder="Type a reply or record voice note..."
                         class="flex-1 rounded-2xl border-0 bg-gray-100 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-primary-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                     />
 
@@ -164,8 +276,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
                         </svg>
                     </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
 
         {{-- Right Side: Minimal Information Sidebar --}}
