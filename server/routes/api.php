@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\ApiMemberController;
 use App\Http\Controllers\ApiEventController;
+use App\Http\Controllers\ApiMemberController;
 use App\Http\Controllers\ApiPostController;
+use App\Http\Controllers\ApiSupportController;
 use Illuminate\Support\Facades\Route;
 
 /* ------------------------------------------------------------------ */
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Route;
 /* ------------------------------------------------------------------ */
 Route::post('/auth/register', [ApiMemberController::class, 'register']);
 Route::post('/auth/login', [ApiMemberController::class, 'login']);
+Route::post('/auth/forgot-password', [ApiMemberController::class, 'forgotPassword']);
+Route::post('/auth/reset-password', [ApiMemberController::class, 'resetPassword']);
 Route::get('/auth/check-identifier', [ApiMemberController::class, 'checkIdentifier']);
 Route::get('/auth/google/redirect', [ApiMemberController::class, 'googleRedirect']);
 Route::get('/auth/google/callback', [ApiMemberController::class, 'googleCallback']);
@@ -32,5 +35,13 @@ Route::middleware('api')->group(function () {
 
     // Members CRUD
     Route::patch('members/{id}/profile', [ApiMemberController::class, 'updateProfile']);
+    Route::patch('members/{id}/credentials', [ApiMemberController::class, 'updateCredentials']);
     Route::apiResource('members', ApiMemberController::class)->except(['store']);
+
+    // Help & Support
+    Route::get('/support/supporters', [ApiSupportController::class, 'supporters']);
+    Route::get('/support/tickets', [ApiSupportController::class, 'tickets']);
+    Route::post('/support/tickets', [ApiSupportController::class, 'createTicket']);
+    Route::get('/support/tickets/{id}', [ApiSupportController::class, 'showTicket']);
+    Route::post('/support/tickets/{id}/messages', [ApiSupportController::class, 'sendMessage']);
 });

@@ -11,6 +11,7 @@ interface AuthState {
   loginWithToken: (token: string) => Promise<boolean>;
   signup: (data: SignupPayload) => Promise<boolean>;
   updateProfile: (data: RegistrationForm) => Promise<boolean>;
+  updateCredentials: (emailOrUsername: string, password: string, passwordConfirmation: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
@@ -164,6 +165,11 @@ export const useAuthStore = create<AuthState>()(
         appendIfPresent("talent_description", data.talentDescription);
         appendIfPresent("mobile", data.mobile);
         appendIfPresent("telegram", data.telegram);
+        appendIfPresent("parent_phone", data.parentPhone);
+        appendIfPresent("emergency_contacts", data.emergencyContacts);
+        appendIfPresent("account_number", data.accountNumber);
+        appendIfPresent("account_name", data.accountName);
+        appendIfPresent("account_type", data.accountType);
 
         data.serviceDepartments.forEach((item) => formData.append("service_departments[]", item));
         data.talents.forEach((item) => formData.append("talents[]", item));
@@ -195,6 +201,25 @@ export const useAuthStore = create<AuthState>()(
         }
 
         const response = json as { member: UserProfile };
+        set({ user: response.member });
+        return true;
+      },
+
+      updateCredentials: async (emailOrUsername, password, passwordConfirmation) => {
+        const state = get();
+        if (!state.user || !state.token) return false;
+
+        const response = await api<{ member: UserProfile }>(
+          `/api/members/${state.user.id}/credentials`,
+          {
+            email_or_username: emailOrUsername,
+            password: password || undefined,
+            password_confirmation: password ? passwordConfirmation : undefined,
+          },
+          state.token,
+          "PATCH",
+        );
+
         set({ user: response.member });
         return true;
       },

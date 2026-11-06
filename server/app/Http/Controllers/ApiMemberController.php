@@ -9,8 +9,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -189,6 +191,59 @@ class ApiMemberController extends Controller
             'telegram_exists' => $telegramExists,
             'telegram_available' => ! $telegramExists,
         ]);
+    }
+
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email_or_username' => ['required', 'email', 'max:255'],
+        ]);
+        $email = mb_strtolower(trim($validated['email_or_username']));
+        $member = Member::query()->whereRaw('LOWER(email_or_username) = ?', [$email])->first();
+
+        if ($member) {
+            $token = Str::random(64);
+            Cache::put('password-reset:'.hash('sha256', $token), [
+                'member_id' => $member->id,
+                'email' => $email,
+            ], now()->addMinutes(60));
+
+            $frontend = rtrim((string) config('services.google.frontend_redirect'), '/');
+            $frontend = preg_replace('#/auth/google/callback$#', '', $frontend) ?: config('app.url');
+            $link = $frontend.'/set-password?email='.urlencode($email).'&token='.urlencode($token);
+            Mail::raw("Use this link within 60 minutes to reset your HUGGB password:\n\n{$link}", function ($message) use ($email) {
+                $message->to($email)->subject('Reset your HUGGB password');
+            });
+        }
+
+        return response()->json([
+            'message' => 'If an account matches that email, a reset link has been sent.',
+        ]);
+    }
+
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+            'token' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+        $key = 'password-reset:'.hash('sha256', $validated['token']);
+        $reset = Cache::pull($key);
+
+        if (!is_array($reset) || $reset['email'] !== mb_strtolower($validated['email'])) {
+            return response()->json(['message' => 'This reset link is invalid or expired.'], 422);
+        }
+
+        $member = Member::find($reset['member_id']);
+        if (!$member) {
+            return response()->json(['message' => 'This reset link is invalid or expired.'], 422);
+        }
+
+        $member->password = Hash::make($validated['password']);
+        $member->save();
+
+        return response()->json(['message' => 'Password reset successfully.']);
     }
 
     public function googleRedirect()
@@ -419,6 +474,11 @@ class ApiMemberController extends Controller
             "talent_description"   => "nullable|string|max:1000",
             "mobile"               => "nullable|string|max:50|unique:members,mobile,{$id}",
             "telegram"             => "nullable|string|max:255|unique:members,telegram,{$id}",
+            "parent_phone"         => "nullable|string|max:50",
+            "emergency_contacts"   => "nullable|string|max:2000",
+            "account_number"       => "nullable|string|max:100",
+            "account_name"         => "nullable|string|max:255",
+            "account_type"         => "nullable|string|max:50",
             "profile_photo"        => "nullable|image|max:2048",
         ])->validate();
 
@@ -431,6 +491,38 @@ class ApiMemberController extends Controller
         return response()->json([
             "message" => "Profile updated",
             "member"  => $this->formatMemberResponse($member),
+        ]);
+    }
+
+    public function updateCredentials(Request $request, int $id): JsonResponse
+    {
+        $member = $this->authenticateRequest($request);
+
+        if (! $member || (int) $member->id !== $id) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $validated = $request->validate([
+            'email_or_username' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('members', 'email_or_username')->ignore($member->id),
+            ],
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $member->email_or_username = $this->normalizeEmailOrUsername($validated['email_or_username']);
+
+        if (! empty($validated['password'])) {
+            $member->password = Hash::make($validated['password']);
+        }
+
+        $member->save();
+
+        return response()->json([
+            'message' => 'Credentials updated',
+            'member' => $this->formatMemberResponse($member->fresh('section')),
         ]);
     }
     /* ------------------------------------------------------------------ */
@@ -724,6 +816,11 @@ class ApiMemberController extends Controller
             'email' => $member->email_or_username ?? '',
             'phone' => $member->mobile ?? '',
             'telegram' => $member->telegram ?? '',
+            'parentPhone' => $member->parent_phone ?? '',
+            'emergencyContacts' => $member->emergency_contacts ?? '',
+            'accountNumber' => $member->account_number ?? '',
+            'accountName' => $member->account_name ?? '',
+            'accountType' => $member->account_type ?? '',
             'sectionId' => $member->section_id,
             'section' => $member->section ? [
                 'id' => $member->section->id,
