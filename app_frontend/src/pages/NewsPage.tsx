@@ -1,8 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "../components/common/Card";
 import { PageHeader } from "../components/common/PageHeader";
-import { FilterBar } from "../components/news/FilterBar";
 import { PostCard } from "../components/news/PostCard";
 import { useAppStore } from "../context/useAppStore";
 import { useAuthStore } from "../context/useAuthStore";
@@ -12,7 +11,6 @@ import type { Post } from "../types";
 
 export const NewsPage = () => {
   const { t } = useI18n();
-  const [activeDepartment, setActiveDepartment] = useState("ሁሉም");
   const [activeTab, setActiveTab] = useState<"all" | "saved">("all");
   const [posts, setPosts] = useState<Post[]>([]);
   const user = useAuthStore((s) => s.user);
@@ -34,15 +32,10 @@ export const NewsPage = () => {
   const toggleLikePost = useAppStore((state) => state.toggleLikePost);
   const toggleSavePost = useAppStore((state) => state.toggleSavePost);
 
-  const departments = useMemo(
-    () => Array.from(new Set(posts.map((post) => post.department))),
-    [],
-  );
-
   const filteredPosts = useFilteredPosts(
     posts,
     savedPosts,
-    activeDepartment,
+    "ሁሉም",
     activeTab,
   );
 
@@ -70,11 +63,6 @@ export const NewsPage = () => {
           </button>
         </div>
 
-        <FilterBar
-          departments={departments}
-          activeDepartment={activeDepartment}
-          onChange={setActiveDepartment}
-        />
       </Card>
 
       <motion.div layout className="space-y-4">

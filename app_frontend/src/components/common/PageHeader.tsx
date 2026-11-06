@@ -2,8 +2,6 @@ import { Bell } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { useUnreadNotificationsCount } from "../../hooks/useUnreadNotificationsCount";
-import { ThemeToggle } from "./ThemeToggle";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface PageHeaderProps {
   title: string;
@@ -34,8 +32,6 @@ export const PageHeader = ({
       </div>
 
       <div className="flex items-center gap-2">
-        <LanguageSwitcher />
-        <ThemeToggle />
         {action}
         {!hideNotification ? (
           <Link

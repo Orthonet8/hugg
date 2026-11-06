@@ -9,6 +9,7 @@ import { LanguagePickerPage } from "./pages/LanguagePickerPage";
 import { NewsPage } from "./pages/NewsPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { SupportPage } from "./pages/SupportPage";
 import { RegistrationPage } from "./pages/RegistrationPage";
 import { SetPasswordPage } from "./pages/SetPasswordPage";
 import { useAuthStore } from "./context/useAuthStore";
@@ -49,6 +50,7 @@ function App() {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/family" element={<FamilyPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/support" element={<SupportPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
