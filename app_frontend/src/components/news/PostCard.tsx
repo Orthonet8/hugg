@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Bookmark, Heart } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Badge } from "../common/Badge";
 import { Card } from "../common/Card";
 import { ImageCarousel } from "./ImageCarousel";
@@ -44,15 +45,17 @@ export const PostCard = ({
       <Card className="space-y-4 p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="app-heading text-lg font-bold text-[color:var(--text-primary)]">
-              {post.title}
-            </h2>
+            <Link to={`/news/${post.id}`} className="group block">
+              <h2 className="app-heading text-lg font-bold text-[color:var(--text-primary)] transition group-hover:text-[color:var(--primary)]">
+                {post.title}
+              </h2>
+            </Link>
             <p className="mt-1 text-xs text-[color:var(--text-muted)]">
               {post.author} •{" "}
               {new Date(post.publishedAt).toLocaleDateString("am-ET")}
             </p>
           </div>
-          <Badge className={departmentStyles[post.department].badge}>
+          <Badge className={departmentStyles[post.department]?.badge || ""}>
             {post.department}
           </Badge>
         </div>
@@ -63,15 +66,23 @@ export const PostCard = ({
           <p className="text-sm leading-6 text-[color:var(--text-secondary)]">
             {displayText}
           </p>
-          {post.content.length > MAX_LENGTH ? (
-            <button
-              type="button"
-              onClick={() => setExpanded((previous) => !previous)}
-              className="text-sm font-semibold text-[color:var(--primary)] underline decoration-[color:var(--accent)] decoration-2 underline-offset-4"
+          <div className="flex items-center gap-3">
+            {post.content.length > MAX_LENGTH ? (
+              <button
+                type="button"
+                onClick={() => setExpanded((previous) => !previous)}
+                className="text-sm font-semibold text-[color:var(--primary)] underline decoration-[color:var(--accent)] decoration-2 underline-offset-4"
+              >
+                {expanded ? "አሳንስ" : "ተጨማሪ አንብብ"}
+              </button>
+            ) : null}
+            <Link
+              to={`/news/${post.id}`}
+              className="text-xs font-semibold text-[color:var(--text-muted)] hover:text-[color:var(--primary)] transition"
             >
-              {expanded ? "አሳንስ" : "ተጨማሪ አንብብ"}
-            </button>
-          ) : null}
+              ሙሉውን ይመልከቱ →
+            </Link>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">

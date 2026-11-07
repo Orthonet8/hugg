@@ -7,6 +7,7 @@ import { FamilyPage } from "./pages/FamilyPage";
 import { GoogleAuthCallbackPage } from "./pages/GoogleAuthCallbackPage";
 import { LanguagePickerPage } from "./pages/LanguagePickerPage";
 import { NewsPage } from "./pages/NewsPage";
+import { NewsDetailPage } from "./pages/NewsDetailPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SupportPage } from "./pages/SupportPage";
@@ -47,6 +48,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<Navigate to="/news" replace />} />
           <Route path="/news" element={<NewsPage />} />
+          <Route path="/news/:id" element={<NewsDetailPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/family" element={<FamilyPage />} />
           <Route path="/profile" element={<ProfilePage />} />

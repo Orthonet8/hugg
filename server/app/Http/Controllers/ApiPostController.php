@@ -33,19 +33,35 @@ class ApiPostController extends Controller
         $posts = $query->orderByDesc('published_at')->get();
 
         return response()->json(
-            $posts->map(fn (Post $p) => [
-                'id'          => (string) $p->id,
-                'title'       => $p->title,
-                'content'     => $p->content ?? '',
-                'department'  => $p->department,
-                'author'      => $p->author ?? '',
-                'publishedAt' => $p->published_at?->toISOString() ?? $p->created_at->toISOString(),
-                'imageUrls'   => collect($p->image_urls ?? [])->map(
-                    fn (string $path) => filter_var($path, FILTER_VALIDATE_URL)
-                        ? $path
-                        : asset('storage/' . $path)
-                )->values()->all(),
-            ])
+            $posts->map(fn (Post $p) => $this->formatPost($p))
         );
+    }
+
+    public function show(int|string $id): JsonResponse
+    {
+        $post = Post::query()->where('is_active', true)->with('sections')->find($id);
+
+        if (! $post) {
+            return response()->json(['message' => 'Post not found'], 404);
+        }
+
+        return response()->json($this->formatPost($post));
+    }
+
+    private function formatPost(Post $p): array
+    {
+        return [
+            'id'          => (string) $p->id,
+            'title'       => $p->title,
+            'content'     => $p->content ?? '',
+            'department'  => $p->department,
+            'author'      => $p->author ?? '',
+            'publishedAt' => $p->published_at?->toISOString() ?? $p->created_at->toISOString(),
+            'imageUrls'   => collect($p->image_urls ?? [])->map(
+                fn (string $path) => filter_var($path, FILTER_VALIDATE_URL)
+                    ? $path
+                    : asset('storage/' . $path)
+            )->values()->all(),
+        ];
     }
 }

@@ -24,6 +24,7 @@ Route::get('/families', [ApiMemberController::class, 'familiesIndex']);
 Route::get('/families/{id}', [ApiMemberController::class, 'familiesShow']);
 Route::get('/events', [ApiEventController::class, 'index']);
 Route::get('/posts', [ApiPostController::class, 'index']);
+Route::get('/posts/{id}', [ApiPostController::class, 'show']);
 
 /* ------------------------------------------------------------------ */
 /*  Protected routes — require Bearer token */
