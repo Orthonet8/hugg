@@ -35,7 +35,7 @@ Route::middleware('api')->group(function () {
     Route::get('/auth/me', [ApiMemberController::class, 'me']);
 
     // Members CRUD
-    Route::patch('members/{id}/profile', [ApiMemberController::class, 'updateProfile']);
+    Route::match(['post', 'patch'], 'members/{id}/profile', [ApiMemberController::class, 'updateProfile']);
     Route::patch('members/{id}/credentials', [ApiMemberController::class, 'updateCredentials']);
     Route::apiResource('members', ApiMemberController::class)->except(['store']);
 

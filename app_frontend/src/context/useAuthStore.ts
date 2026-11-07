@@ -11,6 +11,7 @@ interface AuthState {
   loginWithToken: (token: string) => Promise<boolean>;
   signup: (data: SignupPayload) => Promise<boolean>;
   updateProfile: (data: RegistrationForm) => Promise<boolean>;
+  updateProfilePhoto: (file: File) => Promise<boolean>;
   updateCredentials: (emailOrUsername: string, password: string, passwordConfirmation: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
@@ -198,6 +199,43 @@ export const useAuthStore = create<AuthState>()(
             ? Object.values(payload.errors).find((messages) => Array.isArray(messages) && messages.length > 0)
             : undefined;
           throw new Error(firstFieldErrors?.[0] ?? payload.message ?? "Request failed");
+        }
+
+        const response = json as { member: UserProfile };
+        set({ user: response.member });
+        return true;
+      },
+
+      updateProfilePhoto: async (file: File) => {
+        const state = get();
+        if (!state.user || !state.token) return false;
+
+        const formData = new FormData();
+        formData.append("profile_photo", file);
+
+        const res = await fetch(buildApiUrl(`/api/members/${state.user.id}/profile`), {
+          method: "POST", // using POST with _method PATCH for robust multipart/form-data upload
+          headers: {
+            Accept: "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+            Authorization: `Bearer ${state.token}`,
+          },
+          body: (() => {
+            formData.append("_method", "PATCH");
+            return formData;
+          })(),
+        });
+
+        const json = await res.json();
+        if (!res.ok) {
+          const payload = json as {
+            message?: string;
+            errors?: Record<string, string[] | undefined>;
+          };
+          const firstFieldErrors = payload.errors
+            ? Object.values(payload.errors).find((messages) => Array.isArray(messages) && messages.length > 0)
+            : undefined;
+          throw new Error(firstFieldErrors?.[0] ?? payload.message ?? "Photo upload failed");
         }
 
         const response = json as { member: UserProfile };

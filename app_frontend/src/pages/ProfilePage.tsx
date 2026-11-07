@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   User,
@@ -14,6 +14,8 @@ import {
   Church,
   Sparkles,
   LockKeyhole,
+  Camera,
+  Loader2,
 } from "lucide-react";
 import { Card } from "../components/common/Card";
 import { Button } from "../components/common/Button";
@@ -21,9 +23,12 @@ import { useAuthStore } from "../context/useAuthStore";
 import { useI18n } from "../i18n/I18nProvider";
 
 export const ProfilePage = () => {
-  const { user, logout, updateCredentials } = useAuthStore();
+  const { user, logout, updateCredentials, updateProfilePhoto } = useAuthStore();
   const { t } = useI18n();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoMessage, setPhotoMessage] = useState<string | null>(null);
   const [showRegistrationPreview, setShowRegistrationPreview] = useState(false);
   const [showCredentialEditor, setShowCredentialEditor] = useState(false);
   const [credentialUsername, setCredentialUsername] = useState("");
@@ -37,6 +42,40 @@ export const ProfilePage = () => {
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
+  };
+
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setPhotoMessage("Please select an image file.");
+      setTimeout(() => setPhotoMessage(null), 3000);
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setPhotoMessage("Photo must be under 2MB.");
+      setTimeout(() => setPhotoMessage(null), 3000);
+      return;
+    }
+
+    try {
+      setUploadingPhoto(true);
+      setPhotoMessage(null);
+      await updateProfilePhoto(file);
+      setPhotoMessage("Profile photo updated successfully!");
+      setTimeout(() => setPhotoMessage(null), 3000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to upload photo";
+      setPhotoMessage(msg);
+      setTimeout(() => setPhotoMessage(null), 4000);
+    } finally {
+      setUploadingPhoto(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   const profileComplete = Boolean(user.christianName && user.campus);
@@ -125,19 +164,52 @@ export const ProfilePage = () => {
 
       {/* Profile Card */}
       <Card className="p-6 text-center">
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handlePhotoSelect}
+          disabled={uploadingPhoto}
+        />
+
         <div className="relative mx-auto mb-4 h-24 w-24">
           {user.avatar ? (
             <img
               src={user.avatar}
               alt={user.fullName}
-              className="h-full w-full rounded-full border-4 border-[color:var(--primary)] object-cover"
+              className="h-full w-full rounded-full border-4 border-[color:var(--primary)] object-cover shadow-sm"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center rounded-full border-4 border-[color:var(--primary)] bg-[color:var(--surface-soft)] text-2xl font-bold text-[color:var(--primary)]">
+            <div className="flex h-full w-full items-center justify-center rounded-full border-4 border-[color:var(--primary)] bg-[color:var(--surface-soft)] text-2xl font-bold text-[color:var(--primary)] shadow-sm">
               {user.fullName ? user.fullName.charAt(0).toUpperCase() : <User size={32} />}
             </div>
           )}
+
+          {/* Edit photo button */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingPhoto}
+            aria-label="Change profile photo"
+            className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--primary)] text-[color:var(--on-primary)] shadow-md transition hover:scale-105 active:scale-95 disabled:opacity-75"
+            title="Change photo"
+          >
+            {uploadingPhoto ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Camera size={16} />
+            )}
+          </button>
         </div>
+
+        {photoMessage && (
+          <p className="mb-3 text-xs font-semibold text-[color:var(--primary)]">
+            {photoMessage}
+          </p>
+        )}
+
         <h2 className="app-heading text-xl font-bold text-[color:var(--text-primary)]">
           {user.fullName || "—"}
         </h2>
