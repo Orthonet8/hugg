@@ -169,7 +169,11 @@ export const NewsDetailPage = () => {
 
         {post.imageUrls && post.imageUrls.length > 0 && (
           <div className="overflow-hidden rounded-2xl">
-            <ImageCarousel imageUrls={post.imageUrls} title={post.title} />
+            <ImageCarousel
+              imageUrls={post.imageUrls}
+              title={post.title}
+              aspectClass="h-64 sm:h-96"
+            />
           </div>
         )}
 

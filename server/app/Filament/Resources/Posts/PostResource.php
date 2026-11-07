@@ -65,12 +65,18 @@ class PostResource extends Resource
                 ->required(),
             TextInput::make('author')->nullable(),
             FileUpload::make('image_urls')
-                ->label('Images')
+                ->label('Images (Multiple)')
                 ->image()
                 ->multiple()
                 ->reorderable()
+                ->appendFiles()
+                ->panelLayout('grid')
+                ->imagePreviewHeight('160')
+                ->maxFiles(10)
+                ->maxSize(10240) // 10MB per image
                 ->disk('public')
                 ->directory('posts')
+                ->helperText('Upload one or more images. You can drag and drop to reorder.')
                 ->nullable(),
             DateTimePicker::make('published_at')->nullable()->default(now()),
             Toggle::make('is_active')->label('Active')->default(true),
