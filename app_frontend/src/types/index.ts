@@ -65,9 +65,20 @@ export interface EventItem {
   title: string;
   description: string;
   department: Department;
-  date: string;
+  date: string; // YYYY-MM-DD (Gregorian)
   time: string;
   location: string;
+  ethiopianDate?: {
+    year: number;
+    month: number;
+    day: number;
+    month_name: string;
+    month_en?: string;
+    month_om?: string;
+    amharic: string;
+    formatted: string;
+    iso: string;
+  };
 }
 
 export interface FamilyMember {

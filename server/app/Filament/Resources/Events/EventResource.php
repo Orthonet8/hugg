@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Events;
 use App\Filament\Resources\Events\Pages\ManageEvents;
 use App\Models\Event;
 use App\Models\User;
+use App\Services\EthiopianCalendarService;
 use BackedEnum;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -69,8 +70,112 @@ class EventResource extends Resource
                     'ፋይናንስ'      => 'ፋይናንስ',
                 ])
                 ->required(),
+            Select::make('calendar_type')
+                ->label('Calendar Input Mode (የቀን አቆጣጠር መምረጫ)')
+                ->options([
+                    'ethiopian' => '🇪🇹 Ethiopian Calendar (የኢትዮጵያ ቀን አቆጣጠር)',
+                    'gregorian' => '🌐 Gregorian Calendar (የፈረንጅ ቀን አቆጣጠር)',
+                ])
+                ->default('ethiopian')
+                ->live()
+                ->dehydrated(false)
+                ->columnSpanFull(),
+
+            // Ethiopian Calendar Selectors (Active when 'ethiopian' mode is chosen)
+            Select::make('eth_year')
+                ->label('Year (ዓ.ም.)')
+                ->options(function () {
+                    $currentYear = 2019; // Current Ethiopian year
+                    $years = [];
+                    for ($y = $currentYear - 2; $y <= $currentYear + 5; $y++) {
+                        $years[$y] = "{$y} ዓ.ም.";
+                    }
+                    return $years;
+                })
+                ->default(2019)
+                ->live()
+                ->visible(fn ($get) => $get('calendar_type') === 'ethiopian')
+                ->afterStateUpdated(function ($state, $get, $set) {
+                    $year = (int) ($state ?: 2019);
+                    $month = (int) ($get('eth_month') ?: 1);
+                    $day = (int) ($get('eth_day') ?: 1);
+                    $greg = EthiopianCalendarService::toGregorian($year, $month, $day);
+                    if ($greg) $set('date', $greg);
+                })
+                ->dehydrated(false),
+
+            Select::make('eth_month')
+                ->label('Month (ወር)')
+                ->options([
+                    1  => '1. መስከረም (Meskerem)',
+                    2  => '2. ጥቅምት (Tikimt)',
+                    3  => '3. ኅዳር (Hidar)',
+                    4  => '4. ታኅሣሥ (Tahsas)',
+                    5  => '5. ጥር (Tir)',
+                    6  => '6. የካቲት (Yekatit)',
+                    7  => '7. መጋቢት (Megabit)',
+                    8  => '8. ሚያዝያ (Miyazya)',
+                    9  => '9. ግንቦት (Ginbot)',
+                    10 => '10. ሰኔ (Sene)',
+                    11 => '11. ሐምሌ (Hamle)',
+                    12 => '12. ነሐሴ (Nehase)',
+                    13 => '13. ጳጉሜን (Pagume)',
+                ])
+                ->default(2)
+                ->live()
+                ->visible(fn ($get) => $get('calendar_type') === 'ethiopian')
+                ->afterStateUpdated(function ($state, $get, $set) {
+                    $year = (int) ($get('eth_year') ?: 2019);
+                    $month = (int) ($state ?: 1);
+                    $day = (int) ($get('eth_day') ?: 1);
+                    $greg = EthiopianCalendarService::toGregorian($year, $month, $day);
+                    if ($greg) $set('date', $greg);
+                })
+                ->dehydrated(false),
+
+            Select::make('eth_day')
+                ->label('Day (ቀን)')
+                ->options(function ($get) {
+                    $month = (int) ($get('eth_month') ?: 1);
+                    $max = ($month === 13) ? 6 : 30;
+                    $days = [];
+                    for ($d = 1; $d <= $max; $d++) {
+                        $days[$d] = (string) $d;
+                    }
+                    return $days;
+                })
+                ->default(1)
+                ->live()
+                ->visible(fn ($get) => $get('calendar_type') === 'ethiopian')
+                ->afterStateUpdated(function ($state, $get, $set) {
+                    $year = (int) ($get('eth_year') ?: 2019);
+                    $month = (int) ($get('eth_month') ?: 1);
+                    $day = (int) ($state ?: 1);
+                    $greg = EthiopianCalendarService::toGregorian($year, $month, $day);
+                    if ($greg) $set('date', $greg);
+                })
+                ->dehydrated(false),
+
             DatePicker::make('date')
-                ->label('Date')
+                ->label('Gregorian Date (የፈረንጅ ቀን / Actual Stored Date)')
+                ->live()
+                ->helperText(function ($state) {
+                    if (blank($state)) {
+                        return 'Select a date or use Ethiopian date selector above.';
+                    }
+                    $eth = EthiopianCalendarService::toEthiopian($state);
+                    return $eth ? "🇪🇹 ተመጣጣኝ የኢትዮጵያ ቀን: {$eth['formatted']} ({$eth['month_en']} / {$eth['month_om']})" : null;
+                })
+                ->afterStateHydrated(function ($component, $state, $set) {
+                    if (filled($state)) {
+                        $eth = EthiopianCalendarService::toEthiopian($state);
+                        if ($eth) {
+                            $set('eth_year', $eth['year']);
+                            $set('eth_month', $eth['month']);
+                            $set('eth_day', $eth['day']);
+                        }
+                    }
+                })
                 ->required(),
             TextInput::make('time')
                 ->label('Time (e.g. 11:00 - 12:30)')
@@ -96,7 +201,9 @@ class EventResource extends Resource
                     ->sortable()
                     ->badge(),
                 TextColumn::make('date')
-                    ->date()
+                    ->label('Date (ቀን)')
+                    ->date('M j, Y')
+                    ->description(fn (Event $r): string => EthiopianCalendarService::toEthiopian($r->date)['formatted'] ?? '')
                     ->sortable(),
                 TextColumn::make('time')
                     ->placeholder('-'),
