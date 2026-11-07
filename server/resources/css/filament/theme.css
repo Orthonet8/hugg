@@ -813,6 +813,28 @@ aside.fi-sidebar,
     @apply w-4 h-4 text-blue-400;
 }
 
+/* --- FileUpload Filepond Remove Button Styling --- */
+.filepond--root .filepond--action-remove-item {
+    cursor: pointer !important;
+    background-color: rgba(239, 68, 68, 0.9) !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 10 !important;
+    transition: transform 0.15s ease, background-color 0.15s ease !important;
+}
+
+.filepond--root .filepond--action-remove-item:hover,
+.filepond--root .filepond--action-remove-item:focus {
+    background-color: rgb(220, 38, 38) !important;
+    transform: scale(1.1) !important;
+}
+
+.filepond--root .filepond--item-panel {
+    background-color: rgba(30, 41, 59, 0.85) !important;
+    border-radius: 0.75rem !important;
+}
+
 .fi-wi-widget.fi-wi-chart-widget:hover {
     @apply shadow-md border-primary-200 dark:border-primary-900;
 }

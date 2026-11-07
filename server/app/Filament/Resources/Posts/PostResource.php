@@ -72,11 +72,17 @@ class PostResource extends Resource
                 ->appendFiles()
                 ->panelLayout('grid')
                 ->imagePreviewHeight('160')
+                ->removeUploadedFileButtonPosition('right top')
+                ->uploadButtonPosition('left bottom')
+                ->uploadProgressIndicatorPosition('center bottom')
+                ->openable()
+                ->downloadable()
                 ->maxFiles(10)
                 ->maxSize(10240) // 10MB per image
                 ->disk('public')
                 ->directory('posts')
-                ->helperText('Upload one or more images. You can drag and drop to reorder.')
+                ->visibility('public')
+                ->helperText('Upload one or more images. Click the (X) at top right of any image to remove it.')
                 ->nullable(),
             DateTimePicker::make('published_at')->nullable()->default(now()),
             Toggle::make('is_active')->label('Active')->default(true),
